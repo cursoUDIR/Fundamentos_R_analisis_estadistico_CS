@@ -1,0 +1,124 @@
+---
+title: "Práctica 1. Introducción a R y RStudio"
+author: "Ana Escoto y Mónica Lara"
+date: "2025-04-13"
+---
+
+## Primer acercamiento al uso del programa
+
+En RStudio podemos tener varias ventanas que nos permiten controlar nuestro "ambiente", el historial, los scripts o códigos que escribimos y, por supuesto, nuestra consola, que también tiene el símbolo `>` con R. Podemos pedir operaciones básicas:
+
+```{r}
+2 + 5
+```
+
+```{r}
+5 * 3
+```
+
+```{r}
+# Para escribir comentarios y que no los lea como operaciones ponemos el símbolo de gato
+# Lo podemos hacer para un comentario en una línea o a la par de una instrucción
+1:5   # Secuencia 1-5
+```
+
+```{r}
+seq(1, 10, 0.5)  # Secuencia con incrementos diferentes a 1
+```
+
+```{r}
+c('a', 'b', 'c')  # Vector con caracteres
+```
+
+```{r}
+1:7   # Entero
+```
+
+---
+
+## Vectores
+
+Un vector es la estructura básica de R. Todos sus elementos deben ser del mismo tipo.
+
+```{r}
+# Vector numérico
+numeros <- c(10, 20, 30, 40, 50)
+numeros
+```
+
+```{r}
+# Longitud de un vector
+length(numeros)
+```
+
+```{r}
+# Acceder a un elemento (índice empieza en 1)
+numeros[3]
+```
+
+---
+
+## Objetos y asignación
+
+En R asignamos valores a objetos con `<-`:
+
+```{r}
+mi_nombre <- "Ana"
+mi_edad   <- 35
+curso     <- "Fundamentos de R"
+
+# Podemos ver los objetos en el ambiente (Environment)
+ls()
+```
+
+---
+
+## Instalación y carga de paquetes
+
+```{r}
+#| eval: false
+# Instalar un paquete (solo se hace una vez)
+install.packages("tidyverse")
+
+# Cargarlo en cada sesión
+library(tidyverse)
+```
+
+Con `{pacman}` podemos instalar y cargar en un solo paso:
+
+```{r}
+#| eval: false
+install.packages("pacman")
+pacman::p_load(tidyverse, here, janitor)
+```
+
+---
+
+## Taller
+
+### Ejercicio 1
+
+Crea un vector llamado `edades` con los valores: 23, 45, 31, 28, 52. Calcula la media, la mediana y el valor máximo.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Ver solución"
+
+edades <- c(23, 45, 31, 28, 52)
+mean(edades)
+median(edades)
+max(edades)
+```
+
+### Ejercicio 2
+
+Crea un vector de caracteres `paises` con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Ver solución"
+
+paises <- c("México", "Argentina", "Colombia", "Brasil")
+length(paises)
+paises[2]
+```

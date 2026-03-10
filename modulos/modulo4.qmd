@@ -1,0 +1,99 @@
+---
+title: "Módulo 4. Inferencia estadística y reporte de resultados"
+---
+
+::: {.info-box}
+**Duración:** 10 horas (5 sesiones)  
+**Objetivo:** Aplicar conceptos de inferencia, construir IC y pruebas de hipótesis, estimar modelos básicos y comunicar resultados en Quarto.
+:::
+
+---
+
+## Sesión 16 · Marco conceptual + estimación para una muestra (IC)
+
+**Contenidos:**
+
+- Población vs. muestra; parámetro vs. estimador; error estándar
+- Distribución muestral: teorema del límite central y ley de los grandes números
+- Intervalos de confianza para una muestra: media y proporción
+
+**Paquetes:** `{infer}` `{dplyr}` `{ggplot2}`
+
+**Funciones clave:** `t.test()` · `prop.test()` · `infer::t_test()` · `get_confidence_interval()` · `visualize()`
+
+**Entregable:** IC (media o proporción) para un indicador con visualización e interpretación
+
+📄 [Práctica 16](../practicas/P16.qmd) · 🎥 Sesión 16 – Grabación *(próximamente)*
+
+---
+
+## Sesión 17 · Pruebas de hipótesis para dos grupos
+
+**Contenidos:**
+
+- Hipótesis nula/alternativa; errores tipo I/II; nivel de significancia
+- Pruebas para comparar dos grupos: t de dos muestras y diferencia de proporciones
+- Reporte mínimo: estadístico, tamaño del efecto y lectura sustantiva
+
+**Paquetes:** `{infer}` `{dplyr}` `{ggplot2}`
+
+**Funciones clave:** `t.test()` · `infer::t_test()` · `prop_test()` · `get_p_value()` · `visualize()`
+
+**Entregable:** Comparación formal entre dos grupos con interpretación y figura
+
+📄 [Práctica 17](../practicas/P17.qmd) · 🎥 Sesión 17 – Grabación *(próximamente)*
+
+---
+
+## Sesión 18 · Asociación entre variables categóricas + puente hacia ANOVA
+
+**Contenidos:**
+
+- Independencia entre variables cualitativas: chi-cuadrado y lectura de tablas
+- Supuestos y celdas esperadas; cómo reportar el resultado
+- Puente conceptual: de comparar 2 grupos (t) a más de 2 grupos (ANOVA)
+
+**Paquetes:** `{infer}` `{dplyr}` `{gtsummary}` `{ggplot2}`
+
+**Funciones clave:** `chisq_test()` · `get_p_value()` · `visualize()` · `count()`
+
+**Entregable:** Prueba chi-cuadrado con tabla de contingencia e interpretación sustantiva
+
+📄 [Práctica 18](../practicas/P18.qmd) · 🎥 Sesión 18 – Grabación *(próximamente)*
+
+---
+
+## Sesión 19 · Pruebas no paramétricas y alternativas robustas
+
+**Contenidos:**
+
+- Criterios para optar por no paramétricas (asimetría, outliers, ordinales, n pequeño)
+- Wilcoxon rank-sum/Mann–Whitney, Wilcoxon signed-rank, Kruskal–Wallis, Spearman
+- Comparaciones post hoc y tamaños de efecto para reporte
+- Visualización recomendada: boxplot/violin con puntos
+
+**Paquetes:** `{stats}` `{rstatix}` `{infer}` `{dplyr}` `{ggplot2}`
+
+**Funciones clave:** `wilcox.test()` · `kruskal.test()` · `cor(method = 'spearman')` · `rstatix::wilcox_test()` · `pairwise_wilcox_test()`
+
+**Entregable:** Guía de decisión + una comparación no paramétrica con gráfica e interpretación
+
+📄 [Práctica 19](../practicas/P19.qmd) · 🎥 Sesión 19 – Grabación *(próximamente)*
+
+---
+
+## Sesión 20 · Regresión lineal simple y comunicación de resultados en Quarto
+
+**Contenidos:**
+
+- Regresión lineal simple: interpretación de coeficientes, R² y lectura de residuos
+- Diagnóstico mínimo: forma funcional y patrón de residuos
+- Reporte en Quarto: tabla de modelo y visualización de coeficientes o ajuste
+
+**Paquetes:** `{stats}` `{broom}` `{performance}` `{modelsummary}` `{ggplot2}` `{quarto}`
+
+**Funciones clave:** `lm()` · `broom::tidy()` · `broom::glance()` · `check_model()` · `modelsummary()` · `geom_smooth()`
+
+**Entregable final:** Documento Quarto con modelo `lm`, tabla de resultados y visualización con interpretación
+
+📄 [Práctica 20 (entrega final)](../practicas/P20.qmd) · 🎥 Sesión 20 – Grabación *(próximamente)*

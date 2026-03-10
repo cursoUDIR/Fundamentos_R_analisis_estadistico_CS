@@ -1,0 +1,116 @@
+---
+title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto"
+---
+
+::: {.info-box}
+**Duración:** 12 horas (6 sesiones)  
+**Objetivo:** Construir visualizaciones uni, bi y multivariadas con ggplot2, elaborar mapas temáticos para México e integrar resultados en reportes reproducibles con Quarto.
+:::
+
+---
+
+## Sesión 10 · Principios de ggplot2 y gráficos univariados (cuantitativas)
+
+**Contenidos:**
+
+- Estructura de ggplot2: datos + estética + geometrías + escalas
+- Histogramas, densidad y boxplot; elección de binwidth
+- Buenas prácticas: títulos, ejes, etiquetas y notas metodológicas
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{scales}`
+
+**Funciones clave:** `ggplot()` · `aes()` · `geom_histogram()` · `geom_density()` · `geom_boxplot()` · `labs()` · `theme_minimal()`
+
+**Entregable:** Gráficos univariados para variables cuantitativas seleccionadas
+
+📄 [Práctica 10](../practicas/P10.qmd) · 🎥 Sesión 10 – Grabación *(próximamente)*
+
+---
+
+## Sesión 11 · Gráficos univariados para cualitativas: barras y ordenamiento
+
+**Contenidos:**
+
+- Barras y columnas: conteos vs proporciones; comparación entre grupos
+- Reordenamiento y agrupamiento de categorías para comunicación efectiva
+- `coord_flip()` y facetas simples
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{forcats}` `{scales}`
+
+**Funciones clave:** `geom_bar()` · `geom_col()` · `coord_flip()` · `fct_reorder()` · `facet_wrap()`
+
+**Entregable:** Gráficos de distribución categórica comparables por grupos
+
+📄 [Práctica 11](../practicas/P11.qmd) · 🎥 Sesión 11 – Grabación *(próximamente)*
+
+---
+
+## Sesión 12 · Gráficos bivariados: cuali–cuali, cuali–cuanti y cuanti–cuanti
+
+**Contenidos:**
+
+- Cuali–cuali: barras apiladas (proporciones) y alternativas para comparación
+- Cuali–cuanti: boxplot por grupos y lectura de dispersión intra-grupo
+- Cuanti–cuanti: dispersión, tendencia y sobreposición
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{scales}` `{viridis}`
+
+**Funciones clave:** `geom_bar(position = 'fill')` · `geom_boxplot()` · `geom_point()` · `geom_smooth()` · `scale_color_viridis_d()`
+
+**Entregable:** Tres figuras bivariadas (una por tipo) con interpretación sustantiva
+
+📄 [Práctica 12](../practicas/P12.qmd) · 🎥 Sesión 12 – Grabación *(próximamente)*
+
+---
+
+## Sesión 13 · Gráficos con más de dos variables: estética y facetas
+
+**Contenidos:**
+
+- Dispersión con una variable cualitativa (color/forma) y control de sobrecarga visual
+- Facetas: `facet_wrap()` y `facet_grid()`; criterios de comparación
+- Escalas perceptualmente adecuadas y control de leyendas
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{ggthemes}` `{RColorBrewer}` `{viridis}`
+
+**Funciones clave:** `facet_wrap()` · `facet_grid()` · `scale_color_brewer()` · `scale_fill_brewer()` · `guides()`
+
+**Entregable:** Figura multivariada con facetas y codificación estética consistente
+
+📄 [Práctica 13](../practicas/P13.qmd) · 🎥 Sesión 13 – Grabación *(próximamente)*
+
+---
+
+## Sesión 14 · Mapas temáticos para México con mxmaps
+
+**Contenidos:**
+
+- Uso de mxmaps: geometrías para México (municipios y estados)
+- Unión de datos tabulares con geometrías y elaboración de mapas coropléticos
+- Lectura crítica: cortes, escalas, clasificación y exportación
+
+**Paquetes:** `{mxmaps}` `{sf}` `{dplyr}` `{ggplot2}` `{viridis}`
+
+**Funciones clave:** `mxstate_choropleth()` · `mxmunicipio_choropleth()` · `left_join()` · `ggsave()`
+
+**Entregable:** Mapa temático estatal y/o municipal integrado al set de figuras del módulo
+
+📄 [Práctica 14](../practicas/P14.qmd) · 🎥 Sesión 14 – Grabación *(próximamente)*
+
+---
+
+## Sesión 15 · Reportes reproducibles con Quarto
+
+**Contenidos:**
+
+- ¿Qué es Quarto? Estructura básica de un `.qmd` y flujo de renderizado
+- Inserción de código, tablas y gráficos; control de opciones de chunks
+- Tipos de reportes (HTML/PDF) y buenas prácticas de reproducibilidad
+
+**Paquetes:** `{quarto}` `{knitr}` `{gt}` `{ggplot2}`
+
+**Funciones clave:** `quarto_render()` · `opts_chunk$set()` · `gt()` · `ggsave()`
+
+**Entregable:** Reporte en Quarto con al menos 2 tablas y 3 figuras (HTML o PDF)
+
+📄 [Práctica 15](../practicas/P15.qmd) · 🎥 Sesión 15 – Grabación *(próximamente)*

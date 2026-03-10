@@ -1,0 +1,87 @@
+---
+title: "Fundamentos de R para el Análisis Estadístico en Ciencias Sociales"
+subtitle: "Curso de actualización · UNAM"
+---
+
+## Presentación
+
+Este curso brinda herramientas para desarrollar un flujo de trabajo reproducible en R orientado al análisis de información social. A lo largo de las sesiones, el estudiantado aprenderá a importar, limpiar, transformar y analizar datos, elaborar tabulados y visualizaciones de calidad, e implementar procedimientos básicos de inferencia estadística. La **ENIGH 2024** se utiliza como caso aplicado principal.
+
+::: {.info-box}
+**Fechas:** 13 de abril – 18 de junio de 2025  
+**Días:** lunes y jueves · 18:00–20:00 hrs  
+**Duración:** 40 horas  
+**Modalidad:** En línea (Zoom + Classroom)
+:::
+
+---
+
+## Objetivo general
+
+Al finalizar, el estudiantado será capaz de desarrollar un flujo de trabajo reproducible en R para importar, limpiar, transformar y analizar tablas o dataframes, elaborar tabulados y visualizaciones de calidad, e implementar procedimientos básicos de inferencia estadística —en clave de pruebas de hipótesis— en un ejercicio aplicado con fuentes nacionales, tomando la ENIGH 2024 como ejemplo principal.
+
+---
+
+## Ponentes
+
+::: {.ponente-card}
+**Dra. Ana Ruth Escoto Castillo**  
+Profesora Titular "A" · Facultad de Ciencias Políticas y Sociales, UNAM  
+SNI nivel I · PRIDE C  
+Demografía, estadística aplicada, mercados laborales, desigualdades y cuidados.
+:::
+
+::: {.ponente-card}
+**Dra. Mónica Lara Escalante**  
+Investigadora Asociada C · Instituto de Investigaciones Sociales, UNAM  
+Candidata SNI  
+Economía política, instituciones políticas, democracia, desigualdades y política social.
+:::
+
+---
+
+## Perfil de ingreso
+
+El curso está dirigido principalmente a estudiantes de posgrado (maestría y doctorado) en ciencias sociales y áreas afines, así como a personas investigadoras, docentes y profesionales del sector público, social o académico interesadas en el análisis cuantitativo de información social mediante R.
+
+**Áreas de interés:** Sociología · Demografía · Economía · Ciencia Política · Políticas Públicas · Estudios Urbanos · Desarrollo social · Estadística aplicada
+
+---
+
+## Requisitos técnicos
+
+- Computadora con acceso a internet estable (Windows, macOS o Linux)
+- R versión 4.2 o superior
+- RStudio (recomendable) u otra IDE
+- Permisos para instalar paquetes
+- ~5 GB de espacio libre
+- Acceso a Zoom y Classroom
+
+---
+
+## Contenidos del curso
+
+| Módulo | Tema | Horas |
+|--------|------|-------|
+| [1. Principios de R y dataframes](modulos/modulo1.qmd) | Entorno, importación, transformación y uniones en enfoque tidy | 10 h |
+| [2. Estadística descriptiva y encuestas](modulos/modulo2.qmd) | Tabulados, medidas, análisis bivariado y factores de expansión | 8 h |
+| [3. Visualización y reportes](modulos/modulo3.qmd) | ggplot2, mapas con mxmaps y reportes reproducibles con Quarto | 12 h |
+| [4. Inferencia estadística](modulos/modulo4.qmd) | IC, pruebas de hipótesis, no paramétricas y regresión lineal | 10 h |
+
+---
+
+## Metodología
+
+1. **Exposición** — Las facilitadoras presentan comandos, conceptos y ejemplos concretos durante la primera parte de cada sesión.
+2. **Ejercicios prácticos** — Al final de cada sesión el estudiantado realiza, individual o en parejas, un ejercicio aplicado.
+3. **Material de consulta** — Todo el código y las explicaciones quedan disponibles en este sitio para consulta posterior.
+
+---
+
+## Previo al curso
+
+Para poder trabajar desde la primera sesión, se recomienda revisar estos materiales antes del inicio:
+
+- [Instrucciones para instalar R y RStudio](previo/instalacion.qmd)
+- [Introducción a R (opcional)](previo/intro-r.qmd)
+- [Cómo clonar el repositorio del curso](previo/repositorio.qmd)

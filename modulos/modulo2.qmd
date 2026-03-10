@@ -1,0 +1,81 @@
+---
+title: "Módulo 2. Estadística descriptiva y encuestas"
+---
+
+::: {.info-box}
+**Duración:** 8 horas (4 sesiones)  
+**Caso aplicado:** ENIGH 2024  
+**Objetivo:** Elaborar tabulados y resúmenes descriptivos uni y bivariados; aplicar factores de expansión y diseño muestral.
+:::
+
+---
+
+## Sesión 6 · Variables cuantitativas: medidas y tabulados en enfoque tidy
+
+**Contenidos:**
+
+- Medidas de tendencia central, dispersión y posición (media, mediana, desviación estándar, cuantiles)
+- Medidas de sesgo e interpretación descriptiva de distribuciones
+- Tablas resumen con `summarise()` y `across()`; detección de valores extremos y faltantes
+
+**Paquetes:** `{dplyr}` `{skimr}` `{janitor}` `{gt}` `{e1071}`
+
+**Funciones clave:** `summarise()` · `across()` · `mean()` · `median()` · `sd()` · `quantile()` · `skim()`
+
+**Entregable:** Tabla descriptiva univariada de variables cuantitativas (ENIGH 2024)
+
+📄 [Práctica 6](../practicas/P6.qmd) · 🎥 Sesión 6 – Grabación *(próximamente)*
+
+---
+
+## Sesión 7 · Variables cualitativas: frecuencias y presentación en tablas
+
+**Contenidos:**
+
+- Tablas de frecuencias absolutas, relativas y porcentajes; acumuladas cuando corresponda
+- Ordenamiento y manejo de categorías poco frecuentes
+- Presentación en tablas listas para reporte
+
+**Paquetes:** `{janitor}` `{dplyr}` `{forcats}` `{gt}`
+
+**Funciones clave:** `tabyl()` · `adorn_totals()` · `adorn_percentages()` · `fct_lump()` · `fct_reorder()`
+
+**Entregable:** Tablas de frecuencias y porcentajes para variables cualitativas seleccionadas
+
+📄 [Práctica 7](../practicas/P7.qmd) · 🎥 Sesión 7 – Grabación *(próximamente)*
+
+---
+
+## Sesión 8 · Análisis bivariado: cruces y resúmenes por grupos
+
+**Contenidos:**
+
+- Cuali–cuali: tablas de contingencia con porcentajes por renglón y columna
+- Cuali–cuanti: medias/medianas por grupo; comparación descriptiva
+- Interpretación sustantiva y criterios para elegir estadísticos
+
+**Paquetes:** `{dplyr}` `{tidyr}` `{gtsummary}` `{gt}`
+
+**Funciones clave:** `tbl_cross()` · `tbl_summary()` · `group_by()` · `summarise()`
+
+**Entregable:** Tablas bivariadas listas para reporte (cuali–cuali y cuali–cuanti)
+
+📄 [Práctica 8](../practicas/P8.qmd) · 🎥 Sesión 8 – Grabación *(próximamente)*
+
+---
+
+## Sesión 9 · Factores de expansión y diseño muestral
+
+**Contenidos:**
+
+- Ponderación, estratos, conglomerados y consecuencias para la estimación
+- Construcción del objeto de encuesta y estimaciones descriptivas básicas
+- Tabulados y medias ponderadas con intervalos de confianza
+
+**Paquetes:** `{srvyr}` `{survey}` `{dplyr}`
+
+**Funciones clave:** `as_survey_design()` · `svydesign()` · `survey_mean()` · `survey_total()` · `survey_prop()`
+
+**Entregable:** Tabulados y estimaciones ponderadas con especificación del diseño
+
+📄 [Práctica 9](../practicas/P9.qmd) · 🎥 Sesión 9 – Grabación *(próximamente)*
