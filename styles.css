@@ -8,6 +8,11 @@
 /* Encabezado */
 .navbar {
   background-color: var(--color-primario) !important;
+  color: white !important;
+}
+
+.navbar a {
+  color: white !important;
 }
 
 /* Títulos de módulos */

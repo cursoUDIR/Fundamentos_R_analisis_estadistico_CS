@@ -189,13 +189,6 @@
     "text": "Metodología\n\nExposición — Las facilitadoras presentan comandos, conceptos y ejemplos concretos durante la primera parte de cada sesión.\nEjercicios prácticos — Al final de cada sesión el estudiantado realiza, individual o en parejas, un ejercicio aplicado.\nMaterial de consulta — Todo el código y las explicaciones quedan disponibles en este sitio para consulta posterior."
   },
   {
-    "objectID": "index.html#previo-al-curso",
-    "href": "index.html#previo-al-curso",
-    "title": "Fundamentos de R para el Análisis Estadístico en Ciencias Sociales",
-    "section": "Previo al curso",
-    "text": "Previo al curso\nPara poder trabajar desde la primera sesión, se recomienda revisar estos materiales antes del inicio:\n\nInstrucciones para instalar R y RStudio\nIntroducción a R (opcional)\nCómo clonar el repositorio del curso"
-  },
-  {
     "objectID": "modulos/modulo2.html",
     "href": "modulos/modulo2.html",
     "title": "Módulo 2. Estadística descriptiva y encuestas",
