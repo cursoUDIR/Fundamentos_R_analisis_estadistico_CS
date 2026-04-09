@@ -1,157 +1,150 @@
 [
   {
-    "objectID": "practicas/P1.html",
-    "href": "practicas/P1.html",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "objectID": "practicas/P2.html",
+    "href": "practicas/P2.html",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
     "section": "",
-    "text": "Al finalizar esta sesión podrán:\n\nInstalar y cargar paquetes usando (install.packages(), library(), pacman::p_load()).\nConsultar la documentación y ayuda integrada de R.\nCrear y manipular escalares y vectores.\nInspeccionar la estructura de objetos con str() y glimpse()."
+    "text": "Al finalizar esta sesión podrán:\n\nDistinguir entre un dataframe y una base de datos.\nInspeccionar un dataframe: dimensiones, nombres de columnas, clases y valores faltantes.\nImportar datos en distintos formatos: CSV, XLSX, DTA y (opcionalmente) Parquet.\nExportar resultados en CSV y XLSX siguiendo buenas prácticas de nombres de archivos y carpetas.\nLimpiar los nombres de columnas con janitor::clean_names()."
   },
   {
-    "objectID": "practicas/P1.html#objetivos-de-la-sesión",
-    "href": "practicas/P1.html#objetivos-de-la-sesión",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "objectID": "practicas/P2.html#objetivos-de-la-sesión",
+    "href": "practicas/P2.html#objetivos-de-la-sesión",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
     "section": "",
-    "text": "Al finalizar esta sesión podrán:\n\nInstalar y cargar paquetes usando (install.packages(), library(), pacman::p_load()).\nConsultar la documentación y ayuda integrada de R.\nCrear y manipular escalares y vectores.\nInspeccionar la estructura de objetos con str() y glimpse()."
+    "text": "Al finalizar esta sesión podrán:\n\nDistinguir entre un dataframe y una base de datos.\nInspeccionar un dataframe: dimensiones, nombres de columnas, clases y valores faltantes.\nImportar datos en distintos formatos: CSV, XLSX, DTA y (opcionalmente) Parquet.\nExportar resultados en CSV y XLSX siguiendo buenas prácticas de nombres de archivos y carpetas.\nLimpiar los nombres de columnas con janitor::clean_names()."
   },
   {
-    "objectID": "practicas/P1.html#instalación-y-carga-de-paquetes",
-    "href": "practicas/P1.html#instalación-y-carga-de-paquetes",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "2 Instalación y carga de paquetes",
-    "text": "2 Instalación y carga de paquetes\n\n2.1 ¿Qué es un paquete?\nR base ya incluye muchas funciones, pero hay algunas que vienen de los paquetes: colecciones de funciones, datos y documentación creadas por la comunidad. Para esta sesión usaremos:\n\n\n\n\n\n\n\nPaquete\nPara qué sirve\n\n\n\n\n{tidyverse}\nColección de paquetes para ciencia de datos (dplyr, ggplot2…)\n\n\n{pacman}\nGestor de paquetes: instala y carga en un solo paso\n\n\n{here}\nConstrucción de rutas dentro del proyecto\n\n\n\n\n\n2.2 Instalar paquetes: install.packages()\n¿Cómo instalamos? La instalación solo se hace una vez (o cuando queremos actualizar la versión). Por eso muchas veces la solemos escribir comentada en los scripts.\n\n#install.packages(\"tidyverse\")\n#install.packages(\"pacman\")\n#install.packages(\"here\")\n\n\n\n2.3 Cargar paquetes: library()\nUna vez instalado, en cada sesión debemos cargar o “llamar” el paquete con library() para que sus funciones estén disponibles.\n\nlibrary(tidyverse)\nlibrary(here)\n\n\n\n2.4 La alternativa: pacman::p_load()\npacman::p_load() combina instalación y carga: si el paquete ya está instalado, solo lo carga; si no, lo instala primero. Es ideal cuando los scripts se comparten.\n\n#install.packages(\"pacman\")\n\npacman::p_load(\n  tidyverse,\n  here,\n  pacman\n)"
+    "objectID": "practicas/P2.html#qué-es-un-dataframe-y-cómo-se-diferencia-de-una-base-de-datos",
+    "href": "practicas/P2.html#qué-es-un-dataframe-y-cómo-se-diferencia-de-una-base-de-datos",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "2 ¿Qué es un dataframe y cómo se diferencia de una “base de datos”?",
+    "text": "2 ¿Qué es un dataframe y cómo se diferencia de una “base de datos”?\n\n2.1 El dataframe en R\nUn dataframe es la estructura de R para almacenar datos : las filas son observaciones o casos y las columnas son variables. A diferencia de las matrices, cada columna puede tener un tipo diferente (numérico, carácter, lógico, etc.), pero todas las columnas deben tener el mismo número de filas (aunque algunas puedan tener casos perdidos).\nPodemos construir un pequeño data frame “a mano”.\n\ndf_ejemplo &lt;- data.frame(\n  id       = 1:4,\n  entidad  = c(\"Morelia\", \"Marcos Castellanos\", \"Lázaro Cardenas\", \"Uruapan\"),\n  imn_2020 = c(0.93, 0.92, 0.91, 0.91),\n  pob  = c(849053, 13983, 196003, 356786\n)\n)\n\ndf_ejemplo\n\n\n\n\n\nid\nentidad\nimn_2020\npob\n\n\n\n\n1\nMorelia\n0.93\n849053\n\n\n2\nMarcos Castellanos\n0.92\n13983\n\n\n3\nLázaro Cardenas\n0.91\n196003\n\n\n4\nUruapan\n0.91\n356786\n\n\n\n\n\n\nEn {tidyverse}, la versión del dataframe se llama tibble (tbl_df). Es prácticamente igual pero tiene impresión más limpia y mensajes de advertencia más útiles:\n\nlibrary(tidyverse)\n\ntb_ejemplo &lt;- tibble(\n  id       = 1:4,\n  entidad  = c(\"Morelia\", \"Marcos Castellanos\", \"Lázaro Cardenas\", \"Uruapan\"),\n  imn_2020 = c(0.93, 0.92, 0.91, 0.91),\n  pob  = c(849053, 13983, 196003, 356786))\n\nVeamos cómo se ve\n\ntb_ejemplo     \n\n\n\n\n\nid\nentidad\nimn_2020\npob\n\n\n\n\n1\nMorelia\n0.93\n849053\n\n\n2\nMarcos Castellanos\n0.92\n13983\n\n\n3\nLázaro Cardenas\n0.91\n196003\n\n\n4\nUruapan\n0.91\n356786\n\n\n\n\n\n\n¿Y si vemos el tipo?\n\nclass(tb_ejemplo)\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\n\n\n\n\n\n\n\nNotaEn la práctica\n\n\n\nPara los análisis de fuentes nacionales (ENIGH, ENOE, etc.) trabajaremos con dataframes en R. Las encuestas del INEGI normalmente se publican como archivos planos (CSV/DBF) o en formato Stata (DTA)."
   },
   {
-    "objectID": "practicas/P1.html#ayuda-y-documentación",
-    "href": "practicas/P1.html#ayuda-y-documentación",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "3 Ayuda y documentación",
-    "text": "3 Ayuda y documentación\nCuando tenemos errores, una de las formas de solucionar es recurrir a la documentación parte de R.\n\n3.1 Ayuda de una función específica\nEstas dos formas son equivalentes:\n\nhelp(\"mean\")   # Forma explícita\n?mean          # Atajo (más común)\n\nLa página de ayuda siempre incluye: descripción, argumentos, detalles, valor de retorno y ejemplos ejecutables.\n\n\n3.2 Buscar por tema\nCuando no recordamos el nombre exacto de la función, podemos escribir palabras clave (siempre en inglés, eso sí).\n\nhelp.search(\"linear model\")\n??regression          # Atajo equivalente\n\n\n\n\n\n\n\nNota¿Dónde buscar más ayuda?\n\n\n\n\nStack Overflow con la etiqueta [r].\nPosit Community (antes RStudio Community).\nLas viñetas de los paquetes: vignette(\"dplyr\"), browseVignettes(\"ggplot2\").\nLas cheatsheets.\nLa IA (entre más específico, mejor)."
+    "objectID": "practicas/P2.html#instalación-y-carga-de-paquetes",
+    "href": "practicas/P2.html#instalación-y-carga-de-paquetes",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "3 Instalación y carga de paquetes",
+    "text": "3 Instalación y carga de paquetes\n\n3.1 Paquetes de esta sesión\n\n\n\n\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{readr}\nLeer y escribir CSV/TSV rápidamente (está dentro de Tidyverse)\n\n\n{readxl}\nLeer archivos Excel (.xlsx, .xls)\n\n\n{haven}\nLeer archivos Stata (.dta), SPSS (.sav), SAS (.sas7bdat)\n\n\n{writexl}\nExportar a Excel sin dependencias externas\n\n\n{arrow}\nLeer/escribir Parquet (opcional, para datos grandes)\n\n\n{janitor}\nLimpiar nombres de columnas y hacer tablas de frecuencia\n\n\n\nInstalemos nuestros paquetes y carguemos nuestros paquetes\n\npacman::p_load(\n  tidyverse,\n  readxl,\n  haven,\n  writexl,\n  arrow,\n  janitor,\n  here\n)"
   },
   {
-    "objectID": "practicas/P1.html#estructura-de-proyectos-y-rutas-con-here",
-    "href": "practicas/P1.html#estructura-de-proyectos-y-rutas-con-here",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "4 Estructura de proyectos y rutas con {here}",
-    "text": "4 Estructura de proyectos y rutas con {here}\nUn proyecto de R permite que el trabajo quede organizado en una carpeta portable y autocontenida. Dentro del proyecto, todos los scripts, archivos de datos, figuras/resultados e historial se almacenan en subcarpetas y, lo más importante, el directorio de trabajo es la carpeta raíz del proyecto (https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects).\n\n4.1 ¿Por qué usar proyectos de RStudio?\nEl problema con setwd() es que la ruta es absoluta y depende de la máquina de cada persona:\n\n# FRÁGIL: solo funciona en tu computadora\nsetwd(\"C:/Users/molar/Dropbox/2026_Trabajos/Clases unam/Morelia\")\n\nAl crear un Proyecto de RStudio (.Rproj), el directorio de trabajo se fija automáticamente a la carpeta raíz del proyecto, en cualquier máquina.\n\n\n4.2 Estructura de carpetas recomendada\nmi_proyecto/\n├── mi_proyecto.Rproj   ← fija la raíz del proyecto\n├── data/\n│   ├── raw/            ← datos originales (nunca modificar)\n│   └── processed/      ← datos limpios/transformados\n├── scripts/            ← archivos .R y .qmd\n├── outputs/\n│   ├── figures/        ← gráficas exportadas\n│   └── tables/         ← tablas exportadas\n└── README.md           ← descripción del proyecto\n\n\n\n\n\n\nImportanteBuenas prácticas\n\n\n\nLos datos crudos (raw/) son intocables. Toda transformación se hace por código y se guarda en processed/. Así se puede reproducir el análisis desde cero en cualquier momento.\n\n\n\n\n4.3 Rutas con here::here()\nhere() construye la ruta a partir de la raíz del proyecto, de forma compatible con Windows, Mac y Linux:\n\n# Ver cuál es la raíz del proyecto:\nhere::here()\n\n[1] \"C:/Users/molar/Dropbox/2026_Trabajos/Clases unam/Morelia/fundamentos-r-cs\"\n\n# Construir rutas:\nruta_datos   &lt;- here(\"data\", \"raw\", \"mi_archivo.csv\")\nruta_figura  &lt;- here(\"outputs\", \"figures\", \"grafica_01.png\")"
+    "objectID": "practicas/P2.html#importación-de-distintos-formatos",
+    "href": "practicas/P2.html#importación-de-distintos-formatos",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "4 Importación de distintos formatos",
+    "text": "4 Importación de distintos formatos\n\n4.1 CSV con read_csv()\nEl formato CSV refiere a archivos con valores separados por comas.\nPodemos leer el CSV desde la ruta dentro del proyecto.\n\nconcentrado &lt;- read_csv(here(\"data\", \"raw\", \"concentradohogar.csv\"))\n\n\n\n\n\n\n\nNotaCSV con punto y coma\n\n\n\nEn algunos sistemas (especialmente Windows en español), Excel guarda los CSV con punto y coma como separador. En ese caso se usa readr::read_csv2() en lugar de read_csv().\n\n\n\n\n4.2 Excel con readxl::read_excel()\nVamos a importar datos del IMCO.\n\nimco &lt;- read_excel(here(\"data\", \"raw\", \"competitividad_estatal_2025.xlsx\"))\n\nPodemos ver las hojas disponibles de nuestro archivo.\n\nexcel_sheets(here(\"data\", \"raw\", \"competitividad_estatal_2025.xlsx\"))\n\n\n\n4.3 Stata con haven::read_dta()\nImportemos una base de datos del Barómetro de las Américas.\n\nlapop &lt;- read_dta(here(\"data\", \"raw\", \"mex_lapop_2023.dta\"))\n\n\n\n\n\n\n\nTipFuentes nacionales\n\n\n\nEl INEGI publica microdatos en formato Stata, csv, excel, dbf, R para la ENOE, ENIGH, ENVIPE, ENDIREH, entre otras. Los archivos suelen encontrarse dentro de carpetas comprimidas .zip descargadas del portal del INEGI.\n\n\n\n\n4.4 Parquet con arrow::read_parquet() (opcional)\nParquet es un formato columnar de alta eficiencia, útil cuando los archivos CSV son muy grandes (millones de registros). Algunos repositorios de datos abiertos ya lo adoptan.\nNosotres aquí haremos una pruebita y primero vamos a convertir “concentradohogar” en formato parquet y luego leerlo.\n\nwrite_parquet(concentrado, here(\"data\", \"raw\", \"concentradohogar.parquet\"))\nconcentrado &lt;- read_parquet(here(\"data\", \"raw\", \"concentradohogar.parquet\"))"
   },
   {
-    "objectID": "practicas/P1.html#objetos-y-tipos-de-datos",
-    "href": "practicas/P1.html#objetos-y-tipos-de-datos",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "5 Objetos y tipos de datos",
-    "text": "5 Objetos y tipos de datos\n\n5.1 Asignación de objetos\n¿Qué son objetos? En R, guardamos toda información en un objeto. Esa información puede ser una tabla, una base de datos, un gráfico, un modelo, un vector, etc.\n¿Cómo se asignan? En R, el operador es &lt;-. También funciona =, pero &lt;- es la convención estándar de la comunidad.\n\nnombre     &lt;- \"Ana\"\nedad       &lt;- 28L          # La L indica entero (integer)\naltura     &lt;- 1.65         # Numérico (double/real)\nestudiante &lt;- TRUE         # Lógico (boolean)\n\nPara ver el valor de un objeto, escribimos su nombre o usamos print():\n\nnombre\n\n[1] \"Ana\"\n\nprint(edad)\n\n[1] 28\n\n\n\n\n5.2 Tipos de datos\nR tiene cuatro tipos principales:\n\nclass(nombre)       # \"character\"\n\n[1] \"character\"\n\nclass(edad)         # \"integer\"\n\n[1] \"integer\"\n\nclass(altura)       # \"numeric\"\n\n[1] \"numeric\"\n\nclass(estudiante)   # \"logical\"\n\n[1] \"logical\"\n\n\n\n\n5.3 Conversión entre tipos (coerción)\n\nas.numeric(\"3.14\")    # character → numeric\n\n[1] 3.14\n\nas.character(100)     # numeric   → character\n\n[1] \"100\"\n\nas.logical(0)         # 0 → FALSE; cualquier otro número → TRUE\n\n[1] FALSE\n\nas.integer(3.9)       # Trunca (no redondea) → 3\n\n[1] 3\n\n\n\n\n\n\n\n\nAdvertenciaCoerción “fallida”\n\n\n\nSi R no puede convertir un valor, introduce NA con una advertencia:\n\nas.numeric(\"hola\")    # NA + Warning\n\n[1] NA"
+    "objectID": "practicas/P2.html#limpieza-de-nombres-de-columnas-con-janitorclean_names",
+    "href": "practicas/P2.html#limpieza-de-nombres-de-columnas-con-janitorclean_names",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "5 Limpieza de nombres de columnas con janitor::clean_names()",
+    "text": "5 Limpieza de nombres de columnas con janitor::clean_names()\nCuando importamos datos de fuentes externas, los nombres de columnas suelen tener espacios, acentos, mayúsculas o caracteres especiales que complican su uso en R. clean_names() los normaliza.\nPodemos aplicar clean_names() inmediatamente después de importar cualquier tabla, antes de manipularla.\n\nlapop &lt;- janitor::clean_names(lapop)"
   },
   {
-    "objectID": "practicas/P1.html#vectores",
-    "href": "practicas/P1.html#vectores",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "6 Vectores",
-    "text": "6 Vectores\nEl vector es una de las estructuras de datos fundamentales de R.\n\n6.1 Crear vectores con c()\n\nedades    &lt;- c(23, 31, 19, 45, 28)\nnombres   &lt;- c(\"Luis\", \"María\", \"Pedro\", \"Sofía\", \"Carlos\")\naprobados &lt;- c(TRUE, FALSE, TRUE, TRUE, FALSE)\n\nedades\n\n[1] 23 31 19 45 28\n\nnombres\n\n[1] \"Luis\"   \"María\"  \"Pedro\"  \"Sofía\"  \"Carlos\"\n\naprobados\n\n[1]  TRUE FALSE  TRUE  TRUE FALSE\n\nlength(edades)    # Número de elementos\n\n[1] 5\n\n\n\n\n6.2 Operaciones con vectores\nPodemos calcular un promedio con dos vectores.\n\nnotas_parcial &lt;- c(8, 6, 9, 7, 5)\nnotas_final   &lt;- c(9, 7, 8, 8, 6)\n\npromedio &lt;- (notas_parcial + notas_final) / 2\npromedio\n\n[1] 8.5 6.5 8.5 7.5 5.5\n\n\n\n\n6.3 Indexación de vectores\nPodemos acceder a elementos de los vectores.\n\nedades[1]           # Primer elemento\n\n[1] 23\n\nedades[3]           # Tercer elemento\n\n[1] 19\n\nedades[c(1, 3, 5)]  # Elementos 1, 3 y 5\n\n[1] 23 19 28\n\nedades[2:4]         # Del segundo al cuarto (secuencia)\n\n[1] 31 19 45\n\nedades[-1]          # Todos excepto el primero\n\n[1] 31 19 45 28\n\n\n\n\n6.4 Secuencias y repeticiones\nPodemos crear vectores a partir de secuencias o repeticiones.\n\n1:10                             # Del 1 al 10\n\n [1]  1  2  3  4  5  6  7  8  9 10\n\nseq(0, 1, by = 0.25)             # Secuencia con paso 0.25\n\n[1] 0.00 0.25 0.50 0.75 1.00\n\nseq(0, 100, length.out = 5)      # 5 valores igualmente espaciados\n\n[1]   0  25  50  75 100\n\nrep(0, times = 5)                # Repetir 0 cinco veces\n\n[1] 0 0 0 0 0\n\nrep(c(\"A\", \"B\"), times = 3)      # Repetir el vector completo\n\n[1] \"A\" \"B\" \"A\" \"B\" \"A\" \"B\"\n\nrep(c(\"A\", \"B\"), each = 3)       # Repetir cada elemento\n\n[1] \"A\" \"A\" \"A\" \"B\" \"B\" \"B\""
+    "objectID": "practicas/P2.html#inspección-rápida-de-un-dataframe",
+    "href": "practicas/P2.html#inspección-rápida-de-un-dataframe",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "6 Inspección rápida de un dataframe",
+    "text": "6 Inspección rápida de un dataframe\nAntes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.\n\n6.1 Dimensiones y nombres de columnas\n\ndim(concentrado)          # Filas y columnas\nnrow(concentrado)         # Solo filas\nncol(concentrado)         # Solo columnas\nnames(concentrado)        # Nombres de las columnas\n\n\n\n6.2 Clases por columna\n\nstr(concentrado)          # Estructura completa: tipo + primeros valores\nglimpse(concentrado)      # Versión tidyverse: más legible\n\n\n\n6.3 Detección de NAs\n\ncolSums(is.na(lapop))\n\n\n\n\n\n\n\nAdvertencia¿Por qué importa detectar NA desde el inicio?\n\n\n\nLos valores faltantes (NA) pueden alterar los resultados de funciones como mean(), sum() o modelos de regresión. Identificarlos al inicio del análisis evita errores."
   },
   {
-    "objectID": "practicas/P1.html#inspeccionar-objetos-str-y-glimpse",
-    "href": "practicas/P1.html#inspeccionar-objetos-str-y-glimpse",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "7 Inspeccionar objetos: str() y glimpse()",
-    "text": "7 Inspeccionar objetos: str() y glimpse()\nCuando trabajamos con objetos complejos, requerimos funciones que nos den un resumen rápido de su estructura.\n\n7.1 Con un vector simple\n\nstr(edades)\n\n num [1:5] 23 31 19 45 28\n\nstr(nombres)\n\n chr [1:5] \"Luis\" \"María\" \"Pedro\" \"Sofía\" \"Carlos\"\n\nstr(aprobados)\n\n logi [1:5] TRUE FALSE TRUE TRUE FALSE\n\n\n\n\n7.2 Con un data.frame\nPrimero construyamos un data.frame de ejemplo:\n\ndf_alumnos &lt;- data.frame(\n  nombre   = nombres,\n  edad     = edades,\n  aprobado = aprobados,\n  nota     = notas_parcial,\n  stringsAsFactors = FALSE\n)\n\nstr() muestra el tipo de cada columna y los primeros valores:\n\nstr(df_alumnos)\n\n'data.frame':   5 obs. of  4 variables:\n $ nombre  : chr  \"Luis\" \"María\" \"Pedro\" \"Sofía\" ...\n $ edad    : num  23 31 19 45 28\n $ aprobado: logi  TRUE FALSE TRUE TRUE FALSE\n $ nota    : num  8 6 9 7 5\n\n\nglimpse() del tidyverse ofrece una vista más legible:\n\nglimpse(df_alumnos)\n\nRows: 5\nColumns: 4\n$ nombre   &lt;chr&gt; \"Luis\", \"María\", \"Pedro\", \"Sofía\", \"Carlos\"\n$ edad     &lt;dbl&gt; 23, 31, 19, 45, 28\n$ aprobado &lt;lgl&gt; TRUE, FALSE, TRUE, TRUE, FALSE\n$ nota     &lt;dbl&gt; 8, 6, 9, 7, 5"
+    "objectID": "practicas/P2.html#exportar-de-resultados",
+    "href": "practicas/P2.html#exportar-de-resultados",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "7 Exportar de resultados",
+    "text": "7 Exportar de resultados\n\n7.1 Exportar a CSV con write_csv()\n\nwrite_csv(concentrado, here(\"outputs\", \"tables\", \"prueba1.csv\"))\n\n\n\n7.2 Exportar a Excel con writexl::write_xlsx()\n{writexl} no requiere tener Excel instalado.\n\nwrite_xlsx(concentrado, here(\"outputs\", \"tables\", \"prueba2.xlsx\"))"
   },
   {
-    "objectID": "practicas/P1.html#ejercicio",
-    "href": "practicas/P1.html#ejercicio",
-    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
-    "section": "8 Ejercicio",
-    "text": "8 Ejercicio\nCrea un vector de caracteres países con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento."
+    "objectID": "practicas/P2.html#buenas-prácticas-nombres-de-archivos",
+    "href": "practicas/P2.html#buenas-prácticas-nombres-de-archivos",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "8 Buenas prácticas: nombres de archivos",
+    "text": "8 Buenas prácticas: nombres de archivos\nEl nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.\n\n8.1 Reglas esenciales\n\nUsar guiones bajos _ o guiones -\nFechas en formato AAAA_MM_DD\nTodo en minúsculas\n\n\n\n8.2 Estructura de carpetas recomendada (recordatorio)\nmi_proyecto/\n├── data/\n│   ├── raw/              ← Archivos originales (nunca modificar)\n│   └── processed/        ← Datos ya limpios y transformados\n├── scripts/              ← Archivos .R y .qmd\n├── outputs/\n│   ├── figures/\n│   └── tables/\n└── README.md"
   },
   {
-    "objectID": "modulos/modulo3.html",
-    "href": "modulos/modulo3.html",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "objectID": "practicas/P2.html#ejercicio",
+    "href": "practicas/P2.html#ejercicio",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "9 Ejercicio",
+    "text": "9 Ejercicio\n\nCrea un tibble llamado mi_encuesta con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un NA.\nUsa dim(), names(), glimpse() y summary() para inspeccionarlo.\nDetecta en qué columna está el NA usando colSums(is.na()).\nAplica janitor::clean_names() si alguno de tus nombres de columna tiene espacios o mayúsculas.\nExporta el tibble a CSV usando readr::write_csv() dentro de una carpeta outputs/tables/ de tu proyecto."
+  },
+  {
+    "objectID": "modulos/modulo4.html",
+    "href": "modulos/modulo4.html",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
     "section": "",
-    "text": "Duración: 12 horas (6 sesiones)\nObjetivo: Construir visualizaciones uni, bi y multivariadas con ggplot2, elaborar mapas temáticos para México e integrar resultados en reportes reproducibles con Quarto."
+    "text": "Duración: 10 horas (5 sesiones)\nObjetivo: Aplicar conceptos de inferencia, construir IC y pruebas de hipótesis, estimar modelos básicos y comunicar resultados en Quarto."
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-10-principios-de-ggplot2-y-gráficos-univariados-cuantitativas",
-    "href": "modulos/modulo3.html#sesión-10-principios-de-ggplot2-y-gráficos-univariados-cuantitativas",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 10 · Principios de ggplot2 y gráficos univariados (cuantitativas)",
-    "text": "Sesión 10 · Principios de ggplot2 y gráficos univariados (cuantitativas)\nContenidos:\n\nEstructura de ggplot2: datos + estética + geometrías + escalas\nHistogramas, densidad y boxplot; elección de binwidth\nBuenas prácticas: títulos, ejes, etiquetas y notas metodológicas\n\nPaquetes: {ggplot2} {dplyr} {scales}\nFunciones clave: ggplot() · aes() · geom_histogram() · geom_density() · geom_boxplot() · labs() · theme_minimal()\nEntregable: Gráficos univariados para variables cuantitativas seleccionadas\n📄 Práctica 10 ·"
+    "objectID": "modulos/modulo4.html#sesión-16-marco-conceptual-estimación-para-una-muestra-ic",
+    "href": "modulos/modulo4.html#sesión-16-marco-conceptual-estimación-para-una-muestra-ic",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "section": "Sesión 16 · Marco conceptual + estimación para una muestra (IC)",
+    "text": "Sesión 16 · Marco conceptual + estimación para una muestra (IC)\nContenidos:\n\nPoblación vs. muestra; parámetro vs. estimador; error estándar\nDistribución muestral: teorema del límite central y ley de los grandes números\nIntervalos de confianza para una muestra: media y proporción\n\nPaquetes: {infer} {dplyr} {ggplot2}\nFunciones clave: t.test() · prop.test() · infer::t_test() · get_confidence_interval() · visualize()\nEntregable: IC (media o proporción) para un indicador con visualización e interpretación\n📄 Práctica 16 ·"
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-11-gráficos-univariados-para-cualitativas-barras-y-ordenamiento",
-    "href": "modulos/modulo3.html#sesión-11-gráficos-univariados-para-cualitativas-barras-y-ordenamiento",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 11 · Gráficos univariados para cualitativas: barras y ordenamiento",
-    "text": "Sesión 11 · Gráficos univariados para cualitativas: barras y ordenamiento\nContenidos:\n\nBarras y columnas: conteos vs proporciones; comparación entre grupos\nReordenamiento y agrupamiento de categorías para comunicación efectiva\ncoord_flip() y facetas simples\n\nPaquetes: {ggplot2} {dplyr} {forcats} {scales}\nFunciones clave: geom_bar() · geom_col() · coord_flip() · fct_reorder() · facet_wrap()\nEntregable: Gráficos de distribución categórica comparables por grupos\n📄 Práctica 11 ·"
+    "objectID": "modulos/modulo4.html#sesión-17-pruebas-de-hipótesis-para-dos-grupos",
+    "href": "modulos/modulo4.html#sesión-17-pruebas-de-hipótesis-para-dos-grupos",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "section": "Sesión 17 · Pruebas de hipótesis para dos grupos",
+    "text": "Sesión 17 · Pruebas de hipótesis para dos grupos\nContenidos:\n\nHipótesis nula/alternativa; errores tipo I/II; nivel de significancia\nPruebas para comparar dos grupos: t de dos muestras y diferencia de proporciones\nReporte mínimo: estadístico, tamaño del efecto y lectura sustantiva\n\nPaquetes: {infer} {dplyr} {ggplot2}\nFunciones clave: t.test() · infer::t_test() · prop_test() · get_p_value() · visualize()\nEntregable: Comparación formal entre dos grupos con interpretación y figura\n📄 Práctica 17 ·"
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-12-gráficos-bivariados-cualicuali-cualicuanti-y-cuanticuanti",
-    "href": "modulos/modulo3.html#sesión-12-gráficos-bivariados-cualicuali-cualicuanti-y-cuanticuanti",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 12 · Gráficos bivariados: cuali–cuali, cuali–cuanti y cuanti–cuanti",
-    "text": "Sesión 12 · Gráficos bivariados: cuali–cuali, cuali–cuanti y cuanti–cuanti\nContenidos:\n\nCuali–cuali: barras apiladas (proporciones) y alternativas para comparación\nCuali–cuanti: boxplot por grupos y lectura de dispersión intra-grupo\nCuanti–cuanti: dispersión, tendencia y sobreposición\n\nPaquetes: {ggplot2} {dplyr} {scales} {viridis}\nFunciones clave: geom_bar(position = 'fill') · geom_boxplot() · geom_point() · geom_smooth() · scale_color_viridis_d()\nEntregable: Tres figuras bivariadas (una por tipo) con interpretación sustantiva\n📄 Práctica 12 ·"
+    "objectID": "modulos/modulo4.html#sesión-18-asociación-entre-variables-categóricas-puente-hacia-anova",
+    "href": "modulos/modulo4.html#sesión-18-asociación-entre-variables-categóricas-puente-hacia-anova",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "section": "Sesión 18 · Asociación entre variables categóricas + puente hacia ANOVA",
+    "text": "Sesión 18 · Asociación entre variables categóricas + puente hacia ANOVA\nContenidos:\n\nIndependencia entre variables cualitativas: chi-cuadrado y lectura de tablas\nSupuestos y celdas esperadas; cómo reportar el resultado\nPuente conceptual: de comparar 2 grupos (t) a más de 2 grupos (ANOVA)\n\nPaquetes: {infer} {dplyr} {gtsummary} {ggplot2}\nFunciones clave: chisq_test() · get_p_value() · visualize() · count()\nEntregable: Prueba chi-cuadrado con tabla de contingencia e interpretación sustantiva\n📄 Práctica 18 ·"
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-13-gráficos-con-más-de-dos-variables-estética-y-facetas",
-    "href": "modulos/modulo3.html#sesión-13-gráficos-con-más-de-dos-variables-estética-y-facetas",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 13 · Gráficos con más de dos variables: estética y facetas",
-    "text": "Sesión 13 · Gráficos con más de dos variables: estética y facetas\nContenidos:\n\nDispersión con una variable cualitativa (color/forma) y control de sobrecarga visual\nFacetas: facet_wrap() y facet_grid(); criterios de comparación\nEscalas perceptualmente adecuadas y control de leyendas\n\nPaquetes: {ggplot2} {dplyr} {ggthemes} {RColorBrewer} {viridis}\nFunciones clave: facet_wrap() · facet_grid() · scale_color_brewer() · scale_fill_brewer() · guides()\nEntregable: Figura multivariada con facetas y codificación estética consistente\n📄 Práctica 13 ·"
+    "objectID": "modulos/modulo4.html#sesión-19-pruebas-no-paramétricas-y-alternativas-robustas",
+    "href": "modulos/modulo4.html#sesión-19-pruebas-no-paramétricas-y-alternativas-robustas",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "section": "Sesión 19 · Pruebas no paramétricas y alternativas robustas",
+    "text": "Sesión 19 · Pruebas no paramétricas y alternativas robustas\nContenidos:\n\nCriterios para optar por no paramétricas (asimetría, outliers, ordinales, n pequeño)\nWilcoxon rank-sum/Mann–Whitney, Wilcoxon signed-rank, Kruskal–Wallis, Spearman\nComparaciones post hoc y tamaños de efecto para reporte\nVisualización recomendada: boxplot/violin con puntos\n\nPaquetes: {stats} {rstatix} {infer} {dplyr} {ggplot2}\nFunciones clave: wilcox.test() · kruskal.test() · cor(method = 'spearman') · rstatix::wilcox_test() · pairwise_wilcox_test()\nEntregable: Guía de decisión + una comparación no paramétrica con gráfica e interpretación\n📄 Práctica 19 ·"
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-14-mapas-temáticos-para-méxico-con-mxmaps",
-    "href": "modulos/modulo3.html#sesión-14-mapas-temáticos-para-méxico-con-mxmaps",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 14 · Mapas temáticos para México con mxmaps",
-    "text": "Sesión 14 · Mapas temáticos para México con mxmaps\nContenidos:\n\nUso de mxmaps: geometrías para México (municipios y estados)\nUnión de datos tabulares con geometrías y elaboración de mapas coropléticos\nLectura crítica: cortes, escalas, clasificación y exportación\n\nPaquetes: {mxmaps} {sf} {dplyr} {ggplot2} {viridis}\nFunciones clave: mxstate_choropleth() · mxmunicipio_choropleth() · left_join() · ggsave()\nEntregable: Mapa temático estatal y/o municipal integrado al set de figuras del módulo\n📄 Práctica 14 ·"
+    "objectID": "modulos/modulo4.html#sesión-20-regresión-lineal-simple-y-comunicación-de-resultados-en-quarto",
+    "href": "modulos/modulo4.html#sesión-20-regresión-lineal-simple-y-comunicación-de-resultados-en-quarto",
+    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "section": "Sesión 20 · Regresión lineal simple y comunicación de resultados en Quarto",
+    "text": "Sesión 20 · Regresión lineal simple y comunicación de resultados en Quarto\nContenidos:\n\nRegresión lineal simple: interpretación de coeficientes, R² y lectura de residuos\nDiagnóstico mínimo: forma funcional y patrón de residuos\nReporte en Quarto: tabla de modelo y visualización de coeficientes o ajuste\n\nPaquetes: {stats} {broom} {performance} {modelsummary} {ggplot2} {quarto}\nFunciones clave: lm() · broom::tidy() · broom::glance() · check_model() · modelsummary() · geom_smooth()\nEntregable final: Documento Quarto con modelo lm, tabla de resultados y visualización con interpretación\n📄 Práctica 20 (entrega final) ·"
   },
   {
-    "objectID": "modulos/modulo3.html#sesión-15-reportes-reproducibles-con-quarto",
-    "href": "modulos/modulo3.html#sesión-15-reportes-reproducibles-con-quarto",
-    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
-    "section": "Sesión 15 · Reportes reproducibles con Quarto",
-    "text": "Sesión 15 · Reportes reproducibles con Quarto\nContenidos:\n\n¿Qué es Quarto? Estructura básica de un .qmd y flujo de renderizado\nInserción de código, tablas y gráficos; control de opciones de chunks\nTipos de reportes (HTML/PDF) y buenas prácticas de reproducibilidad\n\nPaquetes: {quarto} {knitr} {gt} {ggplot2}\nFunciones clave: quarto_render() · opts_chunk$set() · gt() · ggsave()\nEntregable: Reporte en Quarto con al menos 2 tablas y 3 figuras (HTML o PDF)\n📄 Práctica 15 ·"
-  },
-  {
-    "objectID": "modulos/modulo1.html",
-    "href": "modulos/modulo1.html",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "objectID": "modulos/modulo2.html",
+    "href": "modulos/modulo2.html",
+    "title": "Módulo 2. Estadística descriptiva y encuestas",
     "section": "",
-    "text": "Duración: 10 horas (5 sesiones)\nObjetivo: Configurar un entorno reproducible, importar y exportar datos, transformar en enfoque tidy y realizar uniones entre tablas."
+    "text": "Duración: 8 horas (4 sesiones)\nCaso aplicado: ENIGH 2024\nObjetivo: Elaborar tabulados y resúmenes descriptivos uni y bivariados; aplicar factores de expansión y diseño muestral."
   },
   {
-    "objectID": "modulos/modulo1.html#sesión-1-entorno-de-trabajo-y-flujo-reproducible-en-rrstudio",
-    "href": "modulos/modulo1.html#sesión-1-entorno-de-trabajo-y-flujo-reproducible-en-rrstudio",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
-    "section": "Sesión 1 · Entorno de trabajo y flujo reproducible en R/RStudio",
-    "text": "Sesión 1 · Entorno de trabajo y flujo reproducible en R/RStudio\nContenidos:\n\nEstructura de proyectos, scripts y carpetas; manejo básico del entorno\nInstalación y carga de paquetes; uso de ayuda y documentación\nObjetos, tipos de datos y operaciones básicas con vectores\n\nPaquetes: {base} {tidyverse} {pacman} {here}\nFunciones clave: install.packages() · library() · pacman::p_load() · here::here() · str() · glimpse()\n📄 Práctica 1 ·"
+    "objectID": "modulos/modulo2.html#sesión-6-variables-cuantitativas-medidas-y-tabulados-en-enfoque-tidy",
+    "href": "modulos/modulo2.html#sesión-6-variables-cuantitativas-medidas-y-tabulados-en-enfoque-tidy",
+    "title": "Módulo 2. Estadística descriptiva y encuestas",
+    "section": "Sesión 6 · Variables cuantitativas: medidas y tabulados en enfoque tidy",
+    "text": "Sesión 6 · Variables cuantitativas: medidas y tabulados en enfoque tidy\nContenidos:\n\nMedidas de tendencia central, dispersión y posición (media, mediana, desviación estándar, cuantiles)\nMedidas de sesgo e interpretación descriptiva de distribuciones\nTablas resumen con summarise() y across(); detección de valores extremos y faltantes\n\nPaquetes: {dplyr} {skimr} {janitor} {gt} {e1071}\nFunciones clave: summarise() · across() · mean() · median() · sd() · quantile() · skim()\nEntregable: Tabla descriptiva univariada de variables cuantitativas (ENIGH 2024)\n📄 Práctica 6 ·"
   },
   {
-    "objectID": "modulos/modulo1.html#sesión-2-tablas-o-dataframes-estructura-lectura-y-exportación",
-    "href": "modulos/modulo1.html#sesión-2-tablas-o-dataframes-estructura-lectura-y-exportación",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
-    "section": "Sesión 2 · Tablas o dataframes: estructura, lectura y exportación",
-    "text": "Sesión 2 · Tablas o dataframes: estructura, lectura y exportación\nContenidos:\n\n¿Qué es un dataframe y cómo se diferencia de una “base de datos”?\nInspección rápida: dimensiones, nombres, clases por columna; detección de NA\nImportación de formatos CSV, XLSX, DTA (y Parquet opcional)\nExportación y buenas prácticas de nombres de archivos\n\nPaquetes: {readr} {readxl} {haven} {writexl} {janitor}\nFunciones clave: read_csv() · read_excel() · read_dta() · write_xlsx() · clean_names() · summary()\n📄 Práctica 2 ·"
+    "objectID": "modulos/modulo2.html#sesión-7-variables-cualitativas-frecuencias-y-presentación-en-tablas",
+    "href": "modulos/modulo2.html#sesión-7-variables-cualitativas-frecuencias-y-presentación-en-tablas",
+    "title": "Módulo 2. Estadística descriptiva y encuestas",
+    "section": "Sesión 7 · Variables cualitativas: frecuencias y presentación en tablas",
+    "text": "Sesión 7 · Variables cualitativas: frecuencias y presentación en tablas\nContenidos:\n\nTablas de frecuencias absolutas, relativas y porcentajes; acumuladas cuando corresponda\nOrdenamiento y manejo de categorías poco frecuentes\nPresentación en tablas listas para reporte\n\nPaquetes: {janitor} {dplyr} {forcats} {gt}\nFunciones clave: tabyl() · adorn_totals() · adorn_percentages() · fct_lump() · fct_reorder()\nEntregable: Tablas de frecuencias y porcentajes para variables cualitativas seleccionadas\n📄 Práctica 7 ·"
   },
   {
-    "objectID": "modulos/modulo1.html#sesión-3-variables-creación-recodificación-y-consistencia",
-    "href": "modulos/modulo1.html#sesión-3-variables-creación-recodificación-y-consistencia",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
-    "section": "Sesión 3 · Variables: creación, recodificación y consistencia",
-    "text": "Sesión 3 · Variables: creación, recodificación y consistencia\nContenidos:\n\nTipos de variables (numéricas, categóricas, fechas) y criterios de codificación\nCreación de variables con mutate()\nRecodificación con case_when() e if_else(); manejo de NA\n\nPaquetes: {dplyr} {forcats} {lubridate} {sjlabelled}\nFunciones clave: mutate() · case_when() · if_else() · fct_recode() · is.na() · replace_na()\n📄 Práctica 3 ·"
+    "objectID": "modulos/modulo2.html#sesión-8-análisis-bivariado-cruces-y-resúmenes-por-grupos",
+    "href": "modulos/modulo2.html#sesión-8-análisis-bivariado-cruces-y-resúmenes-por-grupos",
+    "title": "Módulo 2. Estadística descriptiva y encuestas",
+    "section": "Sesión 8 · Análisis bivariado: cruces y resúmenes por grupos",
+    "text": "Sesión 8 · Análisis bivariado: cruces y resúmenes por grupos\nContenidos:\n\nCuali–cuali: tablas de contingencia con porcentajes por renglón y columna\nCuali–cuanti: medias/medianas por grupo; comparación descriptiva\nInterpretación sustantiva y criterios para elegir estadísticos\n\nPaquetes: {dplyr} {tidyr} {gtsummary} {gt}\nFunciones clave: tbl_cross() · tbl_summary() · group_by() · summarise()\nEntregable: Tablas bivariadas listas para reporte (cuali–cuali y cuali–cuanti)\n📄 Práctica 8 ·"
   },
   {
-    "objectID": "modulos/modulo1.html#sesión-4-exploración-con-dplyr-across",
-    "href": "modulos/modulo1.html#sesión-4-exploración-con-dplyr-across",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
-    "section": "Sesión 4 · Exploración con dplyr + across()",
-    "text": "Sesión 4 · Exploración con dplyr + across()\nContenidos:\n\nEl operador pipe (|&gt; y %&gt;%) y el flujo seleccionar–filtrar–resumir\nVerbos esenciales: select(), filter(), arrange(), group_by(), summarise()\nSelección por patrones: starts_with(), ends_with(), contains(), where()\nOperaciones por columnas con across()\n\nPaquetes: {dplyr} {tidyr} {stringr}\nFunciones clave: select() · filter() · group_by() · summarise() · across() · everything()\n📄 Práctica 4 ·"
-  },
-  {
-    "objectID": "modulos/modulo1.html#sesión-5-uniones-y-reestructuración-tidy-widelong",
-    "href": "modulos/modulo1.html#sesión-5-uniones-y-reestructuración-tidy-widelong",
-    "title": "Módulo 1. Principios de R y manejo de dataframes",
-    "section": "Sesión 5 · Uniones y reestructuración tidy (wide/long)",
-    "text": "Sesión 5 · Uniones y reestructuración tidy (wide/long)\nContenidos:\n\nPrincipios de llaves: identificadores únicos y verificación de consistencia\nUniones: left_join(), inner_join(), full_join(); diagnósticos con anti_join()\nReestructuración: pivot_longer() y pivot_wider()\n\nPaquetes: {dplyr} {tidyr}\nFunciones clave: left_join() · inner_join() · anti_join() · pivot_longer() · pivot_wider()\n📄 Práctica 5 ·"
+    "objectID": "modulos/modulo2.html#sesión-9-factores-de-expansión-y-diseño-muestral",
+    "href": "modulos/modulo2.html#sesión-9-factores-de-expansión-y-diseño-muestral",
+    "title": "Módulo 2. Estadística descriptiva y encuestas",
+    "section": "Sesión 9 · Factores de expansión y diseño muestral",
+    "text": "Sesión 9 · Factores de expansión y diseño muestral\nContenidos:\n\nPonderación, estratos, conglomerados y consecuencias para la estimación\nConstrucción del objeto de encuesta y estimaciones descriptivas básicas\nTabulados y medias ponderadas con intervalos de confianza\n\nPaquetes: {srvyr} {survey} {dplyr}\nFunciones clave: as_survey_design() · svydesign() · survey_mean() · survey_total() · survey_prop()\nEntregable: Tabulados y estimaciones ponderadas con especificación del diseño\n📄 Práctica 9 ·"
   },
   {
     "objectID": "index.html",
@@ -210,80 +203,157 @@
     "text": "Metodología\n\nExposición — Las facilitadoras presentan comandos, conceptos y ejemplos concretos durante la primera parte de cada sesión.\nEjercicios prácticos — Al final de cada sesión el estudiantado realiza, individual o en parejas, un ejercicio aplicado.\nMaterial de consulta — Todo el código y las explicaciones quedan disponibles en este sitio para consulta posterior."
   },
   {
-    "objectID": "modulos/modulo2.html",
-    "href": "modulos/modulo2.html",
-    "title": "Módulo 2. Estadística descriptiva y encuestas",
+    "objectID": "modulos/modulo1.html",
+    "href": "modulos/modulo1.html",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
     "section": "",
-    "text": "Duración: 8 horas (4 sesiones)\nCaso aplicado: ENIGH 2024\nObjetivo: Elaborar tabulados y resúmenes descriptivos uni y bivariados; aplicar factores de expansión y diseño muestral."
+    "text": "Duración: 10 horas (5 sesiones)\nObjetivo: Configurar un entorno reproducible, importar y exportar datos, transformar en enfoque tidy y realizar uniones entre tablas."
   },
   {
-    "objectID": "modulos/modulo2.html#sesión-6-variables-cuantitativas-medidas-y-tabulados-en-enfoque-tidy",
-    "href": "modulos/modulo2.html#sesión-6-variables-cuantitativas-medidas-y-tabulados-en-enfoque-tidy",
-    "title": "Módulo 2. Estadística descriptiva y encuestas",
-    "section": "Sesión 6 · Variables cuantitativas: medidas y tabulados en enfoque tidy",
-    "text": "Sesión 6 · Variables cuantitativas: medidas y tabulados en enfoque tidy\nContenidos:\n\nMedidas de tendencia central, dispersión y posición (media, mediana, desviación estándar, cuantiles)\nMedidas de sesgo e interpretación descriptiva de distribuciones\nTablas resumen con summarise() y across(); detección de valores extremos y faltantes\n\nPaquetes: {dplyr} {skimr} {janitor} {gt} {e1071}\nFunciones clave: summarise() · across() · mean() · median() · sd() · quantile() · skim()\nEntregable: Tabla descriptiva univariada de variables cuantitativas (ENIGH 2024)\n📄 Práctica 6 ·"
+    "objectID": "modulos/modulo1.html#sesión-1-entorno-de-trabajo-y-flujo-reproducible-en-rrstudio",
+    "href": "modulos/modulo1.html#sesión-1-entorno-de-trabajo-y-flujo-reproducible-en-rrstudio",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "section": "Sesión 1 · Entorno de trabajo y flujo reproducible en R/RStudio",
+    "text": "Sesión 1 · Entorno de trabajo y flujo reproducible en R/RStudio\nContenidos:\n\nEstructura de proyectos, scripts y carpetas; manejo básico del entorno\nInstalación y carga de paquetes; uso de ayuda y documentación\nObjetos, tipos de datos y operaciones básicas con vectores\n\nPaquetes: {base} {tidyverse} {pacman} {here}\nFunciones clave: install.packages() · library() · pacman::p_load() · here::here() · str() · glimpse()\n📄 Práctica 1 ·"
   },
   {
-    "objectID": "modulos/modulo2.html#sesión-7-variables-cualitativas-frecuencias-y-presentación-en-tablas",
-    "href": "modulos/modulo2.html#sesión-7-variables-cualitativas-frecuencias-y-presentación-en-tablas",
-    "title": "Módulo 2. Estadística descriptiva y encuestas",
-    "section": "Sesión 7 · Variables cualitativas: frecuencias y presentación en tablas",
-    "text": "Sesión 7 · Variables cualitativas: frecuencias y presentación en tablas\nContenidos:\n\nTablas de frecuencias absolutas, relativas y porcentajes; acumuladas cuando corresponda\nOrdenamiento y manejo de categorías poco frecuentes\nPresentación en tablas listas para reporte\n\nPaquetes: {janitor} {dplyr} {forcats} {gt}\nFunciones clave: tabyl() · adorn_totals() · adorn_percentages() · fct_lump() · fct_reorder()\nEntregable: Tablas de frecuencias y porcentajes para variables cualitativas seleccionadas\n📄 Práctica 7 ·"
+    "objectID": "modulos/modulo1.html#sesión-2-tablas-o-dataframes-estructura-lectura-y-exportación",
+    "href": "modulos/modulo1.html#sesión-2-tablas-o-dataframes-estructura-lectura-y-exportación",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "section": "Sesión 2 · Tablas o dataframes: estructura, lectura y exportación",
+    "text": "Sesión 2 · Tablas o dataframes: estructura, lectura y exportación\nContenidos:\n\n¿Qué es un dataframe y cómo se diferencia de una “base de datos”?\nInspección rápida: dimensiones, nombres, clases por columna; detección de NA\nImportación de formatos CSV, XLSX, DTA (y Parquet opcional)\nExportación y buenas prácticas de nombres de archivos\n\nPaquetes: {readr} {readxl} {haven} {writexl} {janitor}\nFunciones clave: read_csv() · read_excel() · read_dta() · write_xlsx() · clean_names() · summary()\n📄 Práctica 2 ·"
   },
   {
-    "objectID": "modulos/modulo2.html#sesión-8-análisis-bivariado-cruces-y-resúmenes-por-grupos",
-    "href": "modulos/modulo2.html#sesión-8-análisis-bivariado-cruces-y-resúmenes-por-grupos",
-    "title": "Módulo 2. Estadística descriptiva y encuestas",
-    "section": "Sesión 8 · Análisis bivariado: cruces y resúmenes por grupos",
-    "text": "Sesión 8 · Análisis bivariado: cruces y resúmenes por grupos\nContenidos:\n\nCuali–cuali: tablas de contingencia con porcentajes por renglón y columna\nCuali–cuanti: medias/medianas por grupo; comparación descriptiva\nInterpretación sustantiva y criterios para elegir estadísticos\n\nPaquetes: {dplyr} {tidyr} {gtsummary} {gt}\nFunciones clave: tbl_cross() · tbl_summary() · group_by() · summarise()\nEntregable: Tablas bivariadas listas para reporte (cuali–cuali y cuali–cuanti)\n📄 Práctica 8 ·"
+    "objectID": "modulos/modulo1.html#sesión-3-variables-creación-recodificación-y-consistencia",
+    "href": "modulos/modulo1.html#sesión-3-variables-creación-recodificación-y-consistencia",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "section": "Sesión 3 · Variables: creación, recodificación y consistencia",
+    "text": "Sesión 3 · Variables: creación, recodificación y consistencia\nContenidos:\n\nTipos de variables (numéricas, categóricas, fechas) y criterios de codificación\nCreación de variables con mutate()\nRecodificación con case_when() e if_else(); manejo de NA\n\nPaquetes: {dplyr} {forcats} {lubridate} {sjlabelled}\nFunciones clave: mutate() · case_when() · if_else() · fct_recode() · is.na() · replace_na()\n📄 Práctica 3 ·"
   },
   {
-    "objectID": "modulos/modulo2.html#sesión-9-factores-de-expansión-y-diseño-muestral",
-    "href": "modulos/modulo2.html#sesión-9-factores-de-expansión-y-diseño-muestral",
-    "title": "Módulo 2. Estadística descriptiva y encuestas",
-    "section": "Sesión 9 · Factores de expansión y diseño muestral",
-    "text": "Sesión 9 · Factores de expansión y diseño muestral\nContenidos:\n\nPonderación, estratos, conglomerados y consecuencias para la estimación\nConstrucción del objeto de encuesta y estimaciones descriptivas básicas\nTabulados y medias ponderadas con intervalos de confianza\n\nPaquetes: {srvyr} {survey} {dplyr}\nFunciones clave: as_survey_design() · svydesign() · survey_mean() · survey_total() · survey_prop()\nEntregable: Tabulados y estimaciones ponderadas con especificación del diseño\n📄 Práctica 9 ·"
+    "objectID": "modulos/modulo1.html#sesión-4-exploración-con-dplyr-across",
+    "href": "modulos/modulo1.html#sesión-4-exploración-con-dplyr-across",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "section": "Sesión 4 · Exploración con dplyr + across()",
+    "text": "Sesión 4 · Exploración con dplyr + across()\nContenidos:\n\nEl operador pipe (|&gt; y %&gt;%) y el flujo seleccionar–filtrar–resumir\nVerbos esenciales: select(), filter(), arrange(), group_by(), summarise()\nSelección por patrones: starts_with(), ends_with(), contains(), where()\nOperaciones por columnas con across()\n\nPaquetes: {dplyr} {tidyr} {stringr}\nFunciones clave: select() · filter() · group_by() · summarise() · across() · everything()\n📄 Práctica 4 ·"
   },
   {
-    "objectID": "modulos/modulo4.html",
-    "href": "modulos/modulo4.html",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
+    "objectID": "modulos/modulo1.html#sesión-5-uniones-y-reestructuración-tidy-widelong",
+    "href": "modulos/modulo1.html#sesión-5-uniones-y-reestructuración-tidy-widelong",
+    "title": "Módulo 1. Principios de R y manejo de dataframes",
+    "section": "Sesión 5 · Uniones y reestructuración tidy (wide/long)",
+    "text": "Sesión 5 · Uniones y reestructuración tidy (wide/long)\nContenidos:\n\nPrincipios de llaves: identificadores únicos y verificación de consistencia\nUniones: left_join(), inner_join(), full_join(); diagnósticos con anti_join()\nReestructuración: pivot_longer() y pivot_wider()\n\nPaquetes: {dplyr} {tidyr}\nFunciones clave: left_join() · inner_join() · anti_join() · pivot_longer() · pivot_wider()\n📄 Práctica 5 ·"
+  },
+  {
+    "objectID": "modulos/modulo3.html",
+    "href": "modulos/modulo3.html",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
     "section": "",
-    "text": "Duración: 10 horas (5 sesiones)\nObjetivo: Aplicar conceptos de inferencia, construir IC y pruebas de hipótesis, estimar modelos básicos y comunicar resultados en Quarto."
+    "text": "Duración: 12 horas (6 sesiones)\nObjetivo: Construir visualizaciones uni, bi y multivariadas con ggplot2, elaborar mapas temáticos para México e integrar resultados en reportes reproducibles con Quarto."
   },
   {
-    "objectID": "modulos/modulo4.html#sesión-16-marco-conceptual-estimación-para-una-muestra-ic",
-    "href": "modulos/modulo4.html#sesión-16-marco-conceptual-estimación-para-una-muestra-ic",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
-    "section": "Sesión 16 · Marco conceptual + estimación para una muestra (IC)",
-    "text": "Sesión 16 · Marco conceptual + estimación para una muestra (IC)\nContenidos:\n\nPoblación vs. muestra; parámetro vs. estimador; error estándar\nDistribución muestral: teorema del límite central y ley de los grandes números\nIntervalos de confianza para una muestra: media y proporción\n\nPaquetes: {infer} {dplyr} {ggplot2}\nFunciones clave: t.test() · prop.test() · infer::t_test() · get_confidence_interval() · visualize()\nEntregable: IC (media o proporción) para un indicador con visualización e interpretación\n📄 Práctica 16 ·"
+    "objectID": "modulos/modulo3.html#sesión-10-principios-de-ggplot2-y-gráficos-univariados-cuantitativas",
+    "href": "modulos/modulo3.html#sesión-10-principios-de-ggplot2-y-gráficos-univariados-cuantitativas",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 10 · Principios de ggplot2 y gráficos univariados (cuantitativas)",
+    "text": "Sesión 10 · Principios de ggplot2 y gráficos univariados (cuantitativas)\nContenidos:\n\nEstructura de ggplot2: datos + estética + geometrías + escalas\nHistogramas, densidad y boxplot; elección de binwidth\nBuenas prácticas: títulos, ejes, etiquetas y notas metodológicas\n\nPaquetes: {ggplot2} {dplyr} {scales}\nFunciones clave: ggplot() · aes() · geom_histogram() · geom_density() · geom_boxplot() · labs() · theme_minimal()\nEntregable: Gráficos univariados para variables cuantitativas seleccionadas\n📄 Práctica 10 ·"
   },
   {
-    "objectID": "modulos/modulo4.html#sesión-17-pruebas-de-hipótesis-para-dos-grupos",
-    "href": "modulos/modulo4.html#sesión-17-pruebas-de-hipótesis-para-dos-grupos",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
-    "section": "Sesión 17 · Pruebas de hipótesis para dos grupos",
-    "text": "Sesión 17 · Pruebas de hipótesis para dos grupos\nContenidos:\n\nHipótesis nula/alternativa; errores tipo I/II; nivel de significancia\nPruebas para comparar dos grupos: t de dos muestras y diferencia de proporciones\nReporte mínimo: estadístico, tamaño del efecto y lectura sustantiva\n\nPaquetes: {infer} {dplyr} {ggplot2}\nFunciones clave: t.test() · infer::t_test() · prop_test() · get_p_value() · visualize()\nEntregable: Comparación formal entre dos grupos con interpretación y figura\n📄 Práctica 17 ·"
+    "objectID": "modulos/modulo3.html#sesión-11-gráficos-univariados-para-cualitativas-barras-y-ordenamiento",
+    "href": "modulos/modulo3.html#sesión-11-gráficos-univariados-para-cualitativas-barras-y-ordenamiento",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 11 · Gráficos univariados para cualitativas: barras y ordenamiento",
+    "text": "Sesión 11 · Gráficos univariados para cualitativas: barras y ordenamiento\nContenidos:\n\nBarras y columnas: conteos vs proporciones; comparación entre grupos\nReordenamiento y agrupamiento de categorías para comunicación efectiva\ncoord_flip() y facetas simples\n\nPaquetes: {ggplot2} {dplyr} {forcats} {scales}\nFunciones clave: geom_bar() · geom_col() · coord_flip() · fct_reorder() · facet_wrap()\nEntregable: Gráficos de distribución categórica comparables por grupos\n📄 Práctica 11 ·"
   },
   {
-    "objectID": "modulos/modulo4.html#sesión-18-asociación-entre-variables-categóricas-puente-hacia-anova",
-    "href": "modulos/modulo4.html#sesión-18-asociación-entre-variables-categóricas-puente-hacia-anova",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
-    "section": "Sesión 18 · Asociación entre variables categóricas + puente hacia ANOVA",
-    "text": "Sesión 18 · Asociación entre variables categóricas + puente hacia ANOVA\nContenidos:\n\nIndependencia entre variables cualitativas: chi-cuadrado y lectura de tablas\nSupuestos y celdas esperadas; cómo reportar el resultado\nPuente conceptual: de comparar 2 grupos (t) a más de 2 grupos (ANOVA)\n\nPaquetes: {infer} {dplyr} {gtsummary} {ggplot2}\nFunciones clave: chisq_test() · get_p_value() · visualize() · count()\nEntregable: Prueba chi-cuadrado con tabla de contingencia e interpretación sustantiva\n📄 Práctica 18 ·"
+    "objectID": "modulos/modulo3.html#sesión-12-gráficos-bivariados-cualicuali-cualicuanti-y-cuanticuanti",
+    "href": "modulos/modulo3.html#sesión-12-gráficos-bivariados-cualicuali-cualicuanti-y-cuanticuanti",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 12 · Gráficos bivariados: cuali–cuali, cuali–cuanti y cuanti–cuanti",
+    "text": "Sesión 12 · Gráficos bivariados: cuali–cuali, cuali–cuanti y cuanti–cuanti\nContenidos:\n\nCuali–cuali: barras apiladas (proporciones) y alternativas para comparación\nCuali–cuanti: boxplot por grupos y lectura de dispersión intra-grupo\nCuanti–cuanti: dispersión, tendencia y sobreposición\n\nPaquetes: {ggplot2} {dplyr} {scales} {viridis}\nFunciones clave: geom_bar(position = 'fill') · geom_boxplot() · geom_point() · geom_smooth() · scale_color_viridis_d()\nEntregable: Tres figuras bivariadas (una por tipo) con interpretación sustantiva\n📄 Práctica 12 ·"
   },
   {
-    "objectID": "modulos/modulo4.html#sesión-19-pruebas-no-paramétricas-y-alternativas-robustas",
-    "href": "modulos/modulo4.html#sesión-19-pruebas-no-paramétricas-y-alternativas-robustas",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
-    "section": "Sesión 19 · Pruebas no paramétricas y alternativas robustas",
-    "text": "Sesión 19 · Pruebas no paramétricas y alternativas robustas\nContenidos:\n\nCriterios para optar por no paramétricas (asimetría, outliers, ordinales, n pequeño)\nWilcoxon rank-sum/Mann–Whitney, Wilcoxon signed-rank, Kruskal–Wallis, Spearman\nComparaciones post hoc y tamaños de efecto para reporte\nVisualización recomendada: boxplot/violin con puntos\n\nPaquetes: {stats} {rstatix} {infer} {dplyr} {ggplot2}\nFunciones clave: wilcox.test() · kruskal.test() · cor(method = 'spearman') · rstatix::wilcox_test() · pairwise_wilcox_test()\nEntregable: Guía de decisión + una comparación no paramétrica con gráfica e interpretación\n📄 Práctica 19 ·"
+    "objectID": "modulos/modulo3.html#sesión-13-gráficos-con-más-de-dos-variables-estética-y-facetas",
+    "href": "modulos/modulo3.html#sesión-13-gráficos-con-más-de-dos-variables-estética-y-facetas",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 13 · Gráficos con más de dos variables: estética y facetas",
+    "text": "Sesión 13 · Gráficos con más de dos variables: estética y facetas\nContenidos:\n\nDispersión con una variable cualitativa (color/forma) y control de sobrecarga visual\nFacetas: facet_wrap() y facet_grid(); criterios de comparación\nEscalas perceptualmente adecuadas y control de leyendas\n\nPaquetes: {ggplot2} {dplyr} {ggthemes} {RColorBrewer} {viridis}\nFunciones clave: facet_wrap() · facet_grid() · scale_color_brewer() · scale_fill_brewer() · guides()\nEntregable: Figura multivariada con facetas y codificación estética consistente\n📄 Práctica 13 ·"
   },
   {
-    "objectID": "modulos/modulo4.html#sesión-20-regresión-lineal-simple-y-comunicación-de-resultados-en-quarto",
-    "href": "modulos/modulo4.html#sesión-20-regresión-lineal-simple-y-comunicación-de-resultados-en-quarto",
-    "title": "Módulo 4. Inferencia estadística y reporte de resultados",
-    "section": "Sesión 20 · Regresión lineal simple y comunicación de resultados en Quarto",
-    "text": "Sesión 20 · Regresión lineal simple y comunicación de resultados en Quarto\nContenidos:\n\nRegresión lineal simple: interpretación de coeficientes, R² y lectura de residuos\nDiagnóstico mínimo: forma funcional y patrón de residuos\nReporte en Quarto: tabla de modelo y visualización de coeficientes o ajuste\n\nPaquetes: {stats} {broom} {performance} {modelsummary} {ggplot2} {quarto}\nFunciones clave: lm() · broom::tidy() · broom::glance() · check_model() · modelsummary() · geom_smooth()\nEntregable final: Documento Quarto con modelo lm, tabla de resultados y visualización con interpretación\n📄 Práctica 20 (entrega final) ·"
+    "objectID": "modulos/modulo3.html#sesión-14-mapas-temáticos-para-méxico-con-mxmaps",
+    "href": "modulos/modulo3.html#sesión-14-mapas-temáticos-para-méxico-con-mxmaps",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 14 · Mapas temáticos para México con mxmaps",
+    "text": "Sesión 14 · Mapas temáticos para México con mxmaps\nContenidos:\n\nUso de mxmaps: geometrías para México (municipios y estados)\nUnión de datos tabulares con geometrías y elaboración de mapas coropléticos\nLectura crítica: cortes, escalas, clasificación y exportación\n\nPaquetes: {mxmaps} {sf} {dplyr} {ggplot2} {viridis}\nFunciones clave: mxstate_choropleth() · mxmunicipio_choropleth() · left_join() · ggsave()\nEntregable: Mapa temático estatal y/o municipal integrado al set de figuras del módulo\n📄 Práctica 14 ·"
+  },
+  {
+    "objectID": "modulos/modulo3.html#sesión-15-reportes-reproducibles-con-quarto",
+    "href": "modulos/modulo3.html#sesión-15-reportes-reproducibles-con-quarto",
+    "title": "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Quarto",
+    "section": "Sesión 15 · Reportes reproducibles con Quarto",
+    "text": "Sesión 15 · Reportes reproducibles con Quarto\nContenidos:\n\n¿Qué es Quarto? Estructura básica de un .qmd y flujo de renderizado\nInserción de código, tablas y gráficos; control de opciones de chunks\nTipos de reportes (HTML/PDF) y buenas prácticas de reproducibilidad\n\nPaquetes: {quarto} {knitr} {gt} {ggplot2}\nFunciones clave: quarto_render() · opts_chunk$set() · gt() · ggsave()\nEntregable: Reporte en Quarto con al menos 2 tablas y 3 figuras (HTML o PDF)\n📄 Práctica 15 ·"
+  },
+  {
+    "objectID": "practicas/P1.html",
+    "href": "practicas/P1.html",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nInstalar y cargar paquetes usando (install.packages(), library(), pacman::p_load()).\nConsultar la documentación y ayuda integrada de R.\nCrear y manipular escalares y vectores.\nInspeccionar la estructura de objetos con str() y glimpse()."
+  },
+  {
+    "objectID": "practicas/P1.html#objetivos-de-la-sesión",
+    "href": "practicas/P1.html#objetivos-de-la-sesión",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nInstalar y cargar paquetes usando (install.packages(), library(), pacman::p_load()).\nConsultar la documentación y ayuda integrada de R.\nCrear y manipular escalares y vectores.\nInspeccionar la estructura de objetos con str() y glimpse()."
+  },
+  {
+    "objectID": "practicas/P1.html#instalación-y-carga-de-paquetes",
+    "href": "practicas/P1.html#instalación-y-carga-de-paquetes",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "2 Instalación y carga de paquetes",
+    "text": "2 Instalación y carga de paquetes\n\n2.1 ¿Qué es un paquete?\nR base ya incluye muchas funciones, pero hay algunas que vienen de los paquetes: colecciones de funciones, datos y documentación creadas por la comunidad. Para esta sesión usaremos:\n\n\n\n\n\n\n\nPaquete\nPara qué sirve\n\n\n\n\n{tidyverse}\nColección de paquetes para ciencia de datos (dplyr, ggplot2…)\n\n\n{pacman}\nGestor de paquetes: instala y carga en un solo paso\n\n\n{here}\nConstrucción de rutas dentro del proyecto\n\n\n\n\n\n2.2 Instalar paquetes: install.packages()\n¿Cómo instalamos? La instalación solo se hace una vez (o cuando queremos actualizar la versión). Por eso muchas veces la solemos escribir comentada en los scripts.\n\n#install.packages(\"tidyverse\")\n#install.packages(\"pacman\")\n#install.packages(\"here\")\n\n\n\n2.3 Cargar paquetes: library()\nUna vez instalado, en cada sesión debemos cargar o “llamar” el paquete con library() para que sus funciones estén disponibles.\n\nlibrary(tidyverse)\nlibrary(here)\n\n\n\n2.4 La alternativa: pacman::p_load()\npacman::p_load() combina instalación y carga: si el paquete ya está instalado, solo lo carga; si no, lo instala primero. Es ideal cuando los scripts se comparten.\n\n#install.packages(\"pacman\")\n\npacman::p_load(\n  tidyverse,\n  here,\n  pacman\n)"
+  },
+  {
+    "objectID": "practicas/P1.html#ayuda-y-documentación",
+    "href": "practicas/P1.html#ayuda-y-documentación",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "3 Ayuda y documentación",
+    "text": "3 Ayuda y documentación\nCuando tenemos errores, una de las formas de solucionar es recurrir a la documentación parte de R.\n\n3.1 Ayuda de una función específica\nEstas dos formas son equivalentes:\n\nhelp(\"mean\")   # Forma explícita\n?mean          # Atajo (más común)\n\nLa página de ayuda siempre incluye: descripción, argumentos, detalles, valor de retorno y ejemplos ejecutables.\n\n\n3.2 Buscar por tema\nCuando no recordamos el nombre exacto de la función, podemos escribir palabras clave (siempre en inglés, eso sí).\n\nhelp.search(\"linear model\")\n??regression          # Atajo equivalente\n\n\n\n\n\n\n\nNota¿Dónde buscar más ayuda?\n\n\n\n\nStack Overflow con la etiqueta [r].\nPosit Community (antes RStudio Community).\nLas viñetas de los paquetes: vignette(\"dplyr\"), browseVignettes(\"ggplot2\").\nLas cheatsheets.\nLa IA (entre más específico, mejor)."
+  },
+  {
+    "objectID": "practicas/P1.html#estructura-de-proyectos-y-rutas-con-here",
+    "href": "practicas/P1.html#estructura-de-proyectos-y-rutas-con-here",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "4 Estructura de proyectos y rutas con {here}",
+    "text": "4 Estructura de proyectos y rutas con {here}\nUn proyecto de R permite que el trabajo quede organizado en una carpeta portable y autocontenida. Dentro del proyecto, todos los scripts, archivos de datos, figuras/resultados e historial se almacenan en subcarpetas y, lo más importante, el directorio de trabajo es la carpeta raíz del proyecto (https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects).\n\n4.1 ¿Por qué usar proyectos de RStudio?\nEl problema con setwd() es que la ruta es absoluta y depende de la máquina de cada persona:\n\n# FRÁGIL: solo funciona en tu computadora\nsetwd(\"C:/Users/molar/Dropbox/2026_Trabajos/Clases unam/Morelia\")\n\nAl crear un Proyecto de RStudio (.Rproj), el directorio de trabajo se fija automáticamente a la carpeta raíz del proyecto, en cualquier máquina.\n\n\n4.2 Estructura de carpetas recomendada\nmi_proyecto/\n├── mi_proyecto.Rproj   ← fija la raíz del proyecto\n├── data/\n│   ├── raw/            ← datos originales (nunca modificar)\n│   └── processed/      ← datos limpios/transformados\n├── scripts/            ← archivos .R y .qmd\n├── outputs/\n│   ├── figures/        ← gráficas exportadas\n│   └── tables/         ← tablas exportadas\n└── README.md           ← descripción del proyecto\n\n\n\n\n\n\nImportanteBuenas prácticas\n\n\n\nLos datos crudos (raw/) son intocables. Toda transformación se hace por código y se guarda en processed/. Así se puede reproducir el análisis desde cero en cualquier momento.\n\n\n\n\n4.3 Rutas con here::here()\nhere() construye la ruta a partir de la raíz del proyecto, de forma compatible con Windows, Mac y Linux:\n\n# Ver cuál es la raíz del proyecto:\nhere::here()\n\n[1] \"C:/Users/molar/OneDrive/Documents/Desktop/fundamentos-r-cs\"\n\n# Construir rutas:\nruta_datos   &lt;- here(\"data\", \"raw\", \"mi_archivo.csv\")\nruta_figura  &lt;- here(\"outputs\", \"figures\", \"grafica_01.png\")"
+  },
+  {
+    "objectID": "practicas/P1.html#objetos-y-tipos-de-datos",
+    "href": "practicas/P1.html#objetos-y-tipos-de-datos",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "5 Objetos y tipos de datos",
+    "text": "5 Objetos y tipos de datos\n\n5.1 Asignación de objetos\n¿Qué son objetos? En R, guardamos toda información en un objeto. Esa información puede ser una tabla, una base de datos, un gráfico, un modelo, un vector, etc.\n¿Cómo se asignan? En R, el operador es &lt;-. También funciona =, pero &lt;- es la convención estándar de la comunidad.\n\nnombre     &lt;- \"Ana\"\nedad       &lt;- 28L          # La L indica entero (integer)\naltura     &lt;- 1.65         # Numérico (double/real)\nestudiante &lt;- TRUE         # Lógico (boolean)\n\nPara ver el valor de un objeto, escribimos su nombre o usamos print():\n\nnombre\n\n[1] \"Ana\"\n\nprint(edad)\n\n[1] 28\n\n\n\n\n5.2 Tipos de datos\nR tiene cuatro tipos principales:\n\nclass(nombre)       # \"character\"\n\n[1] \"character\"\n\nclass(edad)         # \"integer\"\n\n[1] \"integer\"\n\nclass(altura)       # \"numeric\"\n\n[1] \"numeric\"\n\nclass(estudiante)   # \"logical\"\n\n[1] \"logical\"\n\n\n\n\n5.3 Conversión entre tipos (coerción)\n\nas.numeric(\"3.14\")    # character → numeric\n\n[1] 3.14\n\nas.character(100)     # numeric   → character\n\n[1] \"100\"\n\nas.logical(0)         # 0 → FALSE; cualquier otro número → TRUE\n\n[1] FALSE\n\nas.integer(3.9)       # Trunca (no redondea) → 3\n\n[1] 3\n\n\n\n\n\n\n\n\nAdvertenciaCoerción “fallida”\n\n\n\nSi R no puede convertir un valor, introduce NA con una advertencia:\n\nas.numeric(\"hola\")    # NA + Warning\n\n[1] NA"
+  },
+  {
+    "objectID": "practicas/P1.html#vectores",
+    "href": "practicas/P1.html#vectores",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "6 Vectores",
+    "text": "6 Vectores\nEl vector es una de las estructuras de datos fundamentales de R.\n\n6.1 Crear vectores con c()\n\nedades    &lt;- c(23, 31, 19, 45, 28)\nnombres   &lt;- c(\"Luis\", \"María\", \"Pedro\", \"Sofía\", \"Carlos\")\naprobados &lt;- c(TRUE, FALSE, TRUE, TRUE, FALSE)\n\nedades\n\n[1] 23 31 19 45 28\n\nnombres\n\n[1] \"Luis\"   \"María\"  \"Pedro\"  \"Sofía\"  \"Carlos\"\n\naprobados\n\n[1]  TRUE FALSE  TRUE  TRUE FALSE\n\nlength(edades)    # Número de elementos\n\n[1] 5\n\n\n\n\n6.2 Operaciones con vectores\nPodemos calcular un promedio con dos vectores.\n\nnotas_parcial &lt;- c(8, 6, 9, 7, 5)\nnotas_final   &lt;- c(9, 7, 8, 8, 6)\n\npromedio &lt;- (notas_parcial + notas_final) / 2\npromedio\n\n[1] 8.5 6.5 8.5 7.5 5.5\n\n\n\n\n6.3 Indexación de vectores\nPodemos acceder a elementos de los vectores.\n\nedades[1]           # Primer elemento\n\n[1] 23\n\nedades[3]           # Tercer elemento\n\n[1] 19\n\nedades[c(1, 3, 5)]  # Elementos 1, 3 y 5\n\n[1] 23 19 28\n\nedades[2:4]         # Del segundo al cuarto (secuencia)\n\n[1] 31 19 45\n\nedades[-1]          # Todos excepto el primero\n\n[1] 31 19 45 28\n\n\n\n\n6.4 Secuencias y repeticiones\nPodemos crear vectores a partir de secuencias o repeticiones.\n\n1:10                             # Del 1 al 10\n\n [1]  1  2  3  4  5  6  7  8  9 10\n\nseq(0, 1, by = 0.25)             # Secuencia con paso 0.25\n\n[1] 0.00 0.25 0.50 0.75 1.00\n\nseq(0, 100, length.out = 5)      # 5 valores igualmente espaciados\n\n[1]   0  25  50  75 100\n\nrep(0, times = 5)                # Repetir 0 cinco veces\n\n[1] 0 0 0 0 0\n\nrep(c(\"A\", \"B\"), times = 3)      # Repetir el vector completo\n\n[1] \"A\" \"B\" \"A\" \"B\" \"A\" \"B\"\n\nrep(c(\"A\", \"B\"), each = 3)       # Repetir cada elemento\n\n[1] \"A\" \"A\" \"A\" \"B\" \"B\" \"B\""
+  },
+  {
+    "objectID": "practicas/P1.html#inspeccionar-objetos-str-y-glimpse",
+    "href": "practicas/P1.html#inspeccionar-objetos-str-y-glimpse",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "7 Inspeccionar objetos: str() y glimpse()",
+    "text": "7 Inspeccionar objetos: str() y glimpse()\nCuando trabajamos con objetos complejos, requerimos funciones que nos den un resumen rápido de su estructura.\n\n7.1 Con un vector simple\n\nstr(edades)\n\n num [1:5] 23 31 19 45 28\n\nstr(nombres)\n\n chr [1:5] \"Luis\" \"María\" \"Pedro\" \"Sofía\" \"Carlos\"\n\nstr(aprobados)\n\n logi [1:5] TRUE FALSE TRUE TRUE FALSE\n\n\n\n\n7.2 Con un data.frame\nPrimero construyamos un data.frame de ejemplo:\n\ndf_alumnos &lt;- data.frame(\n  nombre   = nombres,\n  edad     = edades,\n  aprobado = aprobados,\n  nota     = notas_parcial,\n  stringsAsFactors = FALSE\n)\n\nstr() muestra el tipo de cada columna y los primeros valores:\n\nstr(df_alumnos)\n\n'data.frame':   5 obs. of  4 variables:\n $ nombre  : chr  \"Luis\" \"María\" \"Pedro\" \"Sofía\" ...\n $ edad    : num  23 31 19 45 28\n $ aprobado: logi  TRUE FALSE TRUE TRUE FALSE\n $ nota    : num  8 6 9 7 5\n\n\nglimpse() del tidyverse ofrece una vista más legible:\n\nglimpse(df_alumnos)\n\nRows: 5\nColumns: 4\n$ nombre   &lt;chr&gt; \"Luis\", \"María\", \"Pedro\", \"Sofía\", \"Carlos\"\n$ edad     &lt;dbl&gt; 23, 31, 19, 45, 28\n$ aprobado &lt;lgl&gt; TRUE, FALSE, TRUE, TRUE, FALSE\n$ nota     &lt;dbl&gt; 8, 6, 9, 7, 5"
+  },
+  {
+    "objectID": "practicas/P1.html#ejercicio",
+    "href": "practicas/P1.html#ejercicio",
+    "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
+    "section": "8 Ejercicio",
+    "text": "8 Ejercicio\nCrea un vector de caracteres países con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento."
   }
 ]

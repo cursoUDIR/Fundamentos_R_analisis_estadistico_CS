@@ -114,8 +114,6 @@ pacman::p_load(
 
 ## Importación de distintos formatos
 
-Las bases de datos que utilizaremos, se pueden descargar en: https://www.dropbox.com/scl/fo/vezakmnt64er2478smhvj/ALpYb3OfpcHFrPttknrZG80?rlkey=p5m4arn5erc0bbve9xvkm46yz&st=hmryd7nl&dl=0
-
 ### CSV con `read_csv()`
 
 El formato CSV refiere a archivos con valores separados por comas.
@@ -186,10 +184,10 @@ Cuando importamos datos de fuentes externas, los nombres de columnas suelen tene
 Podemos aplicar `clean_names()` **inmediatamente después** de importar cualquier tabla, antes de manipularla. 
 
 ```{r}
-concentrado <- clean_names(concentrado)
+#| eval: false
+lapop <- janitor::clean_names(lapop)
 ```
 
-::: callout-important
 
 ## Inspección rápida de un dataframe
 
@@ -198,6 +196,7 @@ Antes de analizar cualquier dataframe, debemos hacer una revisión inicial para 
 ### Dimensiones y nombres de columnas
 
 ```{r}
+#| eval: false
 dim(concentrado)          # Filas y columnas
 nrow(concentrado)         # Solo filas
 ncol(concentrado)         # Solo columnas
@@ -207,6 +206,7 @@ names(concentrado)        # Nombres de las columnas
 ### Clases por columna
 
 ```{r}
+#| eval: false
 str(concentrado)          # Estructura completa: tipo + primeros valores
 glimpse(concentrado)      # Versión tidyverse: más legible
 ```
@@ -214,7 +214,7 @@ glimpse(concentrado)      # Versión tidyverse: más legible
 ### Detección de NAs
 
 ```{r}
-# Contar NA por columna
+#| eval: false
 colSums(is.na(lapop))
 ```
 
