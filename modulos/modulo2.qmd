@@ -24,7 +24,7 @@ title: "Módulo 2. Estadística descriptiva y encuestas"
 
 **Entregable:** Tabla descriptiva univariada de variables cuantitativas (ENIGH 2024)
 
-📄 [Práctica 6](../practicas/P6.qmd) · 🎥 Sesión 6 – Grabación *(próximamente)*
+📄 [Práctica 6](../practicas/P6.qmd) · 
 
 ---
 
@@ -42,7 +42,7 @@ title: "Módulo 2. Estadística descriptiva y encuestas"
 
 **Entregable:** Tablas de frecuencias y porcentajes para variables cualitativas seleccionadas
 
-📄 [Práctica 7](../practicas/P7.qmd) · 🎥 Sesión 7 – Grabación *(próximamente)*
+📄 [Práctica 7](../practicas/P7.qmd) · 
 
 ---
 
@@ -60,7 +60,7 @@ title: "Módulo 2. Estadística descriptiva y encuestas"
 
 **Entregable:** Tablas bivariadas listas para reporte (cuali–cuali y cuali–cuanti)
 
-📄 [Práctica 8](../practicas/P8.qmd) · 🎥 Sesión 8 – Grabación *(próximamente)*
+📄 [Práctica 8](../practicas/P8.qmd) · 
 
 ---
 
@@ -78,4 +78,4 @@ title: "Módulo 2. Estadística descriptiva y encuestas"
 
 **Entregable:** Tabulados y estimaciones ponderadas con especificación del diseño
 
-📄 [Práctica 9](../practicas/P9.qmd) · 🎥 Sesión 9 – Grabación *(próximamente)*
+📄 [Práctica 9](../practicas/P9.qmd) · 

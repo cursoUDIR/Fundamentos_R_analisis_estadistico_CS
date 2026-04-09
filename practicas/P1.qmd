@@ -1,124 +1,327 @@
 ---
-title: "Práctica 1. Introducción a R y RStudio"
+title: "Sesión 1: Entorno de trabajo y flujo reproducible en R"
+subtitle: "Proyectos, paquetes, objetos y vectores"
 author: "Ana Escoto y Mónica Lara"
-date: "2025-04-13"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
-## Primer acercamiento al uso del programa
+## Objetivos de la sesión
 
-En RStudio podemos tener varias ventanas que nos permiten controlar nuestro "ambiente", el historial, los scripts o códigos que escribimos y, por supuesto, nuestra consola, que también tiene el símbolo `>` con R. Podemos pedir operaciones básicas:
+Al finalizar esta sesión podrán:
 
-```{r}
-2 + 5
-```
+-   Instalar y cargar paquetes usando (`install.packages()`, `library()`, `pacman::p_load()`).
+-   Consultar la documentación y ayuda integrada de R.
+-   Crear y manipular escalares y vectores.
+-   Inspeccionar la estructura de objetos con `str()` y `glimpse()`.
 
-```{r}
-5 * 3
-```
-
-```{r}
-# Para escribir comentarios y que no los lea como operaciones ponemos el símbolo de gato
-# Lo podemos hacer para un comentario en una línea o a la par de una instrucción
-1:5   # Secuencia 1-5
-```
-
-```{r}
-seq(1, 10, 0.5)  # Secuencia con incrementos diferentes a 1
-```
-
-```{r}
-c('a', 'b', 'c')  # Vector con caracteres
-```
-
-```{r}
-1:7   # Entero
-```
-
----
-
-## Vectores
-
-Un vector es la estructura básica de R. Todos sus elementos deben ser del mismo tipo.
-
-```{r}
-# Vector numérico
-numeros <- c(10, 20, 30, 40, 50)
-numeros
-```
-
-```{r}
-# Longitud de un vector
-length(numeros)
-```
-
-```{r}
-# Acceder a un elemento (índice empieza en 1)
-numeros[3]
-```
-
----
-
-## Objetos y asignación
-
-En R asignamos valores a objetos con `<-`:
-
-```{r}
-mi_nombre <- "Ana"
-mi_edad   <- 35
-curso     <- "Fundamentos de R"
-
-# Podemos ver los objetos en el ambiente (Environment)
-ls()
-```
-
----
+------------------------------------------------------------------------
 
 ## Instalación y carga de paquetes
 
+### ¿Qué es un paquete?
+
+R base ya incluye muchas funciones, pero hay algunas que vienen de los **paquetes**: colecciones de funciones, datos y documentación creadas por la comunidad. Para esta sesión usaremos:
+
+| Paquete | Para qué sirve |
+|-----------------|-------------------------------------------------------|
+| `{tidyverse}` | Colección de paquetes para ciencia de datos (dplyr, ggplot2…) |
+| `{pacman}` | Gestor de paquetes: instala y carga en un solo paso |
+| `{here}` | Construcción de rutas dentro del proyecto |
+
+### Instalar paquetes: `install.packages()`
+
+¿Cómo instalamos? La instalación **solo se hace una vez** (o cuando queremos actualizar la versión). Por eso muchas veces la solemos escribir comentada en los scripts.
+
 ```{r}
 #| eval: false
-# Instalar un paquete (solo se hace una vez)
-install.packages("tidyverse")
+#install.packages("tidyverse")
+#install.packages("pacman")
+#install.packages("here")
+```
 
-# Cargarlo en cada sesión
+### Cargar paquetes: `library()`
+
+Una vez instalado, en **cada sesión** debemos cargar o "llamar" el paquete con `library()` para que sus funciones estén disponibles.
+
+```{r}
 library(tidyverse)
+library(here)
 ```
 
-Con `{pacman}` podemos instalar y cargar en un solo paso:
+### La alternativa: `pacman::p_load()`
+
+`pacman::p_load()` combina instalación y carga: si el paquete ya está instalado, solo lo carga; si no, lo instala primero. Es ideal cuando los scripts se comparten.
+
+```{r}
+#install.packages("pacman")
+
+pacman::p_load(
+  tidyverse,
+  here,
+  pacman
+)
+```
+
+
+------------------------------------------------------------------------
+
+## Ayuda y documentación
+
+Cuando tenemos errores, una de las formas de solucionar es recurrir a la documentación parte de R.
+
+### Ayuda de una función específica
+
+Estas dos formas son equivalentes:
 
 ```{r}
 #| eval: false
-install.packages("pacman")
-pacman::p_load(tidyverse, here, janitor)
+help("mean")   # Forma explícita
+?mean          # Atajo (más común)
 ```
 
----
+La página de ayuda siempre incluye: descripción, argumentos, detalles, valor de retorno y **ejemplos ejecutables**.
 
-## Taller
+### Buscar por tema
 
-### Ejercicio 1
-
-Crea un vector llamado `edades` con los valores: 23, 45, 31, 28, 52. Calcula la media, la mediana y el valor máximo.
+Cuando no recordamos el nombre exacto de la función, podemos escribir palabras clave (siempre en inglés, eso sí).
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Ver solución"
-
-edades <- c(23, 45, 31, 28, 52)
-mean(edades)
-median(edades)
-max(edades)
+#| eval: false
+help.search("linear model")
+??regression          # Atajo equivalente
 ```
 
-### Ejercicio 2
+::: callout-note
+## ¿Dónde buscar más ayuda?
 
-Crea un vector de caracteres `paises` con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento.
+-   **Stack Overflow** con la etiqueta `[r]`.
+-   **Posit Community** (antes RStudio Community).
+-   Las viñetas de los paquetes: `vignette("dplyr")`, `browseVignettes("ggplot2")`.
+-   Las cheatsheets.
+-   La IA (entre más específico, mejor).
+:::
+
+------------------------------------------------------------------------
+
+## Estructura de proyectos y rutas con `{here}`
+
+Un proyecto de R permite que el trabajo quede organizado en una carpeta portable y autocontenida. Dentro del proyecto, todos los scripts, archivos de datos, figuras/resultados e historial  se almacenan en subcarpetas y, lo más importante, el directorio de trabajo es la carpeta raíz del proyecto (https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects).
+
+### ¿Por qué usar proyectos de RStudio?
+
+El problema con `setwd()` es que la ruta es **absoluta** y depende de la máquina de cada persona:
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Ver solución"
-
-paises <- c("México", "Argentina", "Colombia", "Brasil")
-length(paises)
-paises[2]
+#| eval: false
+# FRÁGIL: solo funciona en tu computadora
+setwd("C:/Users/molar/Dropbox/2026_Trabajos/Clases unam/Morelia")
 ```
+
+Al crear un **Proyecto de RStudio** (`.Rproj`), el directorio de trabajo se fija automáticamente a la carpeta raíz del proyecto, en cualquier máquina.
+
+### Estructura de carpetas recomendada
+
+```         
+mi_proyecto/
+├── mi_proyecto.Rproj   ← fija la raíz del proyecto
+├── data/
+│   ├── raw/            ← datos originales (nunca modificar)
+│   └── processed/      ← datos limpios/transformados
+├── scripts/            ← archivos .R y .qmd
+├── outputs/
+│   ├── figures/        ← gráficas exportadas
+│   └── tables/         ← tablas exportadas
+└── README.md           ← descripción del proyecto
+```
+
+::: callout-important
+## Buenas prácticas
+
+Los datos crudos (`raw/`) son **intocables**. Toda transformación se hace por código y se guarda en `processed/`. Así se puede reproducir el análisis desde cero en cualquier momento.
+:::
+
+### Rutas con `here::here()`
+
+`here()` construye la ruta a partir de la raíz del proyecto, de forma compatible con Windows, Mac y Linux:
+
+```{r}
+# Ver cuál es la raíz del proyecto:
+here::here()
+
+# Construir rutas:
+ruta_datos   <- here("data", "raw", "mi_archivo.csv")
+ruta_figura  <- here("outputs", "figures", "grafica_01.png")
+```
+
+------------------------------------------------------------------------
+
+## Objetos y tipos de datos
+
+### Asignación de objetos
+
+¿Qué son objetos? En R, guardamos toda información en un objeto. Esa información puede ser una tabla, una base de datos, un gráfico, un modelo, un vector, etc.
+
+¿Cómo se asignan? En R, el operador es `<-`. También funciona `=`, pero `<-` es la convención estándar de la comunidad.
+
+```{r}
+nombre     <- "Ana"
+edad       <- 28L          # La L indica entero (integer)
+altura     <- 1.65         # Numérico (double/real)
+estudiante <- TRUE         # Lógico (boolean)
+```
+
+Para ver el valor de un objeto, escribimos su nombre o usamos `print()`:
+
+```{r}
+nombre
+print(edad)
+```
+
+### Tipos de datos 
+
+R tiene cuatro tipos principales:
+
+```{r}
+class(nombre)       # "character"
+class(edad)         # "integer"
+class(altura)       # "numeric"
+class(estudiante)   # "logical"
+```
+
+
+### Conversión entre tipos (coerción)
+
+```{r}
+as.numeric("3.14")    # character → numeric
+as.character(100)     # numeric   → character
+as.logical(0)         # 0 → FALSE; cualquier otro número → TRUE
+as.integer(3.9)       # Trunca (no redondea) → 3
+```
+
+::: callout-warning
+## Coerción "fallida"
+
+Si R no puede convertir un valor, introduce `NA` con una advertencia:
+
+```{r}
+as.numeric("hola")    # NA + Warning
+```
+:::
+
+------------------------------------------------------------------------
+
+## Vectores
+
+El vector es una de las **estructuras de datos fundamentales** de R. 
+
+### Crear vectores con `c()`
+
+```{r}
+edades    <- c(23, 31, 19, 45, 28)
+nombres   <- c("Luis", "María", "Pedro", "Sofía", "Carlos")
+aprobados <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
+
+edades
+nombres
+aprobados
+length(edades)    # Número de elementos
+```
+
+### Operaciones con vectores
+
+Podemos calcular un promedio con dos vectores.
+
+```{r}
+notas_parcial <- c(8, 6, 9, 7, 5)
+notas_final   <- c(9, 7, 8, 8, 6)
+
+promedio <- (notas_parcial + notas_final) / 2
+promedio
+```
+
+
+### Indexación de vectores
+
+Podemos acceder a elementos de los vectores.
+
+```{r}
+edades[1]           # Primer elemento
+edades[3]           # Tercer elemento
+edades[c(1, 3, 5)]  # Elementos 1, 3 y 5
+edades[2:4]         # Del segundo al cuarto (secuencia)
+edades[-1]          # Todos excepto el primero
+```
+
+### Secuencias y repeticiones
+
+Podemos crear vectores a partir de secuencias o repeticiones.
+
+```{r}
+1:10                             # Del 1 al 10
+seq(0, 1, by = 0.25)             # Secuencia con paso 0.25
+seq(0, 100, length.out = 5)      # 5 valores igualmente espaciados
+
+rep(0, times = 5)                # Repetir 0 cinco veces
+rep(c("A", "B"), times = 3)      # Repetir el vector completo
+rep(c("A", "B"), each = 3)       # Repetir cada elemento
+```
+
+
+## Inspeccionar objetos: `str()` y `glimpse()`
+
+Cuando trabajamos con objetos complejos, requerimos funciones que nos den un resumen rápido de su estructura.
+
+### Con un vector simple
+
+```{r}
+str(edades)
+str(nombres)
+str(aprobados)
+```
+
+### Con un data.frame
+
+Primero construyamos un data.frame de ejemplo:
+
+```{r}
+df_alumnos <- data.frame(
+  nombre   = nombres,
+  edad     = edades,
+  aprobado = aprobados,
+  nota     = notas_parcial,
+  stringsAsFactors = FALSE
+)
+```
+
+`str()` muestra el tipo de cada columna y los primeros valores:
+
+```{r}
+str(df_alumnos)
+```
+
+`glimpse()` del tidyverse ofrece una vista más legible:
+
+```{r}
+glimpse(df_alumnos)
+```
+
+
+## Ejercicio
+
+Crea un vector de caracteres países con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento.

@@ -1,6 +1,6 @@
 ---
 title: "Fundamentos de R para el Análisis Estadístico en Ciencias Sociales"
-subtitle: "Curso de actualización · UNAM"
+subtitle: "Curso de Educación Continua · UDIR-UNAM"
 ---
 
 ## Presentación
@@ -27,15 +27,11 @@ Al finalizar, el estudiantado será capaz de desarrollar un flujo de trabajo rep
 ::: {.ponente-card}
 **Dra. Ana Ruth Escoto Castillo**  
 Profesora Titular "A" · Facultad de Ciencias Políticas y Sociales, UNAM  
-SNI nivel I · PRIDE C  
-Demografía, estadística aplicada, mercados laborales, desigualdades y cuidados.
 :::
 
 ::: {.ponente-card}
 **Dra. Mónica Lara Escalante**  
 Investigadora Asociada C · Instituto de Investigaciones Sociales, UNAM  
-Candidata SNI  
-Economía política, instituciones políticas, democracia, desigualdades y política social.
 :::
 
 ---
@@ -78,10 +74,3 @@ El curso está dirigido principalmente a estudiantes de posgrado (maestría y do
 
 ---
 
-## Previo al curso
-
-Para poder trabajar desde la primera sesión, se recomienda revisar estos materiales antes del inicio:
-
-- [Instrucciones para instalar R y RStudio](previo/instalacion.qmd)
-- [Introducción a R (opcional)](previo/intro-r.qmd)
-- [Cómo clonar el repositorio del curso](previo/repositorio.qmd)

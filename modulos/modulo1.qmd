@@ -21,7 +21,7 @@ title: "Módulo 1. Principios de R y manejo de dataframes"
 
 **Funciones clave:** `install.packages()` · `library()` · `pacman::p_load()` · `here::here()` · `str()` · `glimpse()`
 
-📄 [Práctica 1](../practicas/P1.qmd) · 🎥 Sesión 1 – Grabación *(próximamente)*
+📄 [Práctica 1](../practicas/P1.qmd) · 
 
 ---
 
@@ -38,7 +38,7 @@ title: "Módulo 1. Principios de R y manejo de dataframes"
 
 **Funciones clave:** `read_csv()` · `read_excel()` · `read_dta()` · `write_xlsx()` · `clean_names()` · `summary()`
 
-📄 [Práctica 2](../practicas/P2.qmd) · 🎥 Sesión 2 – Grabación *(próximamente)*
+📄 [Práctica 2](../practicas/P2.qmd) · 
 
 ---
 
@@ -54,7 +54,7 @@ title: "Módulo 1. Principios de R y manejo de dataframes"
 
 **Funciones clave:** `mutate()` · `case_when()` · `if_else()` · `fct_recode()` · `is.na()` · `replace_na()`
 
-📄 [Práctica 3](../practicas/P3.qmd) · 🎥 Sesión 3 – Grabación *(próximamente)*
+📄 [Práctica 3](../practicas/P3.qmd) · 
 
 ---
 
@@ -71,7 +71,7 @@ title: "Módulo 1. Principios de R y manejo de dataframes"
 
 **Funciones clave:** `select()` · `filter()` · `group_by()` · `summarise()` · `across()` · `everything()`
 
-📄 [Práctica 4](../practicas/P4.qmd) · 🎥 Sesión 4 – Grabación *(próximamente)*
+📄 [Práctica 4](../practicas/P4.qmd) · 
 
 ---
 
@@ -87,4 +87,4 @@ title: "Módulo 1. Principios de R y manejo de dataframes"
 
 **Funciones clave:** `left_join()` · `inner_join()` · `anti_join()` · `pivot_longer()` · `pivot_wider()`
 
-📄 [Práctica 5](../practicas/P5.qmd) · 🎥 Sesión 5 – Grabación *(próximamente)*
+📄 [Práctica 5](../practicas/P5.qmd) · 

@@ -23,7 +23,7 @@ title: "Módulo 4. Inferencia estadística y reporte de resultados"
 
 **Entregable:** IC (media o proporción) para un indicador con visualización e interpretación
 
-📄 [Práctica 16](../practicas/P16.qmd) · 🎥 Sesión 16 – Grabación *(próximamente)*
+📄 [Práctica 16](../practicas/P16.qmd) · 
 
 ---
 
@@ -41,7 +41,7 @@ title: "Módulo 4. Inferencia estadística y reporte de resultados"
 
 **Entregable:** Comparación formal entre dos grupos con interpretación y figura
 
-📄 [Práctica 17](../practicas/P17.qmd) · 🎥 Sesión 17 – Grabación *(próximamente)*
+📄 [Práctica 17](../practicas/P17.qmd) · 
 
 ---
 
@@ -59,7 +59,7 @@ title: "Módulo 4. Inferencia estadística y reporte de resultados"
 
 **Entregable:** Prueba chi-cuadrado con tabla de contingencia e interpretación sustantiva
 
-📄 [Práctica 18](../practicas/P18.qmd) · 🎥 Sesión 18 – Grabación *(próximamente)*
+📄 [Práctica 18](../practicas/P18.qmd) · 
 
 ---
 
@@ -78,7 +78,7 @@ title: "Módulo 4. Inferencia estadística y reporte de resultados"
 
 **Entregable:** Guía de decisión + una comparación no paramétrica con gráfica e interpretación
 
-📄 [Práctica 19](../practicas/P19.qmd) · 🎥 Sesión 19 – Grabación *(próximamente)*
+📄 [Práctica 19](../practicas/P19.qmd) · 
 
 ---
 
@@ -96,4 +96,4 @@ title: "Módulo 4. Inferencia estadística y reporte de resultados"
 
 **Entregable final:** Documento Quarto con modelo `lm`, tabla de resultados y visualización con interpretación
 
-📄 [Práctica 20 (entrega final)](../practicas/P20.qmd) · 🎥 Sesión 20 – Grabación *(próximamente)*
+📄 [Práctica 20 (entrega final)](../practicas/P20.qmd) · 

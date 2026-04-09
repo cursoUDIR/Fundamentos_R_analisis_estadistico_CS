@@ -23,7 +23,8 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Gráficos univariados para variables cuantitativas seleccionadas
 
-📄 [Práctica 10](../practicas/P10.qmd) · 🎥 Sesión 10 – Grabación *(próximamente)*
+📄 [Práctica 10](../practicas/P10.qmd) · 
+
 
 ---
 
@@ -41,7 +42,8 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Gráficos de distribución categórica comparables por grupos
 
-📄 [Práctica 11](../practicas/P11.qmd) · 🎥 Sesión 11 – Grabación *(próximamente)*
+📄 [Práctica 11](../practicas/P11.qmd) · 
+
 
 ---
 
@@ -59,7 +61,7 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Tres figuras bivariadas (una por tipo) con interpretación sustantiva
 
-📄 [Práctica 12](../practicas/P12.qmd) · 🎥 Sesión 12 – Grabación *(próximamente)*
+📄 [Práctica 12](../practicas/P12.qmd) · 
 
 ---
 
@@ -77,7 +79,7 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Figura multivariada con facetas y codificación estética consistente
 
-📄 [Práctica 13](../practicas/P13.qmd) · 🎥 Sesión 13 – Grabación *(próximamente)*
+📄 [Práctica 13](../practicas/P13.qmd) · 
 
 ---
 
@@ -95,7 +97,7 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Mapa temático estatal y/o municipal integrado al set de figuras del módulo
 
-📄 [Práctica 14](../practicas/P14.qmd) · 🎥 Sesión 14 – Grabación *(próximamente)*
+📄 [Práctica 14](../practicas/P14.qmd) · 
 
 ---
 
@@ -113,4 +115,4 @@ title: "Módulo 3. Visualización aplicada con ggplot2, mapas y reportes con Qua
 
 **Entregable:** Reporte en Quarto con al menos 2 tablas y 3 figuras (HTML o PDF)
 
-📄 [Práctica 15](../practicas/P15.qmd) · 🎥 Sesión 15 – Grabación *(próximamente)*
+📄 [Práctica 15](../practicas/P15.qmd) · 

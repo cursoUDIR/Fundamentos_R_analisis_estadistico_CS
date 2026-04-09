@@ -1,0 +1,286 @@
+---
+title: "Sesión 2: Tablas o dataframes: estructura, lectura y exportación"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Distinguir entre un *dataframe* y una base de datos.
+-   Inspeccionar un dataframe: dimensiones, nombres de columnas, clases y valores faltantes.
+-   Importar datos en distintos formatos: CSV, XLSX, DTA y (opcionalmente) Parquet.
+-   Exportar resultados en CSV y XLSX siguiendo buenas prácticas de nombres de archivos y carpetas.
+-   Limpiar los nombres de columnas con `janitor::clean_names()`.
+
+------------------------------------------------------------------------
+
+## ¿Qué es un dataframe y cómo se diferencia de una "base de datos"?
+
+### El dataframe en R
+
+Un **dataframe** es la estructura de R para almacenar datos : las filas son observaciones o casos y las columnas son variables. A diferencia de las matrices, cada columna puede tener un tipo diferente (numérico, carácter, lógico, etc.), pero todas las columnas deben tener el mismo número de filas (aunque algunas puedan tener casos perdidos).
+
+Podemos construir un pequeño data frame "a mano".
+
+```{r}
+df_ejemplo <- data.frame(
+  id       = 1:4,
+  entidad  = c("Morelia", "Marcos Castellanos", "Lázaro Cardenas", "Uruapan"),
+  imn_2020 = c(0.93, 0.92, 0.91, 0.91),
+  pob  = c(849053, 13983, 196003, 356786
+)
+)
+
+df_ejemplo
+```
+
+En `{tidyverse}`, la versión del dataframe se llama **tibble** (`tbl_df`). Es prácticamente igual pero tiene impresión más limpia y mensajes de advertencia más útiles:
+
+```{r}
+library(tidyverse)
+
+tb_ejemplo <- tibble(
+  id       = 1:4,
+  entidad  = c("Morelia", "Marcos Castellanos", "Lázaro Cardenas", "Uruapan"),
+  imn_2020 = c(0.93, 0.92, 0.91, 0.91),
+  pob  = c(849053, 13983, 196003, 356786))
+```
+
+Veamos cómo se ve
+```{r}
+tb_ejemplo     
+```
+
+¿Y si vemos el tipo?
+
+```{r}
+class(tb_ejemplo)
+```
+::: callout-note
+## En la práctica
+
+Para los análisis de fuentes nacionales (ENIGH, ENOE, etc.) trabajaremos con dataframes en R. Las encuestas del INEGI normalmente se publican como archivos planos (CSV/DBF) o en formato Stata (DTA).
+:::
+
+------------------------------------------------------------------------
+
+## Instalación y carga de paquetes
+
+### Paquetes de esta sesión
+
+| Paquete | Función principal |
+|---|---|
+| `{readr}` | Leer y escribir CSV/TSV rápidamente (está dentro de Tidyverse) |
+| `{readxl}` | Leer archivos Excel (.xlsx, .xls) |
+| `{haven}` | Leer archivos Stata (.dta), SPSS (.sav), SAS (.sas7bdat) |
+| `{writexl}` | Exportar a Excel sin dependencias externas |
+| `{arrow}` | Leer/escribir Parquet (opcional, para datos grandes) |
+| `{janitor}` | Limpiar nombres de columnas y hacer tablas de frecuencia |
+
+Instalemos nuestros paquetes y carguemos nuestros paquetes
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  readxl,
+  haven,
+  writexl,
+  arrow,
+  janitor,
+  here
+)
+```
+
+
+------------------------------------------------------------------------
+
+## Importación de distintos formatos
+
+Las bases de datos que utilizaremos, se pueden descargar en: https://www.dropbox.com/scl/fo/vezakmnt64er2478smhvj/ALpYb3OfpcHFrPttknrZG80?rlkey=p5m4arn5erc0bbve9xvkm46yz&st=hmryd7nl&dl=0
+
+### CSV con `read_csv()`
+
+El formato CSV refiere a archivos con valores separados por comas.
+
+Podemos leer el CSV desde la ruta dentro del proyecto.
+
+```{r}
+#| eval: false
+concentrado <- read_csv(here("data", "raw", "concentradohogar.csv"))
+```
+
+::: callout-note
+## CSV con punto y coma
+
+En algunos sistemas (especialmente Windows en español), Excel guarda los CSV con **punto y coma** como separador. En ese caso se usa `readr::read_csv2()` en lugar de `read_csv()`.
+:::
+
+### Excel con `readxl::read_excel()`
+
+Vamos a importar datos del IMCO.
+
+```{r}
+#| eval: false
+imco <- read_excel(here("data", "raw", "competitividad_estatal_2025.xlsx"))
+```
+
+Podemos ver las hojas disponibles de nuestro archivo.
+
+```{r}
+#| eval: false
+excel_sheets(here("data", "raw", "competitividad_estatal_2025.xlsx"))
+```
+
+
+### Stata con `haven::read_dta()`
+
+Importemos una base de datos del Barómetro de las Américas.
+
+```{r}
+#| eval: false
+lapop <- read_dta(here("data", "raw", "mex_lapop_2023.dta"))
+```
+
+::: callout-tip
+## Fuentes nacionales 
+
+El INEGI publica microdatos en formato Stata, csv, excel, dbf, R para la ENOE, ENIGH, ENVIPE, ENDIREH, entre otras. Los archivos suelen encontrarse dentro de carpetas comprimidas `.zip` descargadas del portal del INEGI.
+:::
+
+### Parquet con `arrow::read_parquet()` (opcional)
+
+Parquet es un formato columnar de alta eficiencia, útil cuando los archivos CSV son muy grandes (millones de registros). Algunos repositorios de datos abiertos ya lo adoptan.
+
+Nosotres aquí haremos una pruebita y primero vamos a convertir "concentradohogar" en formato parquet y luego leerlo.
+
+```{r}
+#| eval: false
+write_parquet(concentrado, here("data", "raw", "concentradohogar.parquet"))
+concentrado <- read_parquet(here("data", "raw", "concentradohogar.parquet"))
+```
+
+------------------------------------------------------------------------
+
+## Limpieza de nombres de columnas con `janitor::clean_names()`
+
+Cuando importamos datos de fuentes externas, los nombres de columnas suelen tener espacios, acentos, mayúsculas o caracteres especiales que complican su uso en R. `clean_names()` los normaliza.
+
+Podemos aplicar `clean_names()` **inmediatamente después** de importar cualquier tabla, antes de manipularla. 
+
+```{r}
+concentrado <- clean_names(concentrado)
+```
+
+::: callout-important
+
+## Inspección rápida de un dataframe
+
+Antes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.
+
+### Dimensiones y nombres de columnas
+
+```{r}
+dim(concentrado)          # Filas y columnas
+nrow(concentrado)         # Solo filas
+ncol(concentrado)         # Solo columnas
+names(concentrado)        # Nombres de las columnas
+```
+
+### Clases por columna
+
+```{r}
+str(concentrado)          # Estructura completa: tipo + primeros valores
+glimpse(concentrado)      # Versión tidyverse: más legible
+```
+
+### Detección de NAs
+
+```{r}
+# Contar NA por columna
+colSums(is.na(lapop))
+```
+
+::: callout-warning
+## ¿Por qué importa detectar NA desde el inicio?
+
+Los valores faltantes (`NA`) pueden alterar los resultados de funciones como `mean()`, `sum()` o modelos de regresión. Identificarlos al inicio del análisis evita errores.
+:::
+
+------------------------------------------------------------------------
+
+
+## Exportar de resultados
+
+### Exportar a CSV con `write_csv()`
+
+```{r}
+#| eval: false
+write_csv(concentrado, here("outputs", "tables", "prueba1.csv"))
+```
+
+### Exportar a Excel con `writexl::write_xlsx()`
+
+`{writexl}` no requiere tener Excel instalado.
+
+```{r}
+#| eval: false
+write_xlsx(concentrado, here("outputs", "tables", "prueba2.xlsx"))
+```
+
+------------------------------------------------------------------------
+
+## Buenas prácticas: nombres de archivos
+
+El nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.
+
+### Reglas esenciales
+
+- Usar guiones bajos `_` o guiones `-`
+- Fechas en formato `AAAA_MM_DD`
+- Todo en minúsculas
+
+### Estructura de carpetas recomendada (recordatorio)
+
+```
+mi_proyecto/
+├── data/
+│   ├── raw/              ← Archivos originales (nunca modificar)
+│   └── processed/        ← Datos ya limpios y transformados
+├── scripts/              ← Archivos .R y .qmd
+├── outputs/
+│   ├── figures/
+│   └── tables/
+└── README.md
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1.  Crea un tibble llamado `mi_encuesta` con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un `NA`.
+
+2.  Usa `dim()`, `names()`, `glimpse()` y `summary()` para inspeccionarlo.
+
+3.  Detecta en qué columna está el `NA` usando `colSums(is.na())`.
+
+4.  Aplica `janitor::clean_names()` si alguno de tus nombres de columna tiene espacios o mayúsculas.
+
+5.  Exporta el tibble a CSV usando `readr::write_csv()` dentro de una carpeta `outputs/tables/` de tu proyecto.
