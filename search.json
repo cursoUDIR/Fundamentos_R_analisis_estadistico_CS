@@ -39,28 +39,35 @@
     "href": "practicas/P2.html#limpieza-de-nombres-de-columnas-con-janitorclean_names",
     "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
     "section": "5 Limpieza de nombres de columnas con janitor::clean_names()",
-    "text": "5 Limpieza de nombres de columnas con janitor::clean_names()\nCuando importamos datos de fuentes externas, los nombres de columnas suelen tener espacios, acentos, mayúsculas o caracteres especiales que complican su uso en R. clean_names() los normaliza.\nPodemos aplicar clean_names() inmediatamente después de importar cualquier tabla, antes de manipularla.\n\nlapop &lt;- janitor::clean_names(lapop)\n\n\n\n\n\n\n\nImportanteInspección rápida de un dataframe\n\n\n\nAntes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.\n\n5.1 Dimensiones y nombres de columnas\n\ndim(concentrado)          # Filas y columnas\nnrow(concentrado)         # Solo filas\nncol(concentrado)         # Solo columnas\nnames(concentrado)        # Nombres de las columnas\n\n\n\n5.2 Clases por columna\n\nstr(concentrado)          # Estructura completa: tipo + primeros valores\nglimpse(concentrado)      # Versión tidyverse: más legible\n\n\n\n5.3 Detección de NAs\n\ncolSums(is.na(lapop))\n\n\n\n\n\n\n\nAdvertencia¿Por qué importa detectar NA desde el inicio?\n\n\n\nLos valores faltantes (NA) pueden alterar los resultados de funciones como mean(), sum() o modelos de regresión. Identificarlos al inicio del análisis evita errores.\n\n\n\n\n\n6 Exportar de resultados\n\n6.1 Exportar a CSV con write_csv()\n\nwrite_csv(concentrado, here(\"outputs\", \"tables\", \"prueba1.csv\"))\n\n\n\n6.2 Exportar a Excel con writexl::write_xlsx()\n{writexl} no requiere tener Excel instalado.\n\nwrite_xlsx(concentrado, here(\"outputs\", \"tables\", \"prueba2.xlsx\"))\n\n\n\n\n\n7 Buenas prácticas: nombres de archivos\nEl nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.\n\n7.1 Reglas esenciales\n\nUsar guiones bajos _ o guiones -\nFechas en formato AAAA_MM_DD\nTodo en minúsculas\n\n\n\n7.2 Estructura de carpetas recomendada (recordatorio)\nmi_proyecto/\n├── data/\n│   ├── raw/              ← Archivos originales (nunca modificar)\n│   └── processed/        ← Datos ya limpios y transformados\n├── scripts/              ← Archivos .R y .qmd\n├── outputs/\n│   ├── figures/\n│   └── tables/\n└── README.md\n\n\n\n\n8 Ejercicio\n\nCrea un tibble llamado mi_encuesta con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un NA.\nUsa dim(), names(), glimpse() y summary() para inspeccionarlo.\nDetecta en qué columna está el NA usando colSums(is.na()).\nAplica janitor::clean_names() si alguno de tus nombres de columna tiene espacios o mayúsculas.\nExporta el tibble a CSV usando readr::write_csv() dentro de una carpeta outputs/tables/ de tu proyecto."
+    "text": "5 Limpieza de nombres de columnas con janitor::clean_names()\nCuando importamos datos de fuentes externas, los nombres de columnas suelen tener espacios, acentos, mayúsculas o caracteres especiales que complican su uso en R. clean_names() los normaliza.\nPodemos aplicar clean_names() inmediatamente después de importar cualquier tabla, antes de manipularla.\n\nlapop &lt;- janitor::clean_names(lapop)"
+  },
+  {
+    "objectID": "practicas/P2.html#inspección-rápida-de-un-dataframe",
+    "href": "practicas/P2.html#inspección-rápida-de-un-dataframe",
+    "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
+    "section": "6 Inspección rápida de un dataframe",
+    "text": "6 Inspección rápida de un dataframe\nAntes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.\n\n6.1 Dimensiones y nombres de columnas\n\ndim(concentrado)          # Filas y columnas\nnrow(concentrado)         # Solo filas\nncol(concentrado)         # Solo columnas\nnames(concentrado)        # Nombres de las columnas\n\n\n\n6.2 Clases por columna\n\nstr(concentrado)          # Estructura completa: tipo + primeros valores\nglimpse(concentrado)      # Versión tidyverse: más legible\n\n\n\n6.3 Detección de NAs\n\ncolSums(is.na(lapop))\n\n\n\n\n\n\n\nAdvertencia¿Por qué importa detectar NA desde el inicio?\n\n\n\nLos valores faltantes (NA) pueden alterar los resultados de funciones como mean(), sum() o modelos de regresión. Identificarlos al inicio del análisis evita errores."
   },
   {
     "objectID": "practicas/P2.html#exportar-de-resultados",
     "href": "practicas/P2.html#exportar-de-resultados",
     "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
-    "section": "6 Exportar de resultados",
-    "text": "6 Exportar de resultados\n\n6.1 Exportar a CSV con write_csv()\n\nwrite_csv(concentrado, here(\"outputs\", \"tables\", \"prueba1.csv\"))\n\n\n\n6.2 Exportar a Excel con writexl::write_xlsx()\n{writexl} no requiere tener Excel instalado.\n\nwrite_xlsx(concentrado, here(\"outputs\", \"tables\", \"prueba2.xlsx\"))"
+    "section": "7 Exportar de resultados",
+    "text": "7 Exportar de resultados\n\n7.1 Exportar a CSV con write_csv()\n\nwrite_csv(concentrado, here(\"outputs\", \"tables\", \"prueba1.csv\"))\n\n\n\n7.2 Exportar a Excel con writexl::write_xlsx()\n{writexl} no requiere tener Excel instalado.\n\nwrite_xlsx(concentrado, here(\"outputs\", \"tables\", \"prueba2.xlsx\"))"
   },
   {
     "objectID": "practicas/P2.html#buenas-prácticas-nombres-de-archivos",
     "href": "practicas/P2.html#buenas-prácticas-nombres-de-archivos",
     "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
-    "section": "7 Buenas prácticas: nombres de archivos",
-    "text": "7 Buenas prácticas: nombres de archivos\nEl nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.\n\n7.1 Reglas esenciales\n\nUsar guiones bajos _ o guiones -\nFechas en formato AAAA_MM_DD\nTodo en minúsculas\n\n\n\n7.2 Estructura de carpetas recomendada (recordatorio)\nmi_proyecto/\n├── data/\n│   ├── raw/              ← Archivos originales (nunca modificar)\n│   └── processed/        ← Datos ya limpios y transformados\n├── scripts/              ← Archivos .R y .qmd\n├── outputs/\n│   ├── figures/\n│   └── tables/\n└── README.md"
+    "section": "8 Buenas prácticas: nombres de archivos",
+    "text": "8 Buenas prácticas: nombres de archivos\nEl nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.\n\n8.1 Reglas esenciales\n\nUsar guiones bajos _ o guiones -\nFechas en formato AAAA_MM_DD\nTodo en minúsculas\n\n\n\n8.2 Estructura de carpetas recomendada (recordatorio)\nmi_proyecto/\n├── data/\n│   ├── raw/              ← Archivos originales (nunca modificar)\n│   └── processed/        ← Datos ya limpios y transformados\n├── scripts/              ← Archivos .R y .qmd\n├── outputs/\n│   ├── figures/\n│   └── tables/\n└── README.md"
   },
   {
     "objectID": "practicas/P2.html#ejercicio",
     "href": "practicas/P2.html#ejercicio",
     "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
-    "section": "8 Ejercicio",
-    "text": "8 Ejercicio\n\nCrea un tibble llamado mi_encuesta con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un NA.\nUsa dim(), names(), glimpse() y summary() para inspeccionarlo.\nDetecta en qué columna está el NA usando colSums(is.na()).\nAplica janitor::clean_names() si alguno de tus nombres de columna tiene espacios o mayúsculas.\nExporta el tibble a CSV usando readr::write_csv() dentro de una carpeta outputs/tables/ de tu proyecto."
+    "section": "9 Ejercicio",
+    "text": "9 Ejercicio\n\nCrea un tibble llamado mi_encuesta con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un NA.\nUsa dim(), names(), glimpse() y summary() para inspeccionarlo.\nDetecta en qué columna está el NA usando colSums(is.na()).\nAplica janitor::clean_names() si alguno de tus nombres de columna tiene espacios o mayúsculas.\nExporta el tibble a CSV usando readr::write_csv() dentro de una carpeta outputs/tables/ de tu proyecto."
   },
   {
     "objectID": "modulos/modulo4.html",

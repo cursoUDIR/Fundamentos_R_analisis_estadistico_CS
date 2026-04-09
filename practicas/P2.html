@@ -195,6 +195,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#parquet-con-arrowread_parquet-opcional" id="toc-parquet-con-arrowread_parquet-opcional" class="nav-link" data-scroll-target="#parquet-con-arrowread_parquet-opcional"><span class="header-section-number">4.4</span> Parquet con <code>arrow::read_parquet()</code> (opcional)</a></li>
   </ul></li>
   <li><a href="#limpieza-de-nombres-de-columnas-con-janitorclean_names" id="toc-limpieza-de-nombres-de-columnas-con-janitorclean_names" class="nav-link" data-scroll-target="#limpieza-de-nombres-de-columnas-con-janitorclean_names"><span class="header-section-number">5</span> Limpieza de nombres de columnas con <code>janitor::clean_names()</code></a></li>
+  <li><a href="#inspección-rápida-de-un-dataframe" id="toc-inspección-rápida-de-un-dataframe" class="nav-link" data-scroll-target="#inspección-rápida-de-un-dataframe"><span class="header-section-number">6</span> Inspección rápida de un dataframe</a>
+  <ul class="collapse">
+  <li><a href="#dimensiones-y-nombres-de-columnas" id="toc-dimensiones-y-nombres-de-columnas" class="nav-link" data-scroll-target="#dimensiones-y-nombres-de-columnas"><span class="header-section-number">6.1</span> Dimensiones y nombres de columnas</a></li>
+  <li><a href="#clases-por-columna" id="toc-clases-por-columna" class="nav-link" data-scroll-target="#clases-por-columna"><span class="header-section-number">6.2</span> Clases por columna</a></li>
+  <li><a href="#detección-de-nas" id="toc-detección-de-nas" class="nav-link" data-scroll-target="#detección-de-nas"><span class="header-section-number">6.3</span> Detección de NAs</a></li>
+  </ul></li>
+  <li><a href="#exportar-de-resultados" id="toc-exportar-de-resultados" class="nav-link" data-scroll-target="#exportar-de-resultados"><span class="header-section-number">7</span> Exportar de resultados</a>
+  <ul class="collapse">
+  <li><a href="#exportar-a-csv-con-write_csv" id="toc-exportar-a-csv-con-write_csv" class="nav-link" data-scroll-target="#exportar-a-csv-con-write_csv"><span class="header-section-number">7.1</span> Exportar a CSV con <code>write_csv()</code></a></li>
+  <li><a href="#exportar-a-excel-con-writexlwrite_xlsx" id="toc-exportar-a-excel-con-writexlwrite_xlsx" class="nav-link" data-scroll-target="#exportar-a-excel-con-writexlwrite_xlsx"><span class="header-section-number">7.2</span> Exportar a Excel con <code>writexl::write_xlsx()</code></a></li>
+  </ul></li>
+  <li><a href="#buenas-prácticas-nombres-de-archivos" id="toc-buenas-prácticas-nombres-de-archivos" class="nav-link" data-scroll-target="#buenas-prácticas-nombres-de-archivos"><span class="header-section-number">8</span> Buenas prácticas: nombres de archivos</a>
+  <ul class="collapse">
+  <li><a href="#reglas-esenciales" id="toc-reglas-esenciales" class="nav-link" data-scroll-target="#reglas-esenciales"><span class="header-section-number">8.1</span> Reglas esenciales</a></li>
+  <li><a href="#estructura-de-carpetas-recomendada-recordatorio" id="toc-estructura-de-carpetas-recomendada-recordatorio" class="nav-link" data-scroll-target="#estructura-de-carpetas-recomendada-recordatorio"><span class="header-section-number">8.2</span> Estructura de carpetas recomendada (recordatorio)</a></li>
+  </ul></li>
+  <li><a href="#ejercicio" id="toc-ejercicio" class="nav-link" data-scroll-target="#ejercicio"><span class="header-section-number">9</span> Ejercicio</a></li>
   </ul>
 </nav>
     </div>
@@ -507,19 +524,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lapop <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">clean_names</span>(lapop)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Inspección rápida de un dataframe
-</div>
-</div>
-<div class="callout-body-container callout-body">
+</section>
+<section id="inspección-rápida-de-un-dataframe" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="inspección-rápida-de-un-dataframe"><span class="header-section-number">6</span> Inspección rápida de un dataframe</h2>
 <p>Antes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.</p>
-<section id="dimensiones-y-nombres-de-columnas" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="dimensiones-y-nombres-de-columnas"><span class="header-section-number">5.1</span> Dimensiones y nombres de columnas</h3>
+<section id="dimensiones-y-nombres-de-columnas" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="dimensiones-y-nombres-de-columnas"><span class="header-section-number">6.1</span> Dimensiones y nombres de columnas</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(concentrado)          <span class="co"># Filas y columnas</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(concentrado)         <span class="co"># Solo filas</span></span>
@@ -527,15 +537,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(concentrado)        <span class="co"># Nombres de las columnas</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="clases-por-columna" class="level3" data-number="5.2">
-<h3 data-number="5.2" class="anchored" data-anchor-id="clases-por-columna"><span class="header-section-number">5.2</span> Clases por columna</h3>
+<section id="clases-por-columna" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="clases-por-columna"><span class="header-section-number">6.2</span> Clases por columna</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(concentrado)          <span class="co"># Estructura completa: tipo + primeros valores</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)      <span class="co"># Versión tidyverse: más legible</span></span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="detección-de-nas" class="level3" data-number="5.3">
-<h3 data-number="5.3" class="anchored" data-anchor-id="detección-de-nas"><span class="header-section-number">5.3</span> Detección de NAs</h3>
+<section id="detección-de-nas" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="detección-de-nas"><span class="header-section-number">6.3</span> Detección de NAs</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(lapop))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -554,16 +564,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <hr>
 </section>
-<section id="exportar-de-resultados" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="exportar-de-resultados"><span class="header-section-number">6</span> Exportar de resultados</h2>
-<section id="exportar-a-csv-con-write_csv" class="level3" data-number="6.1">
-<h3 data-number="6.1" class="anchored" data-anchor-id="exportar-a-csv-con-write_csv"><span class="header-section-number">6.1</span> Exportar a CSV con <code>write_csv()</code></h3>
+</section>
+<section id="exportar-de-resultados" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="exportar-de-resultados"><span class="header-section-number">7</span> Exportar de resultados</h2>
+<section id="exportar-a-csv-con-write_csv" class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="exportar-a-csv-con-write_csv"><span class="header-section-number">7.1</span> Exportar a CSV con <code>write_csv()</code></h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba1.csv"</span>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="exportar-a-excel-con-writexlwrite_xlsx" class="level3" data-number="6.2">
-<h3 data-number="6.2" class="anchored" data-anchor-id="exportar-a-excel-con-writexlwrite_xlsx"><span class="header-section-number">6.2</span> Exportar a Excel con <code>writexl::write_xlsx()</code></h3>
+<section id="exportar-a-excel-con-writexlwrite_xlsx" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="exportar-a-excel-con-writexlwrite_xlsx"><span class="header-section-number">7.2</span> Exportar a Excel con <code>writexl::write_xlsx()</code></h3>
 <p><code>{writexl}</code> no requiere tener Excel instalado.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_xlsx</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba2.xlsx"</span>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
@@ -571,19 +582,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 </section>
 </section>
-<section id="buenas-prácticas-nombres-de-archivos" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="buenas-prácticas-nombres-de-archivos"><span class="header-section-number">7</span> Buenas prácticas: nombres de archivos</h2>
+<section id="buenas-prácticas-nombres-de-archivos" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="buenas-prácticas-nombres-de-archivos"><span class="header-section-number">8</span> Buenas prácticas: nombres de archivos</h2>
 <p>El nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.</p>
-<section id="reglas-esenciales" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="reglas-esenciales"><span class="header-section-number">7.1</span> Reglas esenciales</h3>
+<section id="reglas-esenciales" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="reglas-esenciales"><span class="header-section-number">8.1</span> Reglas esenciales</h3>
 <ul>
 <li>Usar guiones bajos <code>_</code> o guiones <code>-</code></li>
 <li>Fechas en formato <code>AAAA_MM_DD</code></li>
 <li>Todo en minúsculas</li>
 </ul>
 </section>
-<section id="estructura-de-carpetas-recomendada-recordatorio" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="estructura-de-carpetas-recomendada-recordatorio"><span class="header-section-number">7.2</span> Estructura de carpetas recomendada (recordatorio)</h3>
+<section id="estructura-de-carpetas-recomendada-recordatorio" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="estructura-de-carpetas-recomendada-recordatorio"><span class="header-section-number">8.2</span> Estructura de carpetas recomendada (recordatorio)</h3>
 <pre><code>mi_proyecto/
 ├── data/
 │   ├── raw/              ← Archivos originales (nunca modificar)
@@ -596,8 +607,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 </section>
 </section>
-<section id="ejercicio" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="ejercicio"><span class="header-section-number">8</span> Ejercicio</h2>
+<section id="ejercicio" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="ejercicio"><span class="header-section-number">9</span> Ejercicio</h2>
 <ol type="1">
 <li><p>Crea un tibble llamado <code>mi_encuesta</code> con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un <code>NA</code>.</p></li>
 <li><p>Usa <code>dim()</code>, <code>names()</code>, <code>glimpse()</code> y <code>summary()</code> para inspeccionarlo.</p></li>
@@ -609,9 +620,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <!-- -->
 
-</section>
-</div>
-</div>
 </section>
 
 </main> <!-- /main -->
@@ -1256,103 +1264,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a>lapop <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">clean_names</span>(lapop)</span>
 <span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb19-212"><a href="#cb19-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a>::: callout-important</span>
-<span id="cb19-214"><a href="#cb19-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-215"><a href="#cb19-215" aria-hidden="true" tabindex="-1"></a><span class="fu">## Inspección rápida de un dataframe</span></span>
-<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-217"><a href="#cb19-217" aria-hidden="true" tabindex="-1"></a>Antes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.</span>
-<span id="cb19-218"><a href="#cb19-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dimensiones y nombres de columnas</span></span>
-<span id="cb19-220"><a href="#cb19-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(concentrado)          <span class="co"># Filas y columnas</span></span>
-<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(concentrado)         <span class="co"># Solo filas</span></span>
-<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(concentrado)         <span class="co"># Solo columnas</span></span>
-<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(concentrado)        <span class="co"># Nombres de las columnas</span></span>
-<span id="cb19-229"><a href="#cb19-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-230"><a href="#cb19-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-231"><a href="#cb19-231" aria-hidden="true" tabindex="-1"></a><span class="fu">### Clases por columna</span></span>
-<span id="cb19-232"><a href="#cb19-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(concentrado)          <span class="co"># Estructura completa: tipo + primeros valores</span></span>
-<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)      <span class="co"># Versión tidyverse: más legible</span></span>
-<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a><span class="fu">### Detección de NAs</span></span>
-<span id="cb19-242"><a href="#cb19-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-245"><a href="#cb19-245" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(lapop))</span>
-<span id="cb19-248"><a href="#cb19-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-249"><a href="#cb19-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-250"><a href="#cb19-250" aria-hidden="true" tabindex="-1"></a>::: callout-warning</span>
-<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## ¿Por qué importa detectar NA desde el inicio?</span></span>
-<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>Los valores faltantes (<span class="in">`NA`</span>) pueden alterar los resultados de funciones como <span class="in">`mean()`</span>, <span class="in">`sum()`</span> o modelos de regresión. Identificarlos al inicio del análisis evita errores.</span>
-<span id="cb19-254"><a href="#cb19-254" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-255"><a href="#cb19-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-256"><a href="#cb19-256" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-214"><a href="#cb19-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Inspección rápida de un dataframe</span></span>
+<span id="cb19-215"><a href="#cb19-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a>Antes de analizar cualquier dataframe, debemos hacer una revisión inicial para entender su estructura y detectar posibles problemas.</span>
+<span id="cb19-217"><a href="#cb19-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-218"><a href="#cb19-218" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dimensiones y nombres de columnas</span></span>
+<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-222"><a href="#cb19-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(concentrado)          <span class="co"># Filas y columnas</span></span>
+<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(concentrado)         <span class="co"># Solo filas</span></span>
+<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(concentrado)         <span class="co"># Solo columnas</span></span>
+<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(concentrado)        <span class="co"># Nombres de las columnas</span></span>
+<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-229"><a href="#cb19-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-230"><a href="#cb19-230" aria-hidden="true" tabindex="-1"></a><span class="fu">### Clases por columna</span></span>
+<span id="cb19-231"><a href="#cb19-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-234"><a href="#cb19-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(concentrado)          <span class="co"># Estructura completa: tipo + primeros valores</span></span>
+<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)      <span class="co"># Versión tidyverse: más legible</span></span>
+<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a><span class="fu">### Detección de NAs</span></span>
+<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-244"><a href="#cb19-244" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-245"><a href="#cb19-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(lapop))</span>
+<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-248"><a href="#cb19-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-249"><a href="#cb19-249" aria-hidden="true" tabindex="-1"></a>::: callout-warning</span>
+<span id="cb19-250"><a href="#cb19-250" aria-hidden="true" tabindex="-1"></a><span class="fu">## ¿Por qué importa detectar NA desde el inicio?</span></span>
+<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a>Los valores faltantes (<span class="in">`NA`</span>) pueden alterar los resultados de funciones como <span class="in">`mean()`</span>, <span class="in">`sum()`</span> o modelos de regresión. Identificarlos al inicio del análisis evita errores.</span>
+<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-254"><a href="#cb19-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-255"><a href="#cb19-255" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-256"><a href="#cb19-256" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-257"><a href="#cb19-257" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-259"><a href="#cb19-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exportar de resultados</span></span>
-<span id="cb19-260"><a href="#cb19-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a><span class="fu">### Exportar a CSV con `write_csv()`</span></span>
-<span id="cb19-262"><a href="#cb19-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-265"><a href="#cb19-265" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb19-267"><a href="#cb19-267" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba1.csv"</span>))</span>
-<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-269"><a href="#cb19-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-270"><a href="#cb19-270" aria-hidden="true" tabindex="-1"></a><span class="fu">### Exportar a Excel con `writexl::write_xlsx()`</span></span>
-<span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a><span class="in">`{writexl}`</span> no requiere tener Excel instalado.</span>
-<span id="cb19-273"><a href="#cb19-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a><span class="fu">write_xlsx</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba2.xlsx"</span>))</span>
-<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Buenas prácticas: nombres de archivos</span></span>
-<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a>El nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.</span>
-<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-287"><a href="#cb19-287" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reglas esenciales</span></span>
-<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-289"><a href="#cb19-289" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Usar guiones bajos <span class="in">`_`</span> o guiones <span class="in">`-`</span></span>
-<span id="cb19-290"><a href="#cb19-290" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fechas en formato <span class="in">`AAAA_MM_DD`</span></span>
-<span id="cb19-291"><a href="#cb19-291" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Todo en minúsculas</span>
-<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a><span class="fu">### Estructura de carpetas recomendada (recordatorio)</span></span>
-<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a><span class="in">mi_proyecto/</span></span>
-<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a><span class="in">├── data/</span></span>
-<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a><span class="in">│   ├── raw/              ← Archivos originales (nunca modificar)</span></span>
-<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a><span class="in">│   └── processed/        ← Datos ya limpios y transformados</span></span>
-<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a><span class="in">├── scripts/              ← Archivos .R y .qmd</span></span>
-<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a><span class="in">├── outputs/</span></span>
-<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a><span class="in">│   ├── figures/</span></span>
-<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a><span class="in">│   └── tables/</span></span>
-<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a><span class="in">└── README.md</span></span>
-<span id="cb19-305"><a href="#cb19-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-306"><a href="#cb19-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-307"><a href="#cb19-307" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb19-308"><a href="#cb19-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejercicio</span></span>
-<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-311"><a href="#cb19-311" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Crea un tibble llamado <span class="in">`mi_encuesta`</span> con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un <span class="in">`NA`</span>.</span>
-<span id="cb19-312"><a href="#cb19-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Usa <span class="in">`dim()`</span>, <span class="in">`names()`</span>, <span class="in">`glimpse()`</span> y <span class="in">`summary()`</span> para inspeccionarlo.</span>
-<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Detecta en qué columna está el <span class="in">`NA`</span> usando <span class="in">`colSums(is.na())`</span>.</span>
-<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-317"><a href="#cb19-317" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Aplica <span class="in">`janitor::clean_names()`</span> si alguno de tus nombres de columna tiene espacios o mayúsculas.</span>
-<span id="cb19-318"><a href="#cb19-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-319"><a href="#cb19-319" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Exporta el tibble a CSV usando <span class="in">`readr::write_csv()`</span> dentro de una carpeta <span class="in">`outputs/tables/`</span> de tu proyecto.</span>
+<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exportar de resultados</span></span>
+<span id="cb19-259"><a href="#cb19-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-260"><a href="#cb19-260" aria-hidden="true" tabindex="-1"></a><span class="fu">### Exportar a CSV con `write_csv()`</span></span>
+<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-264"><a href="#cb19-264" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-265"><a href="#cb19-265" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba1.csv"</span>))</span>
+<span id="cb19-267"><a href="#cb19-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-269"><a href="#cb19-269" aria-hidden="true" tabindex="-1"></a><span class="fu">### Exportar a Excel con `writexl::write_xlsx()`</span></span>
+<span id="cb19-270"><a href="#cb19-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a><span class="in">`{writexl}`</span> no requiere tener Excel instalado.</span>
+<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-275"><a href="#cb19-275" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a><span class="fu">write_xlsx</span>(concentrado, <span class="fu">here</span>(<span class="st">"outputs"</span>, <span class="st">"tables"</span>, <span class="st">"prueba2.xlsx"</span>))</span>
+<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Buenas prácticas: nombres de archivos</span></span>
+<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a>El nombre de un archivo de datos es importante ya que se puede facilitar la reproducibilidad y el trabajo colaborativo.</span>
+<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reglas esenciales</span></span>
+<span id="cb19-287"><a href="#cb19-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Usar guiones bajos <span class="in">`_`</span> o guiones <span class="in">`-`</span></span>
+<span id="cb19-289"><a href="#cb19-289" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fechas en formato <span class="in">`AAAA_MM_DD`</span></span>
+<span id="cb19-290"><a href="#cb19-290" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Todo en minúsculas</span>
+<span id="cb19-291"><a href="#cb19-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a><span class="fu">### Estructura de carpetas recomendada (recordatorio)</span></span>
+<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a><span class="in">mi_proyecto/</span></span>
+<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a><span class="in">├── data/</span></span>
+<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a><span class="in">│   ├── raw/              ← Archivos originales (nunca modificar)</span></span>
+<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a><span class="in">│   └── processed/        ← Datos ya limpios y transformados</span></span>
+<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a><span class="in">├── scripts/              ← Archivos .R y .qmd</span></span>
+<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a><span class="in">├── outputs/</span></span>
+<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a><span class="in">│   ├── figures/</span></span>
+<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a><span class="in">│   └── tables/</span></span>
+<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a><span class="in">└── README.md</span></span>
+<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-305"><a href="#cb19-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-306"><a href="#cb19-306" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-307"><a href="#cb19-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-308"><a href="#cb19-308" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejercicio</span></span>
+<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Crea un tibble llamado <span class="in">`mi_encuesta`</span> con al menos 5 observaciones y 4 variables (una de cada tipo: numérica, carácter, lógica y fecha). Introduce al menos un <span class="in">`NA`</span>.</span>
+<span id="cb19-311"><a href="#cb19-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-312"><a href="#cb19-312" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Usa <span class="in">`dim()`</span>, <span class="in">`names()`</span>, <span class="in">`glimpse()`</span> y <span class="in">`summary()`</span> para inspeccionarlo.</span>
+<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Detecta en qué columna está el <span class="in">`NA`</span> usando <span class="in">`colSums(is.na())`</span>.</span>
+<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Aplica <span class="in">`janitor::clean_names()`</span> si alguno de tus nombres de columna tiene espacios o mayúsculas.</span>
+<span id="cb19-317"><a href="#cb19-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-318"><a href="#cb19-318" aria-hidden="true" tabindex="-1"></a><span class="ss">5.  </span>Exporta el tibble a CSV usando <span class="in">`readr::write_csv()`</span> dentro de una carpeta <span class="in">`outputs/tables/`</span> de tu proyecto.</span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
