@@ -3,3 +3,5 @@
 /.quarto/
 **/*.quarto_ipynb
 .Rproj.user
+.DS_Store
+docs/.DS_Store
