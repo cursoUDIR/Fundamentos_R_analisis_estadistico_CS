@@ -1,0 +1,412 @@
+---
+title: "Sesión 3: Tipos de variables, creación y recodificación"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Distinguir los tipos de variables.
+-   Crear nuevas variables a partir de cálculos y transformaciones con `mutate()`.
+-   Recodificar variables usando `if_else()`, `case_when()` y `recode()`.
+-   Convertir variables a factores con niveles y etiquetas.
+-   Colapsar categorías poco frecuentes con `forcats::fct_lump_prop()`.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal                                                          |
+|-------------|----------------------------------------------------------------------------|
+| `{dplyr}`   | Manipulación de datos: `mutate()`, `if_else()`, `case_when()`, `recode()` |
+| `{forcats}` | Manejo de factores: `fct_recode()`, `fct_lump_prop()`                     |
+| `{janitor}` | Tablas de frecuencia con `tabyl()`                                         |
+| `{haven}`   | Lectura de archivos Stata y manejo de etiquetas                            |
+
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  janitor,
+  haven,
+  here
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con la base `concentradohogar` de la ENIGH, que importamos en la Sesión 2. Recordemos cómo abrirla:
+
+```{r}
+#| eval: false
+concentrado <- read_csv(here("data", "raw", "concentradohogar.csv"))
+```
+
+Algunas variables que usaremos a lo largo de esta sesión:
+
+| Variable      | Descripción                                          |
+|---------------|------------------------------------------------------|
+| `ing_cor`     | Ingreso corriente trimestral del hogar (pesos)       |
+| `edad_jefe`   | Edad de la persona jefa del hogar                    |
+| `educa_jefe`  | Nivel de instrucción de la persona jefa del hogar    |
+| `est_socio`   | Estrato socioeconómico                               |
+
+Antes de transformar cualquier variable, hagamos una inspección rápida:
+
+```{r}
+#| eval: false
+glimpse(concentrado)
+summary(concentrado$ing_cor)
+summary(concentrado$edad_jefe)
+```
+
+------------------------------------------------------------------------
+
+## Tipos de variables y codificación
+
+Antes de crear o recodificar variables, debemos ver qué tipo de variable tenemos, ya que esto influye en qué funciones debemos usar.
+
+### Por ejemplo
+
+| Tipo         | Descripción                   | Ejemplo en ENIGH                |
+|--------------|-------------------------------|---------------------------------|
+| **Nominal**  | Categorías sin orden          | Sexo, entidad federativa        |
+| **Ordinal**  | Categorías con orden          | Nivel educativo, estrato        |
+| **Discreta** | Valores enteros contables     | Número de integrantes del hogar |
+| **Continua** | Valores numéricos en un rango | Ingreso corriente, gasto        |
+
+### Tipos en R (repaso)
+
+En R, estas categorías se traducen en las siguientes:
+
+-   `numeric` / `integer`: variables cuantitativas (continuas o discretas).
+-   `character`: cadenas de texto, normalmente variables nominales sin orden.
+-   `factor`: variables categóricas con niveles definidos (nominales u ordinales).
+-   `logical`: variables lógicas (`TRUE`/`FALSE`), equivalentes a dicotómicas.
+
+Podemos revisar el tipo de cualquier variable con `class()`:
+
+```{r}
+#| eval: false
+class(concentrado$ing_cor)
+class(concentrado$educa_jefe)
+```
+
+
+------------------------------------------------------------------------
+
+## Creación de variables con `mutate()`
+
+`mutate()` agrega o modifica columnas dentro de un dataframe. El input, digamos, es cualquier expresión válida de R: operaciones aritméticas, funciones estadísticas, funciones de texto, etc.
+
+### Cálculos numéricos
+
+La variable `ing_cor` refiere al ingreso corriente **trimestral del hogar**. Podemos calcular por mes o el logaritmo.
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    ing_mensual  = ing_cor / 3,            # ingreso promedio mensual
+    log_ing      = log(ing_cor)
+  )
+```
+
+
+::: callout-tip
+## Varias variables en un solo `mutate()`
+
+Podemos crear todas las variables que necesitemos dentro de un solo bloque `mutate()`, separadas por comas. 
+:::
+
+------------------------------------------------------------------------
+
+## Recodificación con `if_else()`
+
+`if_else()` es la función más utilizada para crear **variables dicotómicas**: si se cumple una condición, asigna un valor; si no, asigna otro.
+
+```         
+if_else(condición, valor_si_verdadero, valor_si_falso)
+```
+
+### Por ejemplo: persona jefa del hogar mayor de 65 años
+
+Primero creamos la variable.
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(jefe_mayor65 = if_else(edad_jefe >= 65, "65 años o más", "Menos de 65 años"))
+```
+
+Luego especificamos los niveles
+
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(jefe_mayor65 = factor(jefe_mayor65,
+  levels = c("Menos de 65 años", "65 años o más")))
+```
+
+Luego la vemos
+
+```{r}
+#| eval: false
+concentrado %>% tabyl(jefe_mayor65)
+```
+------------------------------------------------------------------------
+
+## Recodificación con `case_when()`
+
+`case_when()` evalúa cada condición y asigna el valor de una variable nueva a partir de una antigua. Es como una serie de "si se cumple esto, asigna esto".
+
+```         
+mutate(nueva_var = case_when(
+  condición1 ~ "valor1",
+  condición2 ~ "valor2",
+  TRUE        ~ NA_character_   # para los casos que no cumplen ninguna condición
+))
+```
+
+### Ejemplo: rangos de edad de la persona jefa del hogar
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    rango_edad_jefe = case_when(
+      edad_jefe >= 18 & edad_jefe <= 29 ~ "18-29",
+      edad_jefe >= 30 & edad_jefe <= 44 ~ "30-44",
+      edad_jefe >= 45 & edad_jefe <= 59 ~ "45-59",
+      edad_jefe >= 60 & edad_jefe <= 74 ~ "60-74",
+      edad_jefe >= 75                   ~ "75 o más",
+      TRUE                              ~ NA_character_
+    )
+  )
+
+concentrado %>% tabyl(rango_edad_jefe)
+```
+
+Convertimos a factor y especificamos niveles:
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    rango_edad_jefe = factor(rango_edad_jefe,
+                             levels = c("18-29", "30-44", "45-59","60-74", "75 o más")))
+```
+
+### Ejemplo: nivel de escolaridad del jefe o jefa del hogar
+
+La variable `educa_jefe` sigue la siguiente clasificación del INEGI:
+
+| Código | Descripción             |
+|--------|-------------------------|
+| 1      | Sin instrucción         |
+| 2      | Preescolar              |
+| 3      | Primaria incompleta     |
+| 4      | Primaria completa       |
+| 5      | Secundaria incompleta   |
+| 6      | Secundaria completa     |
+| 7      | Preparatoria incompleta |
+| 8      | Preparatoria completa   |
+| 9      | Profesional incompleta  |
+| 10     | Profesional completa    |
+| 11     | Posgrado                |
+
+Agrupamos estos códigos en tres grandes niveles:
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    nivel_educa = case_when(
+      educa_jefe %in% c("01", "02", "03", "04") ~ "Básica o menos",
+      educa_jefe %in% c("05", "06", "07", "08") ~ "Media superior",
+      educa_jefe %in% c("09", "10", "11")        ~ "Superior",
+      TRUE                                        ~ NA_character_
+    ),
+    nivel_educa = factor(nivel_educa, levels = c("Básica o menos", "Media superior", "Superior"))
+  )
+
+concentrado %>% tabyl(nivel_educa)
+```
+
+Verificamos que la recodificación sea correcta con una tabla cruzada:
+
+```{r}
+#| eval: false
+table(concentrado$educa_jefe, concentrado$nivel_educa)
+```
+
+------------------------------------------------------------------------
+
+## Recodificación con `recode()`
+
+`recode()` es útil para hacer **sustituciones directas** de valores, sin necesidad de escribir condiciones. Funciona bien para variables con pocos valores distintos y conocidos.
+
+### Ejemplo: etiquetas para el estrato socioeconómico
+
+La variable `est_socio` tiene cuatro categorías (1 a 4). Le asignamos etiquetas descriptivas:
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    estrato_label = recode(est_socio,
+      `1` = "Bajo",
+      `2` = "Medio bajo",
+      `3` = "Medio alto",
+      `4` = "Alto",
+      .default = NA_character_
+    )
+  )
+
+concentrado %>% tabyl(estrato_label)
+```
+
+::: callout-tip
+## `recode()` vs `case_when()`
+
+`recode()` es más conciso cuando se trata de sustituciones uno a uno con valores conocidos. `case_when()` es más flexible cuando las condiciones implican rangos numéricos, operadores lógicos (`&`, `|`) o combinaciones de varias variables.
+:::
+
+------------------------------------------------------------------------
+
+## Colapsar categorías con `forcats::fct_lump_prop()`
+
+Cuando una variable categórica tiene muchas categorías poco frecuentes, conviene agruparlas en una categoría "Otros".
+
+### Ejemplo: colapsar niveles poco frecuentes de educación
+
+Primero convertimos a factor
+```{r}
+#| eval: false
+concentrado$educa_jefe <- as.factor(concentrado$educa_jefe)
+```
+
+Revisamos las proporciones actuales
+
+```{r}
+#| eval: false
+concentrado %>% tabyl(educa_jefe)
+```
+
+Colapsamos las categorías con menos del 10% de los casos
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    educa_agrupada = fct_lump_prop(educa_jefe, prop = 0.10, other_level = "Otros")
+  )
+```
+
+Revisamos cuáles quedaron.
+
+```{r}
+#| eval: false
+concentrado %>% tabyl(educa_agrupada)
+```
+
+Una vez agrupadas las categorías con menos del 10%, podemos etiquetar las más frecuentes con `fct_recode()`:
+
+```{r}
+#| eval: false
+concentrado <- concentrado %>%
+  mutate(
+    educa_agrupada = fct_recode(educa_agrupada,
+      "Primaria incompleta"  = "03",
+      "Primaria completa"    = "04",
+      "Secundaria completa"  = "06",
+      "Preparatoria completa" = "08",
+      "Profesional completa" = "10"
+    )
+  )
+```
+
+La vemos.
+```{r}
+#| eval: false
+concentrado %>% tabyl(educa_agrupada)
+```
+
+------------------------------------------------------------------------
+
+## (Optativo) Etiquetas provenientes de Stata con `{haven}`
+
+Cuando los datos provienen de archivos `.dta` (Stata), las variables suelen traer etiquetas de valor (*value labels*). `{haven}` las preserva como atributos del objeto en R.
+
+### Leer el archivo y revisar etiquetas
+
+Si tuviéramos que importar bases en formato Stata:
+```{r}
+#| eval: false
+lapop_dta <- read_dta(here("data", "raw", "mex_lapop_2023.dta"))
+```
+
+Podemos ver las etiquetas de la variable
+
+```{r}
+#| eval: false
+attr(lapop_dta$ur, "labels")
+```
+
+### Convertir etiquetas a factor
+
+as_factor() convierte las etiquetas Stata en niveles de factor en R
+```{r}
+#| eval: false
+lapop_dta <- lapop_dta %>%
+  mutate(ur = as_factor(ur))
+```
+
+Veamos los niveles.
+
+```{r}
+#| eval: false
+levels(lapop_dta$ur)
+```
+
+::: callout-note
+## `as_factor()` de `{haven}`
+
+A diferencia de `as.factor()` de R base, `haven::as_factor()` usa las **etiquetas** del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata.
+:::
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1.  Abre la base `concentradohogar.csv` con `here("data", "raw", "concentradohogar.csv")`.
+
+2.  Usando `if_else()`, crea una variable `rural` a partir de tam_loc que asigne como rural aquellos hogares que viven en localidades con menos de 2500 habitantes y  `rural` todas las demás. Conviértela a factor con niveles.
+
+3.  Con `case_when()`, crea una variable `rango_ing` que clasifique el ingreso corriente en cuartiles:
+    -   `"Q1"`: menor o igual al cuartil 1.
+    -   `"Q2"`: mayor al Q1 y menor o igual a la mediana.
+    -   `"Q3"`: mayor a la mediana y menor o igual al Q3.
+    -   `"Q4"`: mayor al cuartil 3.
+
+
