@@ -207,12 +207,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#ejemplo-colapsar-niveles-poco-frecuentes-de-educación" id="toc-ejemplo-colapsar-niveles-poco-frecuentes-de-educación" class="nav-link" data-scroll-target="#ejemplo-colapsar-niveles-poco-frecuentes-de-educación"><span class="header-section-number">9.1</span> Ejemplo: colapsar niveles poco frecuentes de educación</a></li>
   </ul></li>
-  <li><a href="#optativo-etiquetas-provenientes-de-stata-con-haven" id="toc-optativo-etiquetas-provenientes-de-stata-con-haven" class="nav-link" data-scroll-target="#optativo-etiquetas-provenientes-de-stata-con-haven"><span class="header-section-number">10</span> (Optativo) Etiquetas provenientes de Stata con <code>{haven}</code></a>
-  <ul class="collapse">
-  <li><a href="#leer-el-archivo-y-revisar-etiquetas" id="toc-leer-el-archivo-y-revisar-etiquetas" class="nav-link" data-scroll-target="#leer-el-archivo-y-revisar-etiquetas"><span class="header-section-number">10.1</span> Leer el archivo y revisar etiquetas</a></li>
-  <li><a href="#convertir-etiquetas-a-factor" id="toc-convertir-etiquetas-a-factor" class="nav-link" data-scroll-target="#convertir-etiquetas-a-factor"><span class="header-section-number">10.2</span> Convertir etiquetas a factor</a></li>
-  </ul></li>
-  <li><a href="#ejercicio" id="toc-ejercicio" class="nav-link" data-scroll-target="#ejercicio"><span class="header-section-number">11</span> Ejercicio</a></li>
+  <li><a href="#ejercicio" id="toc-ejercicio" class="nav-link" data-scroll-target="#ejercicio"><span class="header-section-number">10</span> Ejercicio</a></li>
   </ul>
 </nav>
     </div>
@@ -238,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Fecha de publicación</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">14 de abril de 2026</p>
+      <p class="date">17 de abril de 2026</p>
     </div>
   </div>
   
@@ -259,6 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Recodificar variables usando <code>if_else()</code>, <code>case_when()</code> y <code>recode()</code>.</li>
 <li>Convertir variables a factores con niveles y etiquetas.</li>
 <li>Colapsar categorías poco frecuentes con <code>forcats::fct_lump_prop()</code>.</li>
+<li>Manipular variables en formato fecha con <code>lubridate</code>.</li>
 </ul>
 <hr>
 </section>
@@ -291,6 +287,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td><code>{haven}</code></td>
 <td>Lectura de archivos Stata y manejo de etiquetas</td>
+</tr>
+<tr class="odd">
+<td><code>{lubridate}</code></td>
+<td>Manejo de fechas</td>
 </tr>
 </tbody>
 </table>
@@ -337,11 +337,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Antes de transformar cualquier variable, hagamos una inspección rápida:</p>
+<p>También trabajaremos con los datos de la Fiscalía General de Justicia para algunas cosas de fechas (https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj)</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(concentrado<span class="sc">$</span>ing_cor)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(concentrado<span class="sc">$</span>edad_jefe)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"victimas_acumulado_0924.RData"</span>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -454,7 +452,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(jefe_mayor65)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<hr>
 </section>
 </section>
 <section id="recodificación-con-case_when" class="level2" data-number="7">
@@ -646,52 +643,152 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_agrupada)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<hr>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">## Fechas</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">### Extraer componentes de una fecha</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">La variable <code>fecha_inicio</code> viene como <code>character</code>. ¿Qué pasa si sólo tuviéramos la variable fecha_inicio y queremos extraer el año, mes y día para generar tres variables distintas? Antes de extraer cualquier componente, debemos convertirla al tipo <code>Date</code> con <code>ymd()</code>, que asume el orden Año-Mes-Día:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>{.r .cell-code} victimas &lt;- victimas %&gt;% mutate(fecha_inicio = ymd(fecha_inicio))</code> :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">La función ymd() de lubridate convierte en texto la fecha, pero asumiendo que el formato está en orden Year-Month-Day (como viene originalmente).</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Ahora sí, queremos extraer el año, mes y día a partir de fecha_inicio.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>{.r .cell-code} victimas &lt;- victimas %&gt;% mutate( annio = year(fecha_inicio),   # Año mes   = month(fecha_inicio),  # Mes (número) dia   = day(fecha_inicio)     # Día )</code> :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Los objetos <code>Date</code> en R se almacenan como números enteros (días transcurridos desde cierta fecha). El formato que vemos al imprimir es solo una representación. Esto significa que <strong>el orden día/mes/año no existe dentro del objeto</strong>; solo existe al momento de imprimirlo o exportarlo.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>format()</code> convierte una fecha a <code>character</code> con el orden deseado:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>{.r .cell-code} victimas &lt;- victimas %&gt;% mutate( fecha_formateada1 = format(fecha_inicio, "%d-%m-%Y"),  # día-mes-año fecha_formateada2 = format(fecha_inicio, "%m/%d/%Y"),  # mes/día/año fecha_formateada3 = format(fecha_inicio, "%Y/%m/%d")   # año/mes/día )</code> :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">### Cálculo de duraciones</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">No necesitamos cambiar formatos para hacer cálculos. <code>difftime()</code> calcula la diferencia entre dos fechas directamente sobre objetos <code>Date</code>:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">```{.r .cell-code} # Convertir fecha_hecho a Date victimas &lt;- victimas %&gt;% mutate(fecha_hecho = ymd(fecha_hecho))</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"># Calcular días entre el hecho y el inicio de la carpeta victimas &lt;- victimas %&gt;% mutate( diferencia_dias = as.numeric(difftime(fecha_inicio, fecha_hecho, units = “days”)) ) ``` :::</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">### Creación de variables de fecha</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Si tenemos el mes y el año en columnas distintas, podemos combinarlas con <code>make_date()</code>. Como esta función requiere al menos día, mes y año, asigna el día 1 por defecto cuando solo se proveen mes y año:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">```{.r .cell-code} victimas &lt;- victimas %&gt;% mutate(fecha_mes_año = make_date(month = mes, year = annio))</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"># Reformatear para mostrar solo mes y año victimas &lt;- victimas %&gt;% mutate(fecha_mes_año = format(fecha_mes_año, “%m/%Y”)) ``` :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Si tenemos la fecha en una columna y la hora en otra, las unimos con <code>paste()</code> antes de convertir:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">```{.r .cell-code} victimas &lt;- victimas %&gt;% mutate(fecha_hora = ymd_hms(paste(fecha_inicio, hora_inicio)))</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">class(victimas$fecha_hora) ``` :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">## (Optativo) Etiquetas provenientes de Stata con <code>{haven}</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cuando los datos provienen de archivos <code>.dta</code> (Stata), las variables suelen traer etiquetas de valor (<em>value labels</em>). <code>{haven}</code> las preserva como atributos del objeto en R.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">### Leer el archivo y revisar etiquetas</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Si tuviéramos que importar bases en formato Stata:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>{.r .cell-code} lapop_dta &lt;- read_dta(here("data", "raw", "mex_lapop_2023.dta"))</code> :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Podemos ver las etiquetas de la variable</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>{.r .cell-code} attr(lapop_dta$ur, "labels")</code> :::</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">### Convertir etiquetas a factor</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">as_factor() convierte las etiquetas Stata en niveles de factor en R</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>{.r .cell-code} lapop_dta &lt;- lapop_dta %&gt;% mutate(ur = as_factor(ur))</code> :::</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Veamos los niveles.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: {.cell}</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>{.r .cell-code} levels(lapop_dta$ur)</code> :::</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">::: callout-note ## <code>as_factor()</code> de <code>{haven}</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">A diferencia de <code>as.factor()</code> de R base, <code>haven::as_factor()</code> usa las <strong>etiquetas</strong> del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata. :::</td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
-<section id="optativo-etiquetas-provenientes-de-stata-con-haven" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="optativo-etiquetas-provenientes-de-stata-con-haven"><span class="header-section-number">10</span> (Optativo) Etiquetas provenientes de Stata con <code>{haven}</code></h2>
-<p>Cuando los datos provienen de archivos <code>.dta</code> (Stata), las variables suelen traer etiquetas de valor (<em>value labels</em>). <code>{haven}</code> las preserva como atributos del objeto en R.</p>
-<section id="leer-el-archivo-y-revisar-etiquetas" class="level3" data-number="10.1">
-<h3 data-number="10.1" class="anchored" data-anchor-id="leer-el-archivo-y-revisar-etiquetas"><span class="header-section-number">10.1</span> Leer el archivo y revisar etiquetas</h3>
-<p>Si tuviéramos que importar bases en formato Stata:</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"mex_lapop_2023.dta"</span>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Podemos ver las etiquetas de la variable</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(lapop_dta<span class="sc">$</span>ur, <span class="st">"labels"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="convertir-etiquetas-a-factor" class="level3" data-number="10.2">
-<h3 data-number="10.2" class="anchored" data-anchor-id="convertir-etiquetas-a-factor"><span class="header-section-number">10.2</span> Convertir etiquetas a factor</h3>
-<p>as_factor() convierte las etiquetas Stata en niveles de factor en R</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> lapop_dta <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ur =</span> <span class="fu">as_factor</span>(ur))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Veamos los niveles.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(lapop_dta<span class="sc">$</span>ur)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span><code>as_factor()</code> de <code>{haven}</code>
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A diferencia de <code>as.factor()</code> de R base, <code>haven::as_factor()</code> usa las <strong>etiquetas</strong> del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata.</p>
-</div>
-</div>
-<hr>
-</section>
-</section>
-<section id="ejercicio" class="level2" data-number="11">
-<h2 data-number="11" class="anchored" data-anchor-id="ejercicio"><span class="header-section-number">11</span> Ejercicio</h2>
+<section id="ejercicio" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="ejercicio"><span class="header-section-number">10</span> Ejercicio</h2>
 <ol type="1">
 <li><p>Abre la base <code>concentradohogar.csv</code> con <code>here("data", "raw", "concentradohogar.csv")</code>.</p></li>
 <li><p>Usando <code>if_else()</code>, crea una variable <code>rural</code> a partir de tam_loc que asigne como rural aquellos hogares que viven en localidades con menos de 2500 habitantes y <code>rural</code> todas las demás. Conviértela a factor con niveles.</p></li>
@@ -1161,417 +1258,499 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Sesión 3: Tipos de variables, creación y recodificación"</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ana Escoto y Mónica Lara"</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="an">lang:</span><span class="co"> es</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contenido"</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co">    df-print: kable</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objetivos de la sesión</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>Al finalizar esta sesión podrán:</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Distinguir los tipos de variables.</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Crear nuevas variables a partir de cálculos y transformaciones con <span class="in">`mutate()`</span>.</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Recodificar variables usando <span class="in">`if_else()`</span>, <span class="in">`case_when()`</span> y <span class="in">`recode()`</span>.</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Convertir variables a factores con niveles y etiquetas.</span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Colapsar categorías poco frecuentes con <span class="in">`forcats::fct_lump_prop()`</span>.</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Paquetes de esta sesión</span></span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Paquete     <span class="pp">|</span> Función principal                                                          <span class="pp">|</span></span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|----------------------------------------------------------------------------|</span></span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{dplyr}`</span>   <span class="pp">|</span> Manipulación de datos: <span class="in">`mutate()`</span>, <span class="in">`if_else()`</span>, <span class="in">`case_when()`</span>, <span class="in">`recode()`</span> <span class="pp">|</span></span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{forcats}`</span> <span class="pp">|</span> Manejo de factores: <span class="in">`fct_recode()`</span>, <span class="in">`fct_lump_prop()`</span>                     <span class="pp">|</span></span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{janitor}`</span> <span class="pp">|</span> Tablas de frecuencia con <span class="in">`tabyl()`</span>                                         <span class="pp">|</span></span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{haven}`</span>   <span class="pp">|</span> Lectura de archivos Stata y manejo de etiquetas                            <span class="pp">|</span></span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>  tidyverse,</span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>  janitor,</span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>  haven,</span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>  here</span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## Datos de esta sesión</span></span>
-<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>Trabajaremos con la base <span class="in">`concentradohogar`</span> de la ENIGH, que importamos en la Sesión 2. Recordemos cómo abrirla:</span>
-<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.csv"</span>))</span>
-<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a>Algunas variables que usaremos a lo largo de esta sesión:</span>
-<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Variable      <span class="pp">|</span> Descripción                                          <span class="pp">|</span></span>
-<span id="cb26-72"><a href="#cb26-72" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------------|------------------------------------------------------|</span></span>
-<span id="cb26-73"><a href="#cb26-73" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`ing_cor`</span>     <span class="pp">|</span> Ingreso corriente trimestral del hogar (pesos)       <span class="pp">|</span></span>
-<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`edad_jefe`</span>   <span class="pp">|</span> Edad de la persona jefa del hogar                    <span class="pp">|</span></span>
-<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`educa_jefe`</span>  <span class="pp">|</span> Nivel de instrucción de la persona jefa del hogar    <span class="pp">|</span></span>
-<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`est_socio`</span>   <span class="pp">|</span> Estrato socioeconómico                               <span class="pp">|</span></span>
-<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a>Antes de transformar cualquier variable, hagamos una inspección rápida:</span>
-<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-82"><a href="#cb26-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)</span>
-<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(concentrado<span class="sc">$</span>ing_cor)</span>
-<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(concentrado<span class="sc">$</span>edad_jefe)</span>
-<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-88"><a href="#cb26-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-89"><a href="#cb26-89" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-90"><a href="#cb26-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-91"><a href="#cb26-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tipos de variables y codificación</span></span>
-<span id="cb26-92"><a href="#cb26-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-93"><a href="#cb26-93" aria-hidden="true" tabindex="-1"></a>Antes de crear o recodificar variables, debemos ver qué tipo de variable tenemos, ya que esto influye en qué funciones debemos usar.</span>
-<span id="cb26-94"><a href="#cb26-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-95"><a href="#cb26-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Por ejemplo</span></span>
-<span id="cb26-96"><a href="#cb26-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-97"><a href="#cb26-97" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Tipo         <span class="pp">|</span> Descripción                   <span class="pp">|</span> Ejemplo en ENIGH                <span class="pp">|</span></span>
-<span id="cb26-98"><a href="#cb26-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------|-------------------------------|---------------------------------|</span></span>
-<span id="cb26-99"><a href="#cb26-99" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Nominal**  <span class="pp">|</span> Categorías sin orden          <span class="pp">|</span> Sexo, entidad federativa        <span class="pp">|</span></span>
-<span id="cb26-100"><a href="#cb26-100" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Ordinal**  <span class="pp">|</span> Categorías con orden          <span class="pp">|</span> Nivel educativo, estrato        <span class="pp">|</span></span>
-<span id="cb26-101"><a href="#cb26-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Discreta** <span class="pp">|</span> Valores enteros contables     <span class="pp">|</span> Número de integrantes del hogar <span class="pp">|</span></span>
-<span id="cb26-102"><a href="#cb26-102" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Continua** <span class="pp">|</span> Valores numéricos en un rango <span class="pp">|</span> Ingreso corriente, gasto        <span class="pp">|</span></span>
-<span id="cb26-103"><a href="#cb26-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-104"><a href="#cb26-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tipos en R (repaso)</span></span>
-<span id="cb26-105"><a href="#cb26-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-106"><a href="#cb26-106" aria-hidden="true" tabindex="-1"></a>En R, estas categorías se traducen en las siguientes:</span>
-<span id="cb26-107"><a href="#cb26-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-108"><a href="#cb26-108" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`numeric`</span> / <span class="in">`integer`</span>: variables cuantitativas (continuas o discretas).</span>
-<span id="cb26-109"><a href="#cb26-109" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`character`</span>: cadenas de texto, normalmente variables nominales sin orden.</span>
-<span id="cb26-110"><a href="#cb26-110" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`factor`</span>: variables categóricas con niveles definidos (nominales u ordinales).</span>
-<span id="cb26-111"><a href="#cb26-111" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`logical`</span>: variables lógicas (<span class="in">`TRUE`</span>/<span class="in">`FALSE`</span>), equivalentes a dicotómicas.</span>
-<span id="cb26-112"><a href="#cb26-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-113"><a href="#cb26-113" aria-hidden="true" tabindex="-1"></a>Podemos revisar el tipo de cualquier variable con <span class="in">`class()`</span>:</span>
-<span id="cb26-114"><a href="#cb26-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-117"><a href="#cb26-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-118"><a href="#cb26-118" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-119"><a href="#cb26-119" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(concentrado<span class="sc">$</span>ing_cor)</span>
-<span id="cb26-120"><a href="#cb26-120" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(concentrado<span class="sc">$</span>educa_jefe)</span>
-<span id="cb26-121"><a href="#cb26-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-122"><a href="#cb26-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-123"><a href="#cb26-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-124"><a href="#cb26-124" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-125"><a href="#cb26-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-126"><a href="#cb26-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Creación de variables con `mutate()`</span></span>
-<span id="cb26-127"><a href="#cb26-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-128"><a href="#cb26-128" aria-hidden="true" tabindex="-1"></a><span class="in">`mutate()`</span> agrega o modifica columnas dentro de un dataframe. El input, digamos, es cualquier expresión válida de R: operaciones aritméticas, funciones estadísticas, funciones de texto, etc.</span>
-<span id="cb26-129"><a href="#cb26-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-130"><a href="#cb26-130" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cálculos numéricos</span></span>
-<span id="cb26-131"><a href="#cb26-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-132"><a href="#cb26-132" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`ing_cor`</span> refiere al ingreso corriente **trimestral del hogar**. Podemos calcular por mes o el logaritmo.</span>
-<span id="cb26-133"><a href="#cb26-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-136"><a href="#cb26-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-137"><a href="#cb26-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-138"><a href="#cb26-138" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-139"><a href="#cb26-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-140"><a href="#cb26-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">ing_mensual  =</span> ing_cor <span class="sc">/</span> <span class="dv">3</span>,            <span class="co"># ingreso promedio mensual</span></span>
-<span id="cb26-141"><a href="#cb26-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_ing      =</span> <span class="fu">log</span>(ing_cor)</span>
-<span id="cb26-142"><a href="#cb26-142" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-143"><a href="#cb26-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-144"><a href="#cb26-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-145"><a href="#cb26-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-146"><a href="#cb26-146" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
-<span id="cb26-147"><a href="#cb26-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Varias variables en un solo `mutate()`</span></span>
-<span id="cb26-148"><a href="#cb26-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-149"><a href="#cb26-149" aria-hidden="true" tabindex="-1"></a>Podemos crear todas las variables que necesitemos dentro de un solo bloque <span class="in">`mutate()`</span>, separadas por comas. </span>
-<span id="cb26-150"><a href="#cb26-150" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb26-151"><a href="#cb26-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-152"><a href="#cb26-152" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-153"><a href="#cb26-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-154"><a href="#cb26-154" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `if_else()`</span></span>
-<span id="cb26-155"><a href="#cb26-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-156"><a href="#cb26-156" aria-hidden="true" tabindex="-1"></a><span class="in">`if_else()`</span> es la función más utilizada para crear **variables dicotómicas**: si se cumple una condición, asigna un valor; si no, asigna otro.</span>
-<span id="cb26-157"><a href="#cb26-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-158"><a href="#cb26-158" aria-hidden="true" tabindex="-1"></a><span class="in">```         </span></span>
-<span id="cb26-159"><a href="#cb26-159" aria-hidden="true" tabindex="-1"></a><span class="in">if_else(condición, valor_si_verdadero, valor_si_falso)</span></span>
-<span id="cb26-160"><a href="#cb26-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-161"><a href="#cb26-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-162"><a href="#cb26-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Por ejemplo: persona jefa del hogar mayor de 65 años</span></span>
-<span id="cb26-163"><a href="#cb26-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-164"><a href="#cb26-164" aria-hidden="true" tabindex="-1"></a>Primero creamos la variable.</span>
-<span id="cb26-165"><a href="#cb26-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-168"><a href="#cb26-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-169"><a href="#cb26-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-170"><a href="#cb26-170" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-171"><a href="#cb26-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">jefe_mayor65 =</span> <span class="fu">if_else</span>(edad_jefe <span class="sc">&gt;=</span> <span class="dv">65</span>, <span class="st">"65 años o más"</span>, <span class="st">"Menos de 65 años"</span>))</span>
-<span id="cb26-172"><a href="#cb26-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-173"><a href="#cb26-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-174"><a href="#cb26-174" aria-hidden="true" tabindex="-1"></a>Luego especificamos los niveles</span>
-<span id="cb26-175"><a href="#cb26-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-176"><a href="#cb26-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-179"><a href="#cb26-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-180"><a href="#cb26-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-181"><a href="#cb26-181" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-182"><a href="#cb26-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">jefe_mayor65 =</span> <span class="fu">factor</span>(jefe_mayor65,</span>
-<span id="cb26-183"><a href="#cb26-183" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Menos de 65 años"</span>, <span class="st">"65 años o más"</span>)))</span>
-<span id="cb26-184"><a href="#cb26-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-185"><a href="#cb26-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-186"><a href="#cb26-186" aria-hidden="true" tabindex="-1"></a>Luego la vemos</span>
-<span id="cb26-187"><a href="#cb26-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-190"><a href="#cb26-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-191"><a href="#cb26-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-192"><a href="#cb26-192" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(jefe_mayor65)</span>
-<span id="cb26-193"><a href="#cb26-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-194"><a href="#cb26-194" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-195"><a href="#cb26-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-196"><a href="#cb26-196" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `case_when()`</span></span>
-<span id="cb26-197"><a href="#cb26-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-198"><a href="#cb26-198" aria-hidden="true" tabindex="-1"></a><span class="in">`case_when()`</span> evalúa cada condición y asigna el valor de una variable nueva a partir de una antigua. Es como una serie de "si se cumple esto, asigna esto".</span>
-<span id="cb26-199"><a href="#cb26-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-200"><a href="#cb26-200" aria-hidden="true" tabindex="-1"></a><span class="in">```         </span></span>
-<span id="cb26-201"><a href="#cb26-201" aria-hidden="true" tabindex="-1"></a><span class="in">mutate(nueva_var = case_when(</span></span>
-<span id="cb26-202"><a href="#cb26-202" aria-hidden="true" tabindex="-1"></a><span class="in">  condición1 ~ "valor1",</span></span>
-<span id="cb26-203"><a href="#cb26-203" aria-hidden="true" tabindex="-1"></a><span class="in">  condición2 ~ "valor2",</span></span>
-<span id="cb26-204"><a href="#cb26-204" aria-hidden="true" tabindex="-1"></a><span class="in">  TRUE        ~ NA_character_   # para los casos que no cumplen ninguna condición</span></span>
-<span id="cb26-205"><a href="#cb26-205" aria-hidden="true" tabindex="-1"></a><span class="in">))</span></span>
-<span id="cb26-206"><a href="#cb26-206" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-207"><a href="#cb26-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-208"><a href="#cb26-208" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: rangos de edad de la persona jefa del hogar</span></span>
-<span id="cb26-209"><a href="#cb26-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-212"><a href="#cb26-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-213"><a href="#cb26-213" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-214"><a href="#cb26-214" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-215"><a href="#cb26-215" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-216"><a href="#cb26-216" aria-hidden="true" tabindex="-1"></a>    <span class="at">rango_edad_jefe =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-217"><a href="#cb26-217" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">18</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">29</span> <span class="sc">~</span> <span class="st">"18-29"</span>,</span>
-<span id="cb26-218"><a href="#cb26-218" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">30</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">44</span> <span class="sc">~</span> <span class="st">"30-44"</span>,</span>
-<span id="cb26-219"><a href="#cb26-219" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">45</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">59</span> <span class="sc">~</span> <span class="st">"45-59"</span>,</span>
-<span id="cb26-220"><a href="#cb26-220" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">60</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">74</span> <span class="sc">~</span> <span class="st">"60-74"</span>,</span>
-<span id="cb26-221"><a href="#cb26-221" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">75</span>                   <span class="sc">~</span> <span class="st">"75 o más"</span>,</span>
-<span id="cb26-222"><a href="#cb26-222" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>                              <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-223"><a href="#cb26-223" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-224"><a href="#cb26-224" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-225"><a href="#cb26-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-226"><a href="#cb26-226" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(rango_edad_jefe)</span>
-<span id="cb26-227"><a href="#cb26-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-228"><a href="#cb26-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-229"><a href="#cb26-229" aria-hidden="true" tabindex="-1"></a>Convertimos a factor y especificamos niveles:</span>
-<span id="cb26-230"><a href="#cb26-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-233"><a href="#cb26-233" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-234"><a href="#cb26-234" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-235"><a href="#cb26-235" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-236"><a href="#cb26-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-237"><a href="#cb26-237" aria-hidden="true" tabindex="-1"></a>    <span class="at">rango_edad_jefe =</span> <span class="fu">factor</span>(rango_edad_jefe,</span>
-<span id="cb26-238"><a href="#cb26-238" aria-hidden="true" tabindex="-1"></a>                             <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"18-29"</span>, <span class="st">"30-44"</span>, <span class="st">"45-59"</span>,<span class="st">"60-74"</span>, <span class="st">"75 o más"</span>)))</span>
-<span id="cb26-239"><a href="#cb26-239" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-240"><a href="#cb26-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-241"><a href="#cb26-241" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: nivel de escolaridad del jefe o jefa del hogar</span></span>
-<span id="cb26-242"><a href="#cb26-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-243"><a href="#cb26-243" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`educa_jefe`</span> sigue la siguiente clasificación del INEGI:</span>
-<span id="cb26-244"><a href="#cb26-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-245"><a href="#cb26-245" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Código <span class="pp">|</span> Descripción             <span class="pp">|</span></span>
-<span id="cb26-246"><a href="#cb26-246" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------------------|</span></span>
-<span id="cb26-247"><a href="#cb26-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1      <span class="pp">|</span> Sin instrucción         <span class="pp">|</span></span>
-<span id="cb26-248"><a href="#cb26-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2      <span class="pp">|</span> Preescolar              <span class="pp">|</span></span>
-<span id="cb26-249"><a href="#cb26-249" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3      <span class="pp">|</span> Primaria incompleta     <span class="pp">|</span></span>
-<span id="cb26-250"><a href="#cb26-250" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4      <span class="pp">|</span> Primaria completa       <span class="pp">|</span></span>
-<span id="cb26-251"><a href="#cb26-251" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5      <span class="pp">|</span> Secundaria incompleta   <span class="pp">|</span></span>
-<span id="cb26-252"><a href="#cb26-252" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 6      <span class="pp">|</span> Secundaria completa     <span class="pp">|</span></span>
-<span id="cb26-253"><a href="#cb26-253" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 7      <span class="pp">|</span> Preparatoria incompleta <span class="pp">|</span></span>
-<span id="cb26-254"><a href="#cb26-254" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 8      <span class="pp">|</span> Preparatoria completa   <span class="pp">|</span></span>
-<span id="cb26-255"><a href="#cb26-255" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 9      <span class="pp">|</span> Profesional incompleta  <span class="pp">|</span></span>
-<span id="cb26-256"><a href="#cb26-256" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10     <span class="pp">|</span> Profesional completa    <span class="pp">|</span></span>
-<span id="cb26-257"><a href="#cb26-257" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 11     <span class="pp">|</span> Posgrado                <span class="pp">|</span></span>
-<span id="cb26-258"><a href="#cb26-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-259"><a href="#cb26-259" aria-hidden="true" tabindex="-1"></a>Agrupamos estos códigos en tres grandes niveles:</span>
-<span id="cb26-260"><a href="#cb26-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-263"><a href="#cb26-263" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-264"><a href="#cb26-264" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-265"><a href="#cb26-265" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-266"><a href="#cb26-266" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-267"><a href="#cb26-267" aria-hidden="true" tabindex="-1"></a>    <span class="at">nivel_educa =</span> <span class="fu">case_when</span>(</span>
-<span id="cb26-268"><a href="#cb26-268" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"01"</span>, <span class="st">"02"</span>, <span class="st">"03"</span>, <span class="st">"04"</span>) <span class="sc">~</span> <span class="st">"Básica o menos"</span>,</span>
-<span id="cb26-269"><a href="#cb26-269" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"05"</span>, <span class="st">"06"</span>, <span class="st">"07"</span>, <span class="st">"08"</span>) <span class="sc">~</span> <span class="st">"Media superior"</span>,</span>
-<span id="cb26-270"><a href="#cb26-270" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"09"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>)        <span class="sc">~</span> <span class="st">"Superior"</span>,</span>
-<span id="cb26-271"><a href="#cb26-271" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>                                        <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-272"><a href="#cb26-272" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb26-273"><a href="#cb26-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">nivel_educa =</span> <span class="fu">factor</span>(nivel_educa, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Básica o menos"</span>, <span class="st">"Media superior"</span>, <span class="st">"Superior"</span>))</span>
-<span id="cb26-274"><a href="#cb26-274" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-275"><a href="#cb26-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-276"><a href="#cb26-276" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(nivel_educa)</span>
-<span id="cb26-277"><a href="#cb26-277" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-278"><a href="#cb26-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-279"><a href="#cb26-279" aria-hidden="true" tabindex="-1"></a>Verificamos que la recodificación sea correcta con una tabla cruzada:</span>
-<span id="cb26-280"><a href="#cb26-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-283"><a href="#cb26-283" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-284"><a href="#cb26-284" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-285"><a href="#cb26-285" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(concentrado<span class="sc">$</span>educa_jefe, concentrado<span class="sc">$</span>nivel_educa)</span>
-<span id="cb26-286"><a href="#cb26-286" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-287"><a href="#cb26-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-288"><a href="#cb26-288" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-289"><a href="#cb26-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-290"><a href="#cb26-290" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `recode()`</span></span>
-<span id="cb26-291"><a href="#cb26-291" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-292"><a href="#cb26-292" aria-hidden="true" tabindex="-1"></a><span class="in">`recode()`</span> es útil para hacer **sustituciones directas** de valores, sin necesidad de escribir condiciones. Funciona bien para variables con pocos valores distintos y conocidos.</span>
-<span id="cb26-293"><a href="#cb26-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-294"><a href="#cb26-294" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: etiquetas para el estrato socioeconómico</span></span>
-<span id="cb26-295"><a href="#cb26-295" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-296"><a href="#cb26-296" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`est_socio`</span> tiene cuatro categorías (1 a 4). Le asignamos etiquetas descriptivas:</span>
-<span id="cb26-297"><a href="#cb26-297" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-300"><a href="#cb26-300" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-301"><a href="#cb26-301" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-302"><a href="#cb26-302" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-303"><a href="#cb26-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-304"><a href="#cb26-304" aria-hidden="true" tabindex="-1"></a>    <span class="at">estrato_label =</span> <span class="fu">recode</span>(est_socio,</span>
-<span id="cb26-305"><a href="#cb26-305" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Bajo"</span>,</span>
-<span id="cb26-306"><a href="#cb26-306" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Medio bajo"</span>,</span>
-<span id="cb26-307"><a href="#cb26-307" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">3</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Medio alto"</span>,</span>
-<span id="cb26-308"><a href="#cb26-308" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Alto"</span>,</span>
-<span id="cb26-309"><a href="#cb26-309" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
-<span id="cb26-310"><a href="#cb26-310" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-311"><a href="#cb26-311" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-312"><a href="#cb26-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-313"><a href="#cb26-313" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(estrato_label)</span>
-<span id="cb26-314"><a href="#cb26-314" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-315"><a href="#cb26-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-316"><a href="#cb26-316" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
-<span id="cb26-317"><a href="#cb26-317" aria-hidden="true" tabindex="-1"></a><span class="fu">## `recode()` vs `case_when()`</span></span>
-<span id="cb26-318"><a href="#cb26-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-319"><a href="#cb26-319" aria-hidden="true" tabindex="-1"></a><span class="in">`recode()`</span> es más conciso cuando se trata de sustituciones uno a uno con valores conocidos. <span class="in">`case_when()`</span> es más flexible cuando las condiciones implican rangos numéricos, operadores lógicos (<span class="in">`&amp;`</span>, <span class="in">`|`</span>) o combinaciones de varias variables.</span>
-<span id="cb26-320"><a href="#cb26-320" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb26-321"><a href="#cb26-321" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-322"><a href="#cb26-322" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-323"><a href="#cb26-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-324"><a href="#cb26-324" aria-hidden="true" tabindex="-1"></a><span class="fu">## Colapsar categorías con `forcats::fct_lump_prop()`</span></span>
-<span id="cb26-325"><a href="#cb26-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-326"><a href="#cb26-326" aria-hidden="true" tabindex="-1"></a>Cuando una variable categórica tiene muchas categorías poco frecuentes, conviene agruparlas en una categoría "Otros".</span>
-<span id="cb26-327"><a href="#cb26-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-328"><a href="#cb26-328" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: colapsar niveles poco frecuentes de educación</span></span>
-<span id="cb26-329"><a href="#cb26-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-330"><a href="#cb26-330" aria-hidden="true" tabindex="-1"></a>Primero convertimos a factor</span>
-<span id="cb26-333"><a href="#cb26-333" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-334"><a href="#cb26-334" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-335"><a href="#cb26-335" aria-hidden="true" tabindex="-1"></a>concentrado<span class="sc">$</span>educa_jefe <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(concentrado<span class="sc">$</span>educa_jefe)</span>
-<span id="cb26-336"><a href="#cb26-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-337"><a href="#cb26-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-338"><a href="#cb26-338" aria-hidden="true" tabindex="-1"></a>Revisamos las proporciones actuales</span>
-<span id="cb26-339"><a href="#cb26-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-342"><a href="#cb26-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-343"><a href="#cb26-343" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-344"><a href="#cb26-344" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_jefe)</span>
-<span id="cb26-345"><a href="#cb26-345" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-346"><a href="#cb26-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-347"><a href="#cb26-347" aria-hidden="true" tabindex="-1"></a>Colapsamos las categorías con menos del 10% de los casos</span>
-<span id="cb26-350"><a href="#cb26-350" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-351"><a href="#cb26-351" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-352"><a href="#cb26-352" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-353"><a href="#cb26-353" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-354"><a href="#cb26-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">educa_agrupada =</span> <span class="fu">fct_lump_prop</span>(educa_jefe, <span class="at">prop =</span> <span class="fl">0.10</span>, <span class="at">other_level =</span> <span class="st">"Otros"</span>)</span>
-<span id="cb26-355"><a href="#cb26-355" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-356"><a href="#cb26-356" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-357"><a href="#cb26-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-358"><a href="#cb26-358" aria-hidden="true" tabindex="-1"></a>Revisamos cuáles quedaron.</span>
-<span id="cb26-359"><a href="#cb26-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-362"><a href="#cb26-362" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-363"><a href="#cb26-363" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-364"><a href="#cb26-364" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_agrupada)</span>
-<span id="cb26-365"><a href="#cb26-365" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-366"><a href="#cb26-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-367"><a href="#cb26-367" aria-hidden="true" tabindex="-1"></a>Una vez agrupadas las categorías con menos del 10%, podemos etiquetar las más frecuentes con <span class="in">`fct_recode()`</span>:</span>
-<span id="cb26-368"><a href="#cb26-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-371"><a href="#cb26-371" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-372"><a href="#cb26-372" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-373"><a href="#cb26-373" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
-<span id="cb26-374"><a href="#cb26-374" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-375"><a href="#cb26-375" aria-hidden="true" tabindex="-1"></a>    <span class="at">educa_agrupada =</span> <span class="fu">fct_recode</span>(educa_agrupada,</span>
-<span id="cb26-376"><a href="#cb26-376" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primaria incompleta"</span>  <span class="ot">=</span> <span class="st">"03"</span>,</span>
-<span id="cb26-377"><a href="#cb26-377" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primaria completa"</span>    <span class="ot">=</span> <span class="st">"04"</span>,</span>
-<span id="cb26-378"><a href="#cb26-378" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secundaria completa"</span>  <span class="ot">=</span> <span class="st">"06"</span>,</span>
-<span id="cb26-379"><a href="#cb26-379" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Preparatoria completa"</span> <span class="ot">=</span> <span class="st">"08"</span>,</span>
-<span id="cb26-380"><a href="#cb26-380" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Profesional completa"</span> <span class="ot">=</span> <span class="st">"10"</span></span>
-<span id="cb26-381"><a href="#cb26-381" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-382"><a href="#cb26-382" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-383"><a href="#cb26-383" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-384"><a href="#cb26-384" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-385"><a href="#cb26-385" aria-hidden="true" tabindex="-1"></a>La vemos.</span>
-<span id="cb26-388"><a href="#cb26-388" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-389"><a href="#cb26-389" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-390"><a href="#cb26-390" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_agrupada)</span>
-<span id="cb26-391"><a href="#cb26-391" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-392"><a href="#cb26-392" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-393"><a href="#cb26-393" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-394"><a href="#cb26-394" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-395"><a href="#cb26-395" aria-hidden="true" tabindex="-1"></a><span class="fu">## (Optativo) Etiquetas provenientes de Stata con `{haven}`</span></span>
-<span id="cb26-396"><a href="#cb26-396" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-397"><a href="#cb26-397" aria-hidden="true" tabindex="-1"></a>Cuando los datos provienen de archivos <span class="in">`.dta`</span> (Stata), las variables suelen traer etiquetas de valor (*value labels*). <span class="in">`{haven}`</span> las preserva como atributos del objeto en R.</span>
-<span id="cb26-398"><a href="#cb26-398" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-399"><a href="#cb26-399" aria-hidden="true" tabindex="-1"></a><span class="fu">### Leer el archivo y revisar etiquetas</span></span>
-<span id="cb26-400"><a href="#cb26-400" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-401"><a href="#cb26-401" aria-hidden="true" tabindex="-1"></a>Si tuviéramos que importar bases en formato Stata:</span>
-<span id="cb26-404"><a href="#cb26-404" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-405"><a href="#cb26-405" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-406"><a href="#cb26-406" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"mex_lapop_2023.dta"</span>))</span>
-<span id="cb26-407"><a href="#cb26-407" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-408"><a href="#cb26-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-409"><a href="#cb26-409" aria-hidden="true" tabindex="-1"></a>Podemos ver las etiquetas de la variable</span>
-<span id="cb26-410"><a href="#cb26-410" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-413"><a href="#cb26-413" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-414"><a href="#cb26-414" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-415"><a href="#cb26-415" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(lapop_dta<span class="sc">$</span>ur, <span class="st">"labels"</span>)</span>
-<span id="cb26-416"><a href="#cb26-416" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-417"><a href="#cb26-417" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-418"><a href="#cb26-418" aria-hidden="true" tabindex="-1"></a><span class="fu">### Convertir etiquetas a factor</span></span>
-<span id="cb26-419"><a href="#cb26-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-420"><a href="#cb26-420" aria-hidden="true" tabindex="-1"></a>as_factor() convierte las etiquetas Stata en niveles de factor en R</span>
-<span id="cb26-423"><a href="#cb26-423" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-424"><a href="#cb26-424" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-425"><a href="#cb26-425" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> lapop_dta <span class="sc">%&gt;%</span></span>
-<span id="cb26-426"><a href="#cb26-426" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ur =</span> <span class="fu">as_factor</span>(ur))</span>
-<span id="cb26-427"><a href="#cb26-427" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-428"><a href="#cb26-428" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-429"><a href="#cb26-429" aria-hidden="true" tabindex="-1"></a>Veamos los niveles.</span>
-<span id="cb26-430"><a href="#cb26-430" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-433"><a href="#cb26-433" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb26-434"><a href="#cb26-434" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb26-435"><a href="#cb26-435" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(lapop_dta<span class="sc">$</span>ur)</span>
-<span id="cb26-436"><a href="#cb26-436" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-437"><a href="#cb26-437" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-438"><a href="#cb26-438" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
-<span id="cb26-439"><a href="#cb26-439" aria-hidden="true" tabindex="-1"></a><span class="fu">## `as_factor()` de `{haven}`</span></span>
-<span id="cb26-440"><a href="#cb26-440" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-441"><a href="#cb26-441" aria-hidden="true" tabindex="-1"></a>A diferencia de <span class="in">`as.factor()`</span> de R base, <span class="in">`haven::as_factor()`</span> usa las **etiquetas** del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata.</span>
-<span id="cb26-442"><a href="#cb26-442" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb26-443"><a href="#cb26-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-444"><a href="#cb26-444" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
-<span id="cb26-445"><a href="#cb26-445" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-446"><a href="#cb26-446" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejercicio</span></span>
-<span id="cb26-447"><a href="#cb26-447" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-448"><a href="#cb26-448" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Abre la base <span class="in">`concentradohogar.csv`</span> con <span class="in">`here("data", "raw", "concentradohogar.csv")`</span>.</span>
-<span id="cb26-449"><a href="#cb26-449" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-450"><a href="#cb26-450" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Usando <span class="in">`if_else()`</span>, crea una variable <span class="in">`rural`</span> a partir de tam_loc que asigne como rural aquellos hogares que viven en localidades con menos de 2500 habitantes y  <span class="in">`rural`</span> todas las demás. Conviértela a factor con niveles.</span>
-<span id="cb26-451"><a href="#cb26-451" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-452"><a href="#cb26-452" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Con <span class="in">`case_when()`</span>, crea una variable <span class="in">`rango_ing`</span> que clasifique el ingreso corriente en cuartiles:</span>
-<span id="cb26-453"><a href="#cb26-453" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q1"`</span>: menor o igual al cuartil 1.</span>
-<span id="cb26-454"><a href="#cb26-454" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q2"`</span>: mayor al Q1 y menor o igual a la mediana.</span>
-<span id="cb26-455"><a href="#cb26-455" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q3"`</span>: mayor a la mediana y menor o igual al Q3.</span>
-<span id="cb26-456"><a href="#cb26-456" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q4"`</span>: mayor al cuartil 3.</span>
-<span id="cb26-457"><a href="#cb26-457" aria-hidden="true" tabindex="-1"></a></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Sesión 3: Tipos de variables, creación y recodificación"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Ana Escoto y Mónica Lara"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="an">lang:</span><span class="co"> es</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contenido"</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">    df-print: kable</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objetivos de la sesión</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>Al finalizar esta sesión podrán:</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Distinguir los tipos de variables.</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Crear nuevas variables a partir de cálculos y transformaciones con <span class="in">`mutate()`</span>.</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Recodificar variables usando <span class="in">`if_else()`</span>, <span class="in">`case_when()`</span> y <span class="in">`recode()`</span>.</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Convertir variables a factores con niveles y etiquetas.</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Colapsar categorías poco frecuentes con <span class="in">`forcats::fct_lump_prop()`</span>.</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Manipular variables en formato fecha con <span class="in">`lubridate`</span>.</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="fu">## Paquetes de esta sesión</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Paquete     <span class="pp">|</span> Función principal                                                          <span class="pp">|</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|----------------------------------------------------------------------------|</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{dplyr}`</span>   <span class="pp">|</span> Manipulación de datos: <span class="in">`mutate()`</span>, <span class="in">`if_else()`</span>, <span class="in">`case_when()`</span>, <span class="in">`recode()`</span> <span class="pp">|</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{forcats}`</span> <span class="pp">|</span> Manejo de factores: <span class="in">`fct_recode()`</span>, <span class="in">`fct_lump_prop()`</span>                     <span class="pp">|</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{janitor}`</span> <span class="pp">|</span> Tablas de frecuencia con <span class="in">`tabyl()`</span>                                         <span class="pp">|</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{haven}`</span>   <span class="pp">|</span> Lectura de archivos Stata y manejo de etiquetas                            <span class="pp">|</span></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{lubridate}`</span>   <span class="pp">|</span> Manejo de fechas                           <span class="pp">|</span></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>  tidyverse,</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>  janitor,</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>  haven,</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>  here</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## Datos de esta sesión</span></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>Trabajaremos con la base <span class="in">`concentradohogar`</span> de la ENIGH, que importamos en la Sesión 2. Recordemos cómo abrirla:</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.csv"</span>))</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a>Algunas variables que usaremos a lo largo de esta sesión:</span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Variable      <span class="pp">|</span> Descripción                                          <span class="pp">|</span></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------------|------------------------------------------------------|</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`ing_cor`</span>     <span class="pp">|</span> Ingreso corriente trimestral del hogar (pesos)       <span class="pp">|</span></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`edad_jefe`</span>   <span class="pp">|</span> Edad de la persona jefa del hogar                    <span class="pp">|</span></span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`educa_jefe`</span>  <span class="pp">|</span> Nivel de instrucción de la persona jefa del hogar    <span class="pp">|</span></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`est_socio`</span>   <span class="pp">|</span> Estrato socioeconómico                               <span class="pp">|</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>También trabajaremos con los datos de la Fiscalía General de Justicia para algunas cosas de fechas (https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj)</span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"victimas_acumulado_0924.RData"</span>))</span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tipos de variables y codificación</span></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a>Antes de crear o recodificar variables, debemos ver qué tipo de variable tenemos, ya que esto influye en qué funciones debemos usar.</span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Por ejemplo</span></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Tipo         <span class="pp">|</span> Descripción                   <span class="pp">|</span> Ejemplo en ENIGH                <span class="pp">|</span></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------|-------------------------------|---------------------------------|</span></span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Nominal**  <span class="pp">|</span> Categorías sin orden          <span class="pp">|</span> Sexo, entidad federativa        <span class="pp">|</span></span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Ordinal**  <span class="pp">|</span> Categorías con orden          <span class="pp">|</span> Nivel educativo, estrato        <span class="pp">|</span></span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Discreta** <span class="pp">|</span> Valores enteros contables     <span class="pp">|</span> Número de integrantes del hogar <span class="pp">|</span></span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **Continua** <span class="pp">|</span> Valores numéricos en un rango <span class="pp">|</span> Ingreso corriente, gasto        <span class="pp">|</span></span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tipos en R (repaso)</span></span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>En R, estas categorías se traducen en las siguientes:</span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`numeric`</span> / <span class="in">`integer`</span>: variables cuantitativas (continuas o discretas).</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`character`</span>: cadenas de texto, normalmente variables nominales sin orden.</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`factor`</span>: variables categóricas con niveles definidos (nominales u ordinales).</span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`logical`</span>: variables lógicas (<span class="in">`TRUE`</span>/<span class="in">`FALSE`</span>), equivalentes a dicotómicas.</span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a>Podemos revisar el tipo de cualquier variable con <span class="in">`class()`</span>:</span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(concentrado<span class="sc">$</span>ing_cor)</span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(concentrado<span class="sc">$</span>educa_jefe)</span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Creación de variables con `mutate()`</span></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a><span class="in">`mutate()`</span> agrega o modifica columnas dentro de un dataframe. El input, digamos, es cualquier expresión válida de R: operaciones aritméticas, funciones estadísticas, funciones de texto, etc.</span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cálculos numéricos</span></span>
+<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-132"><a href="#cb22-132" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`ing_cor`</span> refiere al ingreso corriente **trimestral del hogar**. Podemos calcular por mes o el logaritmo.</span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a>    <span class="at">ing_mensual  =</span> ing_cor <span class="sc">/</span> <span class="dv">3</span>,            <span class="co"># ingreso promedio mensual</span></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_ing      =</span> <span class="fu">log</span>(ing_cor)</span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Varias variables en un solo `mutate()`</span></span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a>Podemos crear todas las variables que necesitemos dentro de un solo bloque <span class="in">`mutate()`</span>, separadas por comas. </span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `if_else()`</span></span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="in">`if_else()`</span> es la función más utilizada para crear **variables dicotómicas**: si se cumple una condición, asigna un valor; si no, asigna otro.</span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a><span class="in">```         </span></span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a><span class="in">if_else(condición, valor_si_verdadero, valor_si_falso)</span></span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Por ejemplo: persona jefa del hogar mayor de 65 años</span></span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a>Primero creamos la variable.</span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">jefe_mayor65 =</span> <span class="fu">if_else</span>(edad_jefe <span class="sc">&gt;=</span> <span class="dv">65</span>, <span class="st">"65 años o más"</span>, <span class="st">"Menos de 65 años"</span>))</span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a>Luego especificamos los niveles</span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">jefe_mayor65 =</span> <span class="fu">factor</span>(jefe_mayor65,</span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Menos de 65 años"</span>, <span class="st">"65 años o más"</span>)))</span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a>Luego la vemos</span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(jefe_mayor65)</span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `case_when()`</span></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="in">`case_when()`</span> evalúa cada condición y asigna el valor de una variable nueva a partir de una antigua. Es como una serie de "si se cumple esto, asigna esto".</span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a><span class="in">```         </span></span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a><span class="in">mutate(nueva_var = case_when(</span></span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="in">  condición1 ~ "valor1",</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a><span class="in">  condición2 ~ "valor2",</span></span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a><span class="in">  TRUE        ~ NA_character_   # para los casos que no cumplen ninguna condición</span></span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a><span class="in">))</span></span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: rangos de edad de la persona jefa del hogar</span></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a>    <span class="at">rango_edad_jefe =</span> <span class="fu">case_when</span>(</span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">18</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">29</span> <span class="sc">~</span> <span class="st">"18-29"</span>,</span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">30</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">44</span> <span class="sc">~</span> <span class="st">"30-44"</span>,</span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">45</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">59</span> <span class="sc">~</span> <span class="st">"45-59"</span>,</span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">60</span> <span class="sc">&amp;</span> edad_jefe <span class="sc">&lt;=</span> <span class="dv">74</span> <span class="sc">~</span> <span class="st">"60-74"</span>,</span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a>      edad_jefe <span class="sc">&gt;=</span> <span class="dv">75</span>                   <span class="sc">~</span> <span class="st">"75 o más"</span>,</span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>                              <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(rango_edad_jefe)</span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a>Convertimos a factor y especificamos niveles:</span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a>    <span class="at">rango_edad_jefe =</span> <span class="fu">factor</span>(rango_edad_jefe,</span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a>                             <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"18-29"</span>, <span class="st">"30-44"</span>, <span class="st">"45-59"</span>,<span class="st">"60-74"</span>, <span class="st">"75 o más"</span>)))</span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: nivel de escolaridad del jefe o jefa del hogar</span></span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`educa_jefe`</span> sigue la siguiente clasificación del INEGI:</span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Código <span class="pp">|</span> Descripción             <span class="pp">|</span></span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------------------|</span></span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 1      <span class="pp">|</span> Sin instrucción         <span class="pp">|</span></span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 2      <span class="pp">|</span> Preescolar              <span class="pp">|</span></span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 3      <span class="pp">|</span> Primaria incompleta     <span class="pp">|</span></span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 4      <span class="pp">|</span> Primaria completa       <span class="pp">|</span></span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 5      <span class="pp">|</span> Secundaria incompleta   <span class="pp">|</span></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 6      <span class="pp">|</span> Secundaria completa     <span class="pp">|</span></span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 7      <span class="pp">|</span> Preparatoria incompleta <span class="pp">|</span></span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 8      <span class="pp">|</span> Preparatoria completa   <span class="pp">|</span></span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 9      <span class="pp">|</span> Profesional incompleta  <span class="pp">|</span></span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 10     <span class="pp">|</span> Profesional completa    <span class="pp">|</span></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> 11     <span class="pp">|</span> Posgrado                <span class="pp">|</span></span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a>Agrupamos estos códigos en tres grandes niveles:</span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a>    <span class="at">nivel_educa =</span> <span class="fu">case_when</span>(</span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"01"</span>, <span class="st">"02"</span>, <span class="st">"03"</span>, <span class="st">"04"</span>) <span class="sc">~</span> <span class="st">"Básica o menos"</span>,</span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"05"</span>, <span class="st">"06"</span>, <span class="st">"07"</span>, <span class="st">"08"</span>) <span class="sc">~</span> <span class="st">"Media superior"</span>,</span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a>      educa_jefe <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"09"</span>, <span class="st">"10"</span>, <span class="st">"11"</span>)        <span class="sc">~</span> <span class="st">"Superior"</span>,</span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>                                        <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">nivel_educa =</span> <span class="fu">factor</span>(nivel_educa, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Básica o menos"</span>, <span class="st">"Media superior"</span>, <span class="st">"Superior"</span>))</span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(nivel_educa)</span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a>Verificamos que la recodificación sea correcta con una tabla cruzada:</span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(concentrado<span class="sc">$</span>educa_jefe, concentrado<span class="sc">$</span>nivel_educa)</span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recodificación con `recode()`</span></span>
+<span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a><span class="in">`recode()`</span> es útil para hacer **sustituciones directas** de valores, sin necesidad de escribir condiciones. Funciona bien para variables con pocos valores distintos y conocidos.</span>
+<span id="cb22-292"><a href="#cb22-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: etiquetas para el estrato socioeconómico</span></span>
+<span id="cb22-294"><a href="#cb22-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`est_socio`</span> tiene cuatro categorías (1 a 4). Le asignamos etiquetas descriptivas:</span>
+<span id="cb22-296"><a href="#cb22-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-299"><a href="#cb22-299" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-300"><a href="#cb22-300" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-301"><a href="#cb22-301" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-302"><a href="#cb22-302" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-303"><a href="#cb22-303" aria-hidden="true" tabindex="-1"></a>    <span class="at">estrato_label =</span> <span class="fu">recode</span>(est_socio,</span>
+<span id="cb22-304"><a href="#cb22-304" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Bajo"</span>,</span>
+<span id="cb22-305"><a href="#cb22-305" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">2</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Medio bajo"</span>,</span>
+<span id="cb22-306"><a href="#cb22-306" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">3</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Medio alto"</span>,</span>
+<span id="cb22-307"><a href="#cb22-307" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"Alto"</span>,</span>
+<span id="cb22-308"><a href="#cb22-308" aria-hidden="true" tabindex="-1"></a>      <span class="at">.default =</span> <span class="cn">NA_character_</span></span>
+<span id="cb22-309"><a href="#cb22-309" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-310"><a href="#cb22-310" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-311"><a href="#cb22-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-312"><a href="#cb22-312" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(estrato_label)</span>
+<span id="cb22-313"><a href="#cb22-313" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-314"><a href="#cb22-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-315"><a href="#cb22-315" aria-hidden="true" tabindex="-1"></a>::: callout-tip</span>
+<span id="cb22-316"><a href="#cb22-316" aria-hidden="true" tabindex="-1"></a><span class="fu">## `recode()` vs `case_when()`</span></span>
+<span id="cb22-317"><a href="#cb22-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-318"><a href="#cb22-318" aria-hidden="true" tabindex="-1"></a><span class="in">`recode()`</span> es más conciso cuando se trata de sustituciones uno a uno con valores conocidos. <span class="in">`case_when()`</span> es más flexible cuando las condiciones implican rangos numéricos, operadores lógicos (<span class="in">`&amp;`</span>, <span class="in">`|`</span>) o combinaciones de varias variables.</span>
+<span id="cb22-319"><a href="#cb22-319" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-320"><a href="#cb22-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-321"><a href="#cb22-321" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-322"><a href="#cb22-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-323"><a href="#cb22-323" aria-hidden="true" tabindex="-1"></a><span class="fu">## Colapsar categorías con `forcats::fct_lump_prop()`</span></span>
+<span id="cb22-324"><a href="#cb22-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-325"><a href="#cb22-325" aria-hidden="true" tabindex="-1"></a>Cuando una variable categórica tiene muchas categorías poco frecuentes, conviene agruparlas en una categoría "Otros".</span>
+<span id="cb22-326"><a href="#cb22-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-327"><a href="#cb22-327" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ejemplo: colapsar niveles poco frecuentes de educación</span></span>
+<span id="cb22-328"><a href="#cb22-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-329"><a href="#cb22-329" aria-hidden="true" tabindex="-1"></a>Primero convertimos a factor</span>
+<span id="cb22-332"><a href="#cb22-332" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-333"><a href="#cb22-333" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-334"><a href="#cb22-334" aria-hidden="true" tabindex="-1"></a>concentrado<span class="sc">$</span>educa_jefe <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(concentrado<span class="sc">$</span>educa_jefe)</span>
+<span id="cb22-335"><a href="#cb22-335" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-336"><a href="#cb22-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-337"><a href="#cb22-337" aria-hidden="true" tabindex="-1"></a>Revisamos las proporciones actuales</span>
+<span id="cb22-338"><a href="#cb22-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-341"><a href="#cb22-341" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-342"><a href="#cb22-342" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-343"><a href="#cb22-343" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_jefe)</span>
+<span id="cb22-344"><a href="#cb22-344" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-345"><a href="#cb22-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-346"><a href="#cb22-346" aria-hidden="true" tabindex="-1"></a>Colapsamos las categorías con menos del 10% de los casos</span>
+<span id="cb22-349"><a href="#cb22-349" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-350"><a href="#cb22-350" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-351"><a href="#cb22-351" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-352"><a href="#cb22-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-353"><a href="#cb22-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">educa_agrupada =</span> <span class="fu">fct_lump_prop</span>(educa_jefe, <span class="at">prop =</span> <span class="fl">0.10</span>, <span class="at">other_level =</span> <span class="st">"Otros"</span>)</span>
+<span id="cb22-354"><a href="#cb22-354" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-355"><a href="#cb22-355" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-356"><a href="#cb22-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-357"><a href="#cb22-357" aria-hidden="true" tabindex="-1"></a>Revisamos cuáles quedaron.</span>
+<span id="cb22-358"><a href="#cb22-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-361"><a href="#cb22-361" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-362"><a href="#cb22-362" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-363"><a href="#cb22-363" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_agrupada)</span>
+<span id="cb22-364"><a href="#cb22-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-365"><a href="#cb22-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-366"><a href="#cb22-366" aria-hidden="true" tabindex="-1"></a>Una vez agrupadas las categorías con menos del 10%, podemos etiquetar las más frecuentes con <span class="in">`fct_recode()`</span>:</span>
+<span id="cb22-367"><a href="#cb22-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-370"><a href="#cb22-370" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-371"><a href="#cb22-371" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-372"><a href="#cb22-372" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> concentrado <span class="sc">%&gt;%</span></span>
+<span id="cb22-373"><a href="#cb22-373" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-374"><a href="#cb22-374" aria-hidden="true" tabindex="-1"></a>    <span class="at">educa_agrupada =</span> <span class="fu">fct_recode</span>(educa_agrupada,</span>
+<span id="cb22-375"><a href="#cb22-375" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primaria incompleta"</span>  <span class="ot">=</span> <span class="st">"03"</span>,</span>
+<span id="cb22-376"><a href="#cb22-376" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Primaria completa"</span>    <span class="ot">=</span> <span class="st">"04"</span>,</span>
+<span id="cb22-377"><a href="#cb22-377" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Secundaria completa"</span>  <span class="ot">=</span> <span class="st">"06"</span>,</span>
+<span id="cb22-378"><a href="#cb22-378" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Preparatoria completa"</span> <span class="ot">=</span> <span class="st">"08"</span>,</span>
+<span id="cb22-379"><a href="#cb22-379" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Profesional completa"</span> <span class="ot">=</span> <span class="st">"10"</span></span>
+<span id="cb22-380"><a href="#cb22-380" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-381"><a href="#cb22-381" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-382"><a href="#cb22-382" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-383"><a href="#cb22-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-384"><a href="#cb22-384" aria-hidden="true" tabindex="-1"></a>La vemos.</span>
+<span id="cb22-387"><a href="#cb22-387" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-388"><a href="#cb22-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-389"><a href="#cb22-389" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">%&gt;%</span> <span class="fu">tabyl</span>(educa_agrupada)</span>
+<span id="cb22-390"><a href="#cb22-390" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-391"><a href="#cb22-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-392"><a href="#cb22-392" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-393"><a href="#cb22-393" aria-hidden="true" tabindex="-1"></a><span class="fu">## Fechas</span></span>
+<span id="cb22-394"><a href="#cb22-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-395"><a href="#cb22-395" aria-hidden="true" tabindex="-1"></a><span class="fu">### Extraer componentes de una fecha</span></span>
+<span id="cb22-396"><a href="#cb22-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-397"><a href="#cb22-397" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`fecha_inicio`</span> viene como <span class="in">`character`</span>. ¿Qué pasa si sólo tuviéramos la variable fecha_inicio y queremos extraer el año, mes y día para generar tres variables distintas? Antes de extraer cualquier componente, debemos convertirla al tipo <span class="in">`Date`</span> con <span class="in">`ymd()`</span>, que asume el orden Año-Mes-Día:</span>
+<span id="cb22-398"><a href="#cb22-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-401"><a href="#cb22-401" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-402"><a href="#cb22-402" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-403"><a href="#cb22-403" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span> </span>
+<span id="cb22-404"><a href="#cb22-404" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fecha_inicio =</span> <span class="fu">ymd</span>(fecha_inicio))</span>
+<span id="cb22-405"><a href="#cb22-405" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-406"><a href="#cb22-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-407"><a href="#cb22-407" aria-hidden="true" tabindex="-1"></a>La función ymd() de lubridate convierte en texto la fecha, pero asumiendo que el formato está en orden Year-Month-Day (como viene originalmente).</span>
+<span id="cb22-408"><a href="#cb22-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-409"><a href="#cb22-409" aria-hidden="true" tabindex="-1"></a>Ahora sí, queremos extraer el año, mes y día a partir de fecha_inicio.</span>
+<span id="cb22-410"><a href="#cb22-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-413"><a href="#cb22-413" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-414"><a href="#cb22-414" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-415"><a href="#cb22-415" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span> </span>
+<span id="cb22-416"><a href="#cb22-416" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-417"><a href="#cb22-417" aria-hidden="true" tabindex="-1"></a>    <span class="at">annio =</span> <span class="fu">year</span>(fecha_inicio),   <span class="co"># Año</span></span>
+<span id="cb22-418"><a href="#cb22-418" aria-hidden="true" tabindex="-1"></a>    <span class="at">mes   =</span> <span class="fu">month</span>(fecha_inicio),  <span class="co"># Mes (número)</span></span>
+<span id="cb22-419"><a href="#cb22-419" aria-hidden="true" tabindex="-1"></a>    <span class="at">dia   =</span> <span class="fu">day</span>(fecha_inicio)     <span class="co"># Día</span></span>
+<span id="cb22-420"><a href="#cb22-420" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-421"><a href="#cb22-421" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-422"><a href="#cb22-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-423"><a href="#cb22-423" aria-hidden="true" tabindex="-1"></a>Los objetos <span class="in">`Date`</span> en R se almacenan como números enteros (días transcurridos desde cierta fecha). El formato que vemos al imprimir es solo una representación. Esto significa que **el orden día/mes/año no existe dentro del objeto**; solo existe al momento de imprimirlo o exportarlo.</span>
+<span id="cb22-424"><a href="#cb22-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-425"><a href="#cb22-425" aria-hidden="true" tabindex="-1"></a><span class="in">`format()`</span> convierte una fecha a <span class="in">`character`</span> con el orden deseado:</span>
+<span id="cb22-426"><a href="#cb22-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-429"><a href="#cb22-429" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-430"><a href="#cb22-430" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-431"><a href="#cb22-431" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-432"><a href="#cb22-432" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-433"><a href="#cb22-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_formateada1 =</span> <span class="fu">format</span>(fecha_inicio, <span class="st">"%d-%m-%Y"</span>),  <span class="co"># día-mes-año</span></span>
+<span id="cb22-434"><a href="#cb22-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_formateada2 =</span> <span class="fu">format</span>(fecha_inicio, <span class="st">"%m/%d/%Y"</span>),  <span class="co"># mes/día/año</span></span>
+<span id="cb22-435"><a href="#cb22-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">fecha_formateada3 =</span> <span class="fu">format</span>(fecha_inicio, <span class="st">"%Y/%m/%d"</span>)   <span class="co"># año/mes/día</span></span>
+<span id="cb22-436"><a href="#cb22-436" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-437"><a href="#cb22-437" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-438"><a href="#cb22-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-439"><a href="#cb22-439" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cálculo de duraciones</span></span>
+<span id="cb22-440"><a href="#cb22-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-441"><a href="#cb22-441" aria-hidden="true" tabindex="-1"></a>No necesitamos cambiar formatos para hacer cálculos. <span class="in">`difftime()`</span> calcula la diferencia entre dos fechas directamente sobre objetos <span class="in">`Date`</span>:</span>
+<span id="cb22-442"><a href="#cb22-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-445"><a href="#cb22-445" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-446"><a href="#cb22-446" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-447"><a href="#cb22-447" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertir fecha_hecho a Date</span></span>
+<span id="cb22-448"><a href="#cb22-448" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-449"><a href="#cb22-449" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fecha_hecho =</span> <span class="fu">ymd</span>(fecha_hecho))</span>
+<span id="cb22-450"><a href="#cb22-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-451"><a href="#cb22-451" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular días entre el hecho y el inicio de la carpeta</span></span>
+<span id="cb22-452"><a href="#cb22-452" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-453"><a href="#cb22-453" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-454"><a href="#cb22-454" aria-hidden="true" tabindex="-1"></a>    <span class="at">diferencia_dias =</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(fecha_inicio, fecha_hecho, <span class="at">units =</span> <span class="st">"days"</span>))</span>
+<span id="cb22-455"><a href="#cb22-455" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-456"><a href="#cb22-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-457"><a href="#cb22-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-458"><a href="#cb22-458" aria-hidden="true" tabindex="-1"></a><span class="fu">### Creación de variables de fecha</span></span>
+<span id="cb22-459"><a href="#cb22-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-460"><a href="#cb22-460" aria-hidden="true" tabindex="-1"></a>Si tenemos el mes y el año en columnas distintas, podemos combinarlas con <span class="in">`make_date()`</span>. Como esta función requiere al menos día, mes y año, asigna el día 1 por defecto cuando solo se proveen mes y año:</span>
+<span id="cb22-461"><a href="#cb22-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-464"><a href="#cb22-464" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-465"><a href="#cb22-465" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-466"><a href="#cb22-466" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-467"><a href="#cb22-467" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(fecha_mes_año <span class="ot">=</span> <span class="fu">make_date</span>(<span class="at">month =</span> mes, <span class="at">year =</span> annio))</span>
+<span id="cb22-468"><a href="#cb22-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-469"><a href="#cb22-469" aria-hidden="true" tabindex="-1"></a><span class="co"># Reformatear para mostrar solo mes y año</span></span>
+<span id="cb22-470"><a href="#cb22-470" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-471"><a href="#cb22-471" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(fecha_mes_año <span class="ot">=</span> <span class="fu">format</span>(fecha_mes_año, <span class="st">"%m/%Y"</span>))</span>
+<span id="cb22-472"><a href="#cb22-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-473"><a href="#cb22-473" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-474"><a href="#cb22-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-475"><a href="#cb22-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-476"><a href="#cb22-476" aria-hidden="true" tabindex="-1"></a>Si tenemos la fecha en una columna y la hora en otra, las unimos con <span class="in">`paste()`</span> antes de convertir:</span>
+<span id="cb22-477"><a href="#cb22-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-480"><a href="#cb22-480" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-481"><a href="#cb22-481" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-482"><a href="#cb22-482" aria-hidden="true" tabindex="-1"></a>victimas <span class="ot">&lt;-</span> victimas <span class="sc">%&gt;%</span></span>
+<span id="cb22-483"><a href="#cb22-483" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fecha_hora =</span> <span class="fu">ymd_hms</span>(<span class="fu">paste</span>(fecha_inicio, hora_inicio)))</span>
+<span id="cb22-484"><a href="#cb22-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-485"><a href="#cb22-485" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(victimas<span class="sc">$</span>fecha_hora)</span>
+<span id="cb22-486"><a href="#cb22-486" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-487"><a href="#cb22-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-488"><a href="#cb22-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-489"><a href="#cb22-489" aria-hidden="true" tabindex="-1"></a><span class="fu">## (Optativo) Etiquetas provenientes de Stata con `{haven}`</span></span>
+<span id="cb22-490"><a href="#cb22-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-491"><a href="#cb22-491" aria-hidden="true" tabindex="-1"></a>Cuando los datos provienen de archivos <span class="in">`.dta`</span> (Stata), las variables suelen traer etiquetas de valor (*value labels*). <span class="in">`{haven}`</span> las preserva como atributos del objeto en R.</span>
+<span id="cb22-492"><a href="#cb22-492" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-493"><a href="#cb22-493" aria-hidden="true" tabindex="-1"></a><span class="fu">### Leer el archivo y revisar etiquetas</span></span>
+<span id="cb22-494"><a href="#cb22-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-495"><a href="#cb22-495" aria-hidden="true" tabindex="-1"></a>Si tuviéramos que importar bases en formato Stata:</span>
+<span id="cb22-498"><a href="#cb22-498" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-499"><a href="#cb22-499" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-500"><a href="#cb22-500" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"mex_lapop_2023.dta"</span>))</span>
+<span id="cb22-501"><a href="#cb22-501" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-502"><a href="#cb22-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-503"><a href="#cb22-503" aria-hidden="true" tabindex="-1"></a>Podemos ver las etiquetas de la variable</span>
+<span id="cb22-504"><a href="#cb22-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-507"><a href="#cb22-507" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-508"><a href="#cb22-508" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-509"><a href="#cb22-509" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(lapop_dta<span class="sc">$</span>ur, <span class="st">"labels"</span>)</span>
+<span id="cb22-510"><a href="#cb22-510" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-511"><a href="#cb22-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-512"><a href="#cb22-512" aria-hidden="true" tabindex="-1"></a><span class="fu">### Convertir etiquetas a factor</span></span>
+<span id="cb22-513"><a href="#cb22-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-514"><a href="#cb22-514" aria-hidden="true" tabindex="-1"></a>as_factor() convierte las etiquetas Stata en niveles de factor en R</span>
+<span id="cb22-517"><a href="#cb22-517" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-518"><a href="#cb22-518" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-519"><a href="#cb22-519" aria-hidden="true" tabindex="-1"></a>lapop_dta <span class="ot">&lt;-</span> lapop_dta <span class="sc">%&gt;%</span></span>
+<span id="cb22-520"><a href="#cb22-520" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ur =</span> <span class="fu">as_factor</span>(ur))</span>
+<span id="cb22-521"><a href="#cb22-521" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-522"><a href="#cb22-522" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-523"><a href="#cb22-523" aria-hidden="true" tabindex="-1"></a>Veamos los niveles.</span>
+<span id="cb22-524"><a href="#cb22-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-527"><a href="#cb22-527" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-528"><a href="#cb22-528" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-529"><a href="#cb22-529" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(lapop_dta<span class="sc">$</span>ur)</span>
+<span id="cb22-530"><a href="#cb22-530" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-531"><a href="#cb22-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-532"><a href="#cb22-532" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb22-533"><a href="#cb22-533" aria-hidden="true" tabindex="-1"></a><span class="fu">## `as_factor()` de `{haven}`</span></span>
+<span id="cb22-534"><a href="#cb22-534" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-535"><a href="#cb22-535" aria-hidden="true" tabindex="-1"></a>A diferencia de <span class="in">`as.factor()`</span> de R base, <span class="in">`haven::as_factor()`</span> usa las **etiquetas** del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata.</span>
+<span id="cb22-536"><a href="#cb22-536" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-537"><a href="#cb22-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-538"><a href="#cb22-538" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb22-539"><a href="#cb22-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-540"><a href="#cb22-540" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejercicio</span></span>
+<span id="cb22-541"><a href="#cb22-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-542"><a href="#cb22-542" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Abre la base <span class="in">`concentradohogar.csv`</span> con <span class="in">`here("data", "raw", "concentradohogar.csv")`</span>.</span>
+<span id="cb22-543"><a href="#cb22-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-544"><a href="#cb22-544" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Usando <span class="in">`if_else()`</span>, crea una variable <span class="in">`rural`</span> a partir de tam_loc que asigne como rural aquellos hogares que viven en localidades con menos de 2500 habitantes y  <span class="in">`rural`</span> todas las demás. Conviértela a factor con niveles.</span>
+<span id="cb22-545"><a href="#cb22-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-546"><a href="#cb22-546" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Con <span class="in">`case_when()`</span>, crea una variable <span class="in">`rango_ing`</span> que clasifique el ingreso corriente en cuartiles:</span>
+<span id="cb22-547"><a href="#cb22-547" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q1"`</span>: menor o igual al cuartil 1.</span>
+<span id="cb22-548"><a href="#cb22-548" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q2"`</span>: mayor al Q1 y menor o igual a la mediana.</span>
+<span id="cb22-549"><a href="#cb22-549" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q3"`</span>: mayor a la mediana y menor o igual al Q3.</span>
+<span id="cb22-550"><a href="#cb22-550" aria-hidden="true" tabindex="-1"></a><span class="ss">    -   </span><span class="in">`"Q4"`</span>: mayor al cuartil 3.</span>
+<span id="cb22-551"><a href="#cb22-551" aria-hidden="true" tabindex="-1"></a></span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
