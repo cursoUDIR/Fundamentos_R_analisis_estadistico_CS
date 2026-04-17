@@ -352,6 +352,7 @@ concentrado %>% tabyl(educa_agrupada)
 ```
 
 ------------------------------------------------------------------------
+
 ## Fechas
 
 ### Extraer componentes de una fecha
@@ -377,6 +378,7 @@ victimas <- victimas %>%
     dia   = day(fecha_inicio)     # Día
   )
 ```
+
 
 Los objetos `Date` en R se almacenan como números enteros (días transcurridos desde cierta fecha). El formato que vemos al imprimir es solo una representación. Esto significa que **el orden día/mes/año no existe dentro del objeto**; solo existe al momento de imprimirlo o exportarlo.
 
@@ -417,13 +419,10 @@ Si tenemos el mes y el año en columnas distintas, podemos combinarlas con `make
 #| eval: false
 victimas <- victimas %>%
   mutate(fecha_mes_año = make_date(month = mes, year = annio))
-
 # Reformatear para mostrar solo mes y año
 victimas <- victimas %>%
   mutate(fecha_mes_año = format(fecha_mes_año, "%m/%Y"))
-
 ```
-
 
 Si tenemos la fecha en una columna y la hora en otra, las unimos con `paste()` antes de convertir:
 
@@ -433,8 +432,10 @@ victimas <- victimas %>%
   mutate(fecha_hora = ymd_hms(paste(fecha_inicio, hora_inicio)))
 
 class(victimas$fecha_hora)
+
 ```
 
+------------------------------------------------------------------------
 
 ## (Optativo) Etiquetas provenientes de Stata con `{haven}`
 
