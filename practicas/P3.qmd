@@ -29,6 +29,7 @@ Al finalizar esta sesión podrán:
 -   Recodificar variables usando `if_else()`, `case_when()` y `recode()`.
 -   Convertir variables a factores con niveles y etiquetas.
 -   Colapsar categorías poco frecuentes con `forcats::fct_lump_prop()`.
+-   Manipular variables en formato fecha con `lubridate`.
 
 ------------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ Al finalizar esta sesión podrán:
 | `{forcats}` | Manejo de factores: `fct_recode()`, `fct_lump_prop()`                     |
 | `{janitor}` | Tablas de frecuencia con `tabyl()`                                         |
 | `{haven}`   | Lectura de archivos Stata y manejo de etiquetas                            |
+| `{lubridate}`   | Manejo de fechas                           |
 
 ```{r}
 #| eval: false
@@ -71,13 +73,11 @@ Algunas variables que usaremos a lo largo de esta sesión:
 | `educa_jefe`  | Nivel de instrucción de la persona jefa del hogar    |
 | `est_socio`   | Estrato socioeconómico                               |
 
-Antes de transformar cualquier variable, hagamos una inspección rápida:
+También trabajaremos con los datos de la Fiscalía General de Justicia para algunas cosas de fechas (https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj)
 
 ```{r}
 #| eval: false
-glimpse(concentrado)
-summary(concentrado$ing_cor)
-summary(concentrado$edad_jefe)
+load(here("data", "raw", "victimas_acumulado_0924.RData"))
 ```
 
 ------------------------------------------------------------------------
@@ -175,7 +175,6 @@ Luego la vemos
 #| eval: false
 concentrado %>% tabyl(jefe_mayor65)
 ```
-------------------------------------------------------------------------
 
 ## Recodificación con `case_when()`
 
@@ -353,6 +352,89 @@ concentrado %>% tabyl(educa_agrupada)
 ```
 
 ------------------------------------------------------------------------
+## Fechas
+
+### Extraer componentes de una fecha
+
+La variable `fecha_inicio` viene como `character`. ¿Qué pasa si sólo tuviéramos la variable fecha_inicio y queremos extraer el año, mes y día para generar tres variables distintas? Antes de extraer cualquier componente, debemos convertirla al tipo `Date` con `ymd()`, que asume el orden Año-Mes-Día:
+
+```{r}
+#| eval: false
+victimas <- victimas %>% 
+  mutate(fecha_inicio = ymd(fecha_inicio))
+```
+
+La función ymd() de lubridate convierte en texto la fecha, pero asumiendo que el formato está en orden Year-Month-Day (como viene originalmente).
+
+Ahora sí, queremos extraer el año, mes y día a partir de fecha_inicio.
+
+```{r}
+#| eval: false
+victimas <- victimas %>% 
+  mutate(
+    annio = year(fecha_inicio),   # Año
+    mes   = month(fecha_inicio),  # Mes (número)
+    dia   = day(fecha_inicio)     # Día
+  )
+```
+
+Los objetos `Date` en R se almacenan como números enteros (días transcurridos desde cierta fecha). El formato que vemos al imprimir es solo una representación. Esto significa que **el orden día/mes/año no existe dentro del objeto**; solo existe al momento de imprimirlo o exportarlo.
+
+`format()` convierte una fecha a `character` con el orden deseado:
+
+```{r}
+#| eval: false
+victimas <- victimas %>%
+  mutate(
+    fecha_formateada1 = format(fecha_inicio, "%d-%m-%Y"),  # día-mes-año
+    fecha_formateada2 = format(fecha_inicio, "%m/%d/%Y"),  # mes/día/año
+    fecha_formateada3 = format(fecha_inicio, "%Y/%m/%d")   # año/mes/día
+  )
+```
+
+### Cálculo de duraciones
+
+No necesitamos cambiar formatos para hacer cálculos. `difftime()` calcula la diferencia entre dos fechas directamente sobre objetos `Date`:
+
+```{r}
+#| eval: false
+# Convertir fecha_hecho a Date
+victimas <- victimas %>%
+  mutate(fecha_hecho = ymd(fecha_hecho))
+
+# Calcular días entre el hecho y el inicio de la carpeta
+victimas <- victimas %>%
+  mutate(
+    diferencia_dias = as.numeric(difftime(fecha_inicio, fecha_hecho, units = "days"))
+  )
+```
+
+### Creación de variables de fecha
+
+Si tenemos el mes y el año en columnas distintas, podemos combinarlas con `make_date()`. Como esta función requiere al menos día, mes y año, asigna el día 1 por defecto cuando solo se proveen mes y año:
+
+```{r}
+#| eval: false
+victimas <- victimas %>%
+  mutate(fecha_mes_año = make_date(month = mes, year = annio))
+
+# Reformatear para mostrar solo mes y año
+victimas <- victimas %>%
+  mutate(fecha_mes_año = format(fecha_mes_año, "%m/%Y"))
+
+```
+
+
+Si tenemos la fecha en una columna y la hora en otra, las unimos con `paste()` antes de convertir:
+
+```{r}
+#| eval: false
+victimas <- victimas %>%
+  mutate(fecha_hora = ymd_hms(paste(fecha_inicio, hora_inicio)))
+
+class(victimas$fecha_hora)
+```
+
 
 ## (Optativo) Etiquetas provenientes de Stata con `{haven}`
 
