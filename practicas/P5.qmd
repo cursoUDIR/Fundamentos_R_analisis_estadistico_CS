@@ -1,0 +1,337 @@
+---
+title: "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Verificar la consistencia de llaves antes de unir tablas.
+-   Aplicar `left_join()`, `inner_join()` y `full_join()` para fusionar tablas.
+-   Usar `anti_join()` como herramienta de diagnóstico.
+-   Reestructurar datos de formato ancho (wide) a largo (long) con `pivot_longer()`.
+-   Reestructurar datos de formato largo (long) a ancho (wide) con `pivot_wider()`.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete       | Función principal                                            |
+|---------------|--------------------------------------------------------------|
+| `{tidyverse}` | Manipulación y reestructuración de datos (`dplyr`, `tidyr`) |
+| `{readxl}`    | Leer archivos Excel (`.xlsx`)                               |
+| `{haven}`     | Leer archivos Stata (`.dta`)                                |
+| `{janitor}`   | Limpieza de nombres y tablas de frecuencia                  |
+| `{fuzzyjoin}` | Uniones aproximadas (optativo)                              |
+
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  readxl,
+  haven,
+  janitor,
+  here
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con dos bases de datos a lo largo de esta sesión.
+
+**Índice de Desarrollo Humano (IDH):** datos de países con puntajes por año en formato ancho.
+
+**Encuesta Nacional de Ingresos y Gastos de los Hogares:** tablas a nivel vivienda, hogar, persona.
+
+**Encuesta Nacional de Seguridad Pública Urbana:** para unir filas.
+
+```{r}
+#| eval: false
+idh <- read_excel(here("data", "raw", "indice_desarrollo_humano.xlsx"))
+load(here("data", "raw", "enigh2024.RData"))
+load(here("data", "raw", "BD_ENSU_0325.RData"))
+load(here("data", "raw", "BD_ENSU_0625.RData"))
+load(here("data", "raw", "BD_ENSU_0925.RData"))
+load(here("data", "raw", "BD_ENSU_1225.RData"))
+```
+
+
+------------------------------------------------------------------------
+
+## Principios de llaves: identificadores únicos y verificación de consistencia
+
+Antes de unir cualquier par de tablas, es fundamental verificar que las **llaves** (las variables que conectan ambas tablas) sean consistentes. Una llave suele ser un identificador único como `folioviv`, `foliohog` o el nombre de un país.
+
+### ¿Por qué importa verificar las llaves?
+
+Unir tablas sin verificar las llaves puede producir:
+
+-   **Filas duplicadas**, si una llave aparece más de una vez en la tabla de la derecha.
+-   **Pérdida de datos**, si hay valores en una tabla que no tienen pareja en la otra.
+
+### Verificar unicidad con `distinct()` y `nrow()`
+
+Podemos comprobar si una variable es un identificador único comparando el número de filas totales con el número de valores distintos:
+
+```{r}
+#| eval: false
+# ¿Cada vivienda aparece solo una vez en la tabla de viviendas?
+nrow(viviendas)
+nrow(distinct(viviendas, folioviv))
+```
+
+Si ambos números son iguales, `folioviv` es una llave única en `viviendas`. Si difieren, hay duplicados y debemos resolverlo antes de unir.
+
+### Detectar duplicados con `count()`
+
+```{r}
+#| eval: false
+viviendas %>%
+  count(folioviv) %>%
+  filter(n > 1)
+```
+
+Si esta tabla está vacía, no hay duplicados y podemos proceder con confianza.
+
+
+------------------------------------------------------------------------
+
+## Uniones/fusión de tablas
+
+Las uniones (o *joins*) permiten combinar información de dos tablas a partir de una o más variables llave en común. En `{dplyr}` existen cuatro tipos principales.
+
+### `left_join()`: conservar toda la tabla izquierda
+
+`left_join()` mantiene **todas las filas** de la tabla izquierda y agrega las columnas de la tabla derecha cuando hay coincidencia en la llave. Si no hay coincidencia, las columnas de la derecha se rellenan con `NA`.
+
+Vamos a agregar las características de las viviendas (derecha) a los hogares (izquierda.)
+```{r}
+#| eval: false
+base_hog_viv <- hogares %>%
+  left_join(viviendas, by = "folioviv")
+
+nrow(hogares)       # Filas originales
+nrow(base_hog_viv)  # Filas después del join (deben ser iguales)
+```
+
+Podemos encadenar uniones. Ahora, vamos a añadir los datos de hogares y viviendas a la tabla de personas:
+
+```{r}
+#| eval: false
+base_completa <- poblacion %>%
+  left_join(hogares,   by = c("folioviv", "foliohog")) %>%
+  left_join(viviendas, by = "folioviv")
+```
+
+::: callout-note
+## ¿Por qué dos llaves?
+
+Al unir `poblacion` con `hogares` usamos `c("folioviv", "foliohog")` porque una vivienda puede tener varios hogares. Solo la combinación de ambas columnas identifica un hogar de forma única.
+:::
+
+### `inner_join()`: solo filas con coincidencia en ambas tablas
+
+`inner_join()` devuelve **únicamente las filas** que tienen coincidencia en ambas tablas. Las filas sin pareja se descartan.
+
+Por ejemplo, hogares que sí tienen registros de gastos en consultas médicas.
+```{r}
+#| eval: false
+base_gasto_hog <- gastoshogar %>%
+  inner_join(hogares, by = c("folioviv", "foliohog"))
+
+nrow(gastoshogar)    # Registros de gasto
+nrow(base_gasto_hog) # Solo los que tienen hogar en la tabla principal
+```
+
+### `full_join()`: conservar todo de ambas tablas
+
+`full_join()` mantiene **todas las filas** de ambas tablas. Donde no haya coincidencia, los valores faltantes se rellenan con `NA`.
+
+```{r}
+#| eval: false
+base_full <- hogares %>%
+  full_join(viviendas, by = "folioviv")
+```
+
+### `anti_join()`: diagnóstico de no coincidencias
+
+`anti_join()` devuelve las filas de la tabla izquierda que **no tienen pareja** en la tabla derecha. Es una herramienta de diagnóstico.
+
+¿Qué hogares tienen gasto médico pero NO están en la tabla de hogares?
+
+```{r}
+#| eval: false
+anti_join(gastoshogar, hogares, by = c("folioviv", "foliohog"))
+```
+
+
+¿Qué hogares NO tienen ningún registro de gasto médico?
+
+```{r}
+#| eval: false
+anti_join(hogares, gastoshogar, by = c("folioviv", "foliohog")) %>%
+  nrow()
+```
+
+::: callout-important
+## `anti_join()` como verificación previa
+
+Es buena práctica correr `anti_join()` **antes** del join. Si devuelve muchas filas inesperadas, revisa el formato de las llaves (mayúsculas, espacios, tipos de datos).
+:::
+
+### Unir filas con `bind_rows()`
+
+Cuando dos tablas tienen la **misma estructura** de columnas y queremos apilarlas verticalmente (por ejemplo, datos de distintos trimestres), usamos `bind_rows()`:
+
+```{r}
+#| eval: false
+trim1 <- ENSU_CB_0325 %>%
+  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with("BP1_2")) %>%
+  mutate(trimestre = "Primero")
+
+trim2 <- ENSU_CB_0625 %>%
+  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with("BP1_2")) %>%
+  mutate(trimestre = "Segundo")
+
+trim3 <- ENSU_CB_0925 %>%
+  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with("BP1_2")) %>%
+  mutate(trimestre = "Tercero")
+
+trim4 <- ENSU_CB_1225 %>%
+  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with("BP1_2")) %>%
+  mutate(trimestre = "Cuarto")
+
+ensu_2025 <- bind_rows(trim1, trim2, trim3, trim4) 
+```
+
+------------------------------------------------------------------------
+
+## De muchos a uno
+
+¿Cómo tendría que hacer si a la base de hogares, quisiera pegarle la información de la edad de sus integrantes, pero quedarme con la unidad de análisis del hogar?
+
+Tenemos que agregar la edad (que está a nivel persona) a nivel hogar. Podemos calcular un promedio, por ejemplo. 
+
+```{r}
+#| eval: false
+poblacion2 <- poblacion %>% 
+  select(folioviv, foliohog, numren, edad) %>%     #seleccionamos sólo las que nos interesan
+  group_by(folioviv, foliohog) %>%  
+  #generamos la agrupación
+  summarise(promedio_edad = round(mean(edad), 0)) #calculamos el promedio y redondeamos a cero decimales
+```
+
+Ahora unimos:
+
+```{r}
+#| eval: false
+agregada <- poblacion2 %>% 
+  full_join(hogares, by = c("folioviv", "foliohog"))
+```
+
+------------------------------------------------------------------------
+
+## Reestructuración: `pivot_longer()` y `pivot_wider()`
+
+Los datos pueden estar en dos formatos: **ancho** (*wide*), donde cada variable ocupa una columna, y **largo** (*long*), donde una columna identifica la variable y otra contiene el valor. 
+
+### De ancho a largo: `pivot_longer()`
+
+#### Ejemplo: Índice de Desarrollo Humano
+
+La base `idh` tiene una columna por año. Para graficar la evolución temporal o calcular estadísticas por año, necesitamos el formato largo.
+
+Primero verificamos la estructura:
+
+```{r}
+#| eval: false
+glimpse(idh)
+```
+
+Antes de reestructurar, nos aseguramos de que todas las columnas de años sean numéricas:
+
+```{r}
+#| eval: false
+idh <- idh %>%
+  mutate(across(3:10, ~ round(as.numeric(.x), 3)))
+```
+
+Ahora aplicamos `pivot_longer()`:
+
+```{r}
+#| eval: false
+idh_largo <- idh %>%
+  pivot_longer(
+    cols      = 3:10,        # Columnas a reestructurar
+    names_to  = "annio",     # Nombre de la nueva columna de identificador
+    values_to = "idh_valor"  # Nombre de la nueva columna de valores
+  ) %>%
+  mutate(idh_valor = as.numeric(idh_valor))
+
+glimpse(idh_largo)
+```
+
+::: callout-note
+## ¿Qué hizo `pivot_longer()`?
+
+Tomó 8 columnas (una por año) y las convirtió en dos columnas: `annio` (que contiene el nombre del año) e `idh_valor` (que contiene el puntaje). El número de filas aumentó proporcionalmente.
+:::
+
+
+
+### De largo a ancho: `pivot_wider()`
+
+`pivot_wider()` es la operación inversa: toma una columna de identificadores y una de valores, y crea una columna separada para cada identificador. 
+
+#### Ejemplo: Restaurar el IDH a formato ancho
+
+```{r}
+#| eval: false
+idh_ancho <- idh_largo %>%
+  pivot_wider(
+    names_from  = annio,     # Los valores únicos de esta columna se vuelven nombres de columna
+    values_from = idh_valor  # Los valores de esta columna llenan las nuevas columnas
+  )
+
+glimpse(idh_ancho)
+```
+
+::: callout-tip
+## Resumen: ¿cuándo usar cada función?
+
+| Función          | Cuándo usarla                                                       |
+|------------------|---------------------------------------------------------------------|
+| `pivot_longer()` | Para análisis, visualización, `group_by()` + `summarise()`         |
+| `pivot_wider()`  | Para presentar resultados en tablas o restaurar el formato original |
+:::
+
+------------------------------------------------------------------------
+
+
+## Ejercicio
+
+1.  Descarga los microdatos de los Ingresos del Programa Jóvenes Construyendo el Futuro (ingresos_JCF) de la página del inegi (https://www.inegi.org.mx/programas/enigh/nc/2024/#microdatos).
+
+2.  Con `ingresos_jcf`, convierte las columnas `ing_1:ing_6` a formato largo. Luego calcula la **suma total de ingresos** por `folioviv`. ¿Qué hogar acumuló más ingresos del programa JCF?
+
+3.  Toma el resultado del ejercicio 4 (suma por hogar) y únelo con la tabla `hogares` de la ENIGH usando `left_join()`. ¿Cuántos hogares de `hogares` no tienen registros en `ingresos_jcf`? Usa `anti_join()` para responder.
