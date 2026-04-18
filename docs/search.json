@@ -1,5 +1,68 @@
 [
   {
+    "objectID": "practicas/P5.html",
+    "href": "practicas/P5.html",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nVerificar la consistencia de llaves antes de unir tablas.\nAplicar left_join(), inner_join() y full_join() para fusionar tablas.\nUsar anti_join() como herramienta de diagnóstico.\nReestructurar datos de formato ancho (wide) a largo (long) con pivot_longer().\nReestructurar datos de formato largo (long) a ancho (wide) con pivot_wider()."
+  },
+  {
+    "objectID": "practicas/P5.html#objetivos-de-la-sesión",
+    "href": "practicas/P5.html#objetivos-de-la-sesión",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nVerificar la consistencia de llaves antes de unir tablas.\nAplicar left_join(), inner_join() y full_join() para fusionar tablas.\nUsar anti_join() como herramienta de diagnóstico.\nReestructurar datos de formato ancho (wide) a largo (long) con pivot_longer().\nReestructurar datos de formato largo (long) a ancho (wide) con pivot_wider()."
+  },
+  {
+    "objectID": "practicas/P5.html#paquetes-de-esta-sesión",
+    "href": "practicas/P5.html#paquetes-de-esta-sesión",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "2 Paquetes de esta sesión",
+    "text": "2 Paquetes de esta sesión\n\n\n\n\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{tidyverse}\nManipulación y reestructuración de datos (dplyr, tidyr)\n\n\n{readxl}\nLeer archivos Excel (.xlsx)\n\n\n{haven}\nLeer archivos Stata (.dta)\n\n\n{janitor}\nLimpieza de nombres y tablas de frecuencia\n\n\n{fuzzyjoin}\nUniones aproximadas (optativo)\n\n\n\n\npacman::p_load(\n  tidyverse,\n  readxl,\n  haven,\n  janitor,\n  here\n)"
+  },
+  {
+    "objectID": "practicas/P5.html#datos-de-esta-sesión",
+    "href": "practicas/P5.html#datos-de-esta-sesión",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "3 Datos de esta sesión",
+    "text": "3 Datos de esta sesión\nTrabajaremos con dos bases de datos a lo largo de esta sesión.\nÍndice de Desarrollo Humano (IDH): datos de países con puntajes por año en formato ancho.\nEncuesta Nacional de Ingresos y Gastos de los Hogares: tablas a nivel vivienda, hogar, persona.\nEncuesta Nacional de Seguridad Pública Urbana: para unir filas.\n\nidh &lt;- read_excel(here(\"data\", \"raw\", \"indice_desarrollo_humano.xlsx\"))\nload(here(\"data\", \"raw\", \"enigh2024.RData\"))\nload(here(\"data\", \"raw\", \"BD_ENSU_0325.RData\"))\nload(here(\"data\", \"raw\", \"BD_ENSU_0625.RData\"))\nload(here(\"data\", \"raw\", \"BD_ENSU_0925.RData\"))\nload(here(\"data\", \"raw\", \"BD_ENSU_1225.RData\"))"
+  },
+  {
+    "objectID": "practicas/P5.html#principios-de-llaves-identificadores-únicos-y-verificación-de-consistencia",
+    "href": "practicas/P5.html#principios-de-llaves-identificadores-únicos-y-verificación-de-consistencia",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "4 Principios de llaves: identificadores únicos y verificación de consistencia",
+    "text": "4 Principios de llaves: identificadores únicos y verificación de consistencia\nAntes de unir cualquier par de tablas, es fundamental verificar que las llaves (las variables que conectan ambas tablas) sean consistentes. Una llave suele ser un identificador único como folioviv, foliohog o el nombre de un país.\n\n4.1 ¿Por qué importa verificar las llaves?\nUnir tablas sin verificar las llaves puede producir:\n\nFilas duplicadas, si una llave aparece más de una vez en la tabla de la derecha.\nPérdida de datos, si hay valores en una tabla que no tienen pareja en la otra.\n\n\n\n4.2 Verificar unicidad con distinct() y nrow()\nPodemos comprobar si una variable es un identificador único comparando el número de filas totales con el número de valores distintos:\n\n# ¿Cada vivienda aparece solo una vez en la tabla de viviendas?\nnrow(viviendas)\nnrow(distinct(viviendas, folioviv))\n\nSi ambos números son iguales, folioviv es una llave única en viviendas. Si difieren, hay duplicados y debemos resolverlo antes de unir.\n\n\n4.3 Detectar duplicados con count()\n\nviviendas %&gt;%\n  count(folioviv) %&gt;%\n  filter(n &gt; 1)\n\nSi esta tabla está vacía, no hay duplicados y podemos proceder con confianza."
+  },
+  {
+    "objectID": "practicas/P5.html#unionesfusión-de-tablas",
+    "href": "practicas/P5.html#unionesfusión-de-tablas",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "5 Uniones/fusión de tablas",
+    "text": "5 Uniones/fusión de tablas\nLas uniones (o joins) permiten combinar información de dos tablas a partir de una o más variables llave en común. En {dplyr} existen cuatro tipos principales.\n\n5.1 left_join(): conservar toda la tabla izquierda\nleft_join() mantiene todas las filas de la tabla izquierda y agrega las columnas de la tabla derecha cuando hay coincidencia en la llave. Si no hay coincidencia, las columnas de la derecha se rellenan con NA.\nVamos a agregar las características de las viviendas (derecha) a los hogares (izquierda.)\n\nbase_hog_viv &lt;- hogares %&gt;%\n  left_join(viviendas, by = \"folioviv\")\n\nnrow(hogares)       # Filas originales\nnrow(base_hog_viv)  # Filas después del join (deben ser iguales)\n\nPodemos encadenar uniones. Ahora, vamos a añadir los datos de hogares y viviendas a la tabla de personas:\n\nbase_completa &lt;- poblacion %&gt;%\n  left_join(hogares,   by = c(\"folioviv\", \"foliohog\")) %&gt;%\n  left_join(viviendas, by = \"folioviv\")\n\n\n\n\n\n\n\nNota¿Por qué dos llaves?\n\n\n\nAl unir poblacion con hogares usamos c(\"folioviv\", \"foliohog\") porque una vivienda puede tener varios hogares. Solo la combinación de ambas columnas identifica un hogar de forma única.\n\n\n\n\n5.2 inner_join(): solo filas con coincidencia en ambas tablas\ninner_join() devuelve únicamente las filas que tienen coincidencia en ambas tablas. Las filas sin pareja se descartan.\nPor ejemplo, hogares que sí tienen registros de gastos en consultas médicas.\n\nbase_gasto_hog &lt;- gastoshogar %&gt;%\n  inner_join(hogares, by = c(\"folioviv\", \"foliohog\"))\n\nnrow(gastoshogar)    # Registros de gasto\nnrow(base_gasto_hog) # Solo los que tienen hogar en la tabla principal\n\n\n\n5.3 full_join(): conservar todo de ambas tablas\nfull_join() mantiene todas las filas de ambas tablas. Donde no haya coincidencia, los valores faltantes se rellenan con NA.\n\nbase_full &lt;- hogares %&gt;%\n  full_join(viviendas, by = \"folioviv\")\n\n\n\n5.4 anti_join(): diagnóstico de no coincidencias\nanti_join() devuelve las filas de la tabla izquierda que no tienen pareja en la tabla derecha. Es una herramienta de diagnóstico.\n¿Qué hogares tienen gasto médico pero NO están en la tabla de hogares?\n\nanti_join(gastoshogar, hogares, by = c(\"folioviv\", \"foliohog\"))\n\n¿Qué hogares NO tienen ningún registro de gasto médico?\n\nanti_join(hogares, gastoshogar, by = c(\"folioviv\", \"foliohog\")) %&gt;%\n  nrow()\n\n\n\n\n\n\n\nImportanteanti_join() como verificación previa\n\n\n\nEs buena práctica correr anti_join() antes del join. Si devuelve muchas filas inesperadas, revisa el formato de las llaves (mayúsculas, espacios, tipos de datos).\n\n\n\n\n5.5 Unir filas con bind_rows()\nCuando dos tablas tienen la misma estructura de columnas y queremos apilarlas verticalmente (por ejemplo, datos de distintos trimestres), usamos bind_rows():\n\ntrim1 &lt;- ENSU_CB_0325 %&gt;%\n  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with(\"BP1_2\")) %&gt;%\n  mutate(trimestre = \"Primero\")\n\ntrim2 &lt;- ENSU_CB_0625 %&gt;%\n  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with(\"BP1_2\")) %&gt;%\n  mutate(trimestre = \"Segundo\")\n\ntrim3 &lt;- ENSU_CB_0925 %&gt;%\n  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with(\"BP1_2\")) %&gt;%\n  mutate(trimestre = \"Tercero\")\n\ntrim4 &lt;- ENSU_CB_1225 %&gt;%\n  select(ID_VIV, ID_PER, CVE_ENT, NOM_ENT, SEXO, EDAD, starts_with(\"BP1_2\")) %&gt;%\n  mutate(trimestre = \"Cuarto\")\n\nensu_2025 &lt;- bind_rows(trim1, trim2, trim3, trim4)"
+  },
+  {
+    "objectID": "practicas/P5.html#de-muchos-a-uno",
+    "href": "practicas/P5.html#de-muchos-a-uno",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "6 De muchos a uno",
+    "text": "6 De muchos a uno\n¿Cómo tendría que hacer si a la base de hogares, quisiera pegarle la información de la edad de sus integrantes, pero quedarme con la unidad de análisis del hogar?\nTenemos que agregar la edad (que está a nivel persona) a nivel hogar. Podemos calcular un promedio, por ejemplo.\n\npoblacion2 &lt;- poblacion %&gt;% \n  select(folioviv, foliohog, numren, edad) %&gt;%     #seleccionamos sólo las que nos interesan\n  group_by(folioviv, foliohog) %&gt;%  \n  #generamos la agrupación\n  summarise(promedio_edad = round(mean(edad), 0)) #calculamos el promedio y redondeamos a cero decimales\n\nAhora unimos:\n\nagregada &lt;- poblacion2 %&gt;% \n  full_join(hogares, by = c(\"folioviv\", \"foliohog\"))"
+  },
+  {
+    "objectID": "practicas/P5.html#reestructuración-pivot_longer-y-pivot_wider",
+    "href": "practicas/P5.html#reestructuración-pivot_longer-y-pivot_wider",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "7 Reestructuración: pivot_longer() y pivot_wider()",
+    "text": "7 Reestructuración: pivot_longer() y pivot_wider()\nLos datos pueden estar en dos formatos: ancho (wide), donde cada variable ocupa una columna, y largo (long), donde una columna identifica la variable y otra contiene el valor.\n\n7.1 De ancho a largo: pivot_longer()\n\n7.1.1 Ejemplo: Índice de Desarrollo Humano\nLa base idh tiene una columna por año. Para graficar la evolución temporal o calcular estadísticas por año, necesitamos el formato largo.\nPrimero verificamos la estructura:\n\nglimpse(idh)\n\nAntes de reestructurar, nos aseguramos de que todas las columnas de años sean numéricas:\n\nidh &lt;- idh %&gt;%\n  mutate(across(3:10, ~ round(as.numeric(.x), 3)))\n\nAhora aplicamos pivot_longer():\n\nidh_largo &lt;- idh %&gt;%\n  pivot_longer(\n    cols      = 3:10,        # Columnas a reestructurar\n    names_to  = \"annio\",     # Nombre de la nueva columna de identificador\n    values_to = \"idh_valor\"  # Nombre de la nueva columna de valores\n  ) %&gt;%\n  mutate(idh_valor = as.numeric(idh_valor))\n\nglimpse(idh_largo)\n\n\n\n\n\n\n\nNota¿Qué hizo pivot_longer()?\n\n\n\nTomó 8 columnas (una por año) y las convirtió en dos columnas: annio (que contiene el nombre del año) e idh_valor (que contiene el puntaje). El número de filas aumentó proporcionalmente.\n\n\n\n\n\n7.2 De largo a ancho: pivot_wider()\npivot_wider() es la operación inversa: toma una columna de identificadores y una de valores, y crea una columna separada para cada identificador.\n\n7.2.1 Ejemplo: Restaurar el IDH a formato ancho\n\nidh_ancho &lt;- idh_largo %&gt;%\n  pivot_wider(\n    names_from  = annio,     # Los valores únicos de esta columna se vuelven nombres de columna\n    values_from = idh_valor  # Los valores de esta columna llenan las nuevas columnas\n  )\n\nglimpse(idh_ancho)\n\n\n\n\n\n\n\nTipResumen: ¿cuándo usar cada función?\n\n\n\n\n\n\n\n\n\n\nFunción\nCuándo usarla\n\n\n\n\npivot_longer()\nPara análisis, visualización, group_by() + summarise()\n\n\npivot_wider()\nPara presentar resultados en tablas o restaurar el formato original"
+  },
+  {
+    "objectID": "practicas/P5.html#ejercicio",
+    "href": "practicas/P5.html#ejercicio",
+    "title": "Sesión 5: Uniones (fusión) y reestructuración tidy (wide/long)",
+    "section": "8 Ejercicio",
+    "text": "8 Ejercicio\n\nDescarga los microdatos de los Ingresos del Programa Jóvenes Construyendo el Futuro (ingresos_JCF) de la página del inegi (https://www.inegi.org.mx/programas/enigh/nc/2024/#microdatos).\nCon ingresos_jcf, convierte las columnas ing_1:ing_6 a formato largo. Luego calcula la suma total de ingresos por folioviv. ¿Qué hogar acumuló más ingresos del programa JCF?\nToma el resultado del ejercicio 4 (suma por hogar) y únelo con la tabla hogares de la ENIGH usando left_join(). ¿Cuántos hogares de hogares no tienen registros en ingresos_jcf? Usa anti_join() para responder."
+  },
+  {
     "objectID": "practicas/P2.html",
     "href": "practicas/P2.html",
     "title": "Sesión 2: Tablas o dataframes: estructura, lectura y exportación",
@@ -355,5 +418,96 @@
     "title": "Sesión 1: Entorno de trabajo y flujo reproducible en R",
     "section": "8 Ejercicio",
     "text": "8 Ejercicio\nCrea un vector de caracteres países con al menos 4 países de América Latina. Muestra su longitud y accede al segundo elemento."
+  },
+  {
+    "objectID": "practicas/P3.html",
+    "href": "practicas/P3.html",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nDistinguir los tipos de variables.\nCrear nuevas variables a partir de cálculos y transformaciones con mutate().\nRecodificar variables usando if_else(), case_when() y recode().\nConvertir variables a factores con niveles y etiquetas.\nColapsar categorías poco frecuentes con forcats::fct_lump_prop().\nManipular variables en formato fecha con lubridate."
+  },
+  {
+    "objectID": "practicas/P3.html#objetivos-de-la-sesión",
+    "href": "practicas/P3.html#objetivos-de-la-sesión",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nDistinguir los tipos de variables.\nCrear nuevas variables a partir de cálculos y transformaciones con mutate().\nRecodificar variables usando if_else(), case_when() y recode().\nConvertir variables a factores con niveles y etiquetas.\nColapsar categorías poco frecuentes con forcats::fct_lump_prop().\nManipular variables en formato fecha con lubridate."
+  },
+  {
+    "objectID": "practicas/P3.html#paquetes-de-esta-sesión",
+    "href": "practicas/P3.html#paquetes-de-esta-sesión",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "2 Paquetes de esta sesión",
+    "text": "2 Paquetes de esta sesión\n\n\n\n\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{dplyr}\nManipulación de datos: mutate(), if_else(), case_when(), recode()\n\n\n{forcats}\nManejo de factores: fct_recode(), fct_lump_prop()\n\n\n{janitor}\nTablas de frecuencia con tabyl()\n\n\n{haven}\nLectura de archivos Stata y manejo de etiquetas\n\n\n{lubridate}\nManejo de fechas\n\n\n\n\npacman::p_load(\n  tidyverse,\n  janitor,\n  haven,\n  here\n)"
+  },
+  {
+    "objectID": "practicas/P3.html#datos-de-esta-sesión",
+    "href": "practicas/P3.html#datos-de-esta-sesión",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "3 Datos de esta sesión",
+    "text": "3 Datos de esta sesión\nTrabajaremos con la base concentradohogar de la ENIGH, que importamos en la Sesión 2. Recordemos cómo abrirla:\n\nconcentrado &lt;- read_csv(here(\"data\", \"raw\", \"concentradohogar.csv\"))\n\nAlgunas variables que usaremos a lo largo de esta sesión:\n\n\n\nVariable\nDescripción\n\n\n\n\ning_cor\nIngreso corriente trimestral del hogar (pesos)\n\n\nedad_jefe\nEdad de la persona jefa del hogar\n\n\neduca_jefe\nNivel de instrucción de la persona jefa del hogar\n\n\nest_socio\nEstrato socioeconómico\n\n\n\nTambién trabajaremos con los datos de la Fiscalía General de Justicia para algunas cosas de fechas (https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj)\n\nload(here(\"data\", \"raw\", \"victimas_acumulado_0924.RData\"))"
+  },
+  {
+    "objectID": "practicas/P3.html#tipos-de-variables-y-codificación",
+    "href": "practicas/P3.html#tipos-de-variables-y-codificación",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "4 Tipos de variables y codificación",
+    "text": "4 Tipos de variables y codificación\nAntes de crear o recodificar variables, debemos ver qué tipo de variable tenemos, ya que esto influye en qué funciones debemos usar.\n\n4.1 Por ejemplo\n\n\n\n\n\n\n\n\nTipo\nDescripción\nEjemplo en ENIGH\n\n\n\n\nNominal\nCategorías sin orden\nSexo, entidad federativa\n\n\nOrdinal\nCategorías con orden\nNivel educativo, estrato\n\n\nDiscreta\nValores enteros contables\nNúmero de integrantes del hogar\n\n\nContinua\nValores numéricos en un rango\nIngreso corriente, gasto\n\n\n\n\n\n4.2 Tipos en R (repaso)\nEn R, estas categorías se traducen en las siguientes:\n\nnumeric / integer: variables cuantitativas (continuas o discretas).\ncharacter: cadenas de texto, normalmente variables nominales sin orden.\nfactor: variables categóricas con niveles definidos (nominales u ordinales).\nlogical: variables lógicas (TRUE/FALSE), equivalentes a dicotómicas.\n\nPodemos revisar el tipo de cualquier variable con class():\n\nclass(concentrado$ing_cor)\nclass(concentrado$educa_jefe)"
+  },
+  {
+    "objectID": "practicas/P3.html#creación-de-variables-con-mutate",
+    "href": "practicas/P3.html#creación-de-variables-con-mutate",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "5 Creación de variables con mutate()",
+    "text": "5 Creación de variables con mutate()\nmutate() agrega o modifica columnas dentro de un dataframe. El input, digamos, es cualquier expresión válida de R: operaciones aritméticas, funciones estadísticas, funciones de texto, etc.\n\n5.1 Cálculos numéricos\nLa variable ing_cor refiere al ingreso corriente trimestral del hogar. Podemos calcular por mes o el logaritmo.\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    ing_mensual = ing_cor / 3,  # ingreso promedio mensual\n    log_ing     = log(ing_cor)\n  )\n\n\n\n\n\n\n\nTipVarias variables en un solo mutate()\n\n\n\nPodemos crear todas las variables que necesitemos dentro de un solo bloque mutate(), separadas por comas."
+  },
+  {
+    "objectID": "practicas/P3.html#recodificación-con-if_else",
+    "href": "practicas/P3.html#recodificación-con-if_else",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "6 Recodificación con if_else()",
+    "text": "6 Recodificación con if_else()\nif_else() es la función más utilizada para crear variables dicotómicas: si se cumple una condición, asigna un valor; si no, asigna otro.\nif_else(condición, valor_si_verdadero, valor_si_falso)\n\n6.1 Por ejemplo: persona jefa del hogar mayor de 65 años\nPrimero creamos la variable.\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(jefe_mayor65 = if_else(edad_jefe &gt;= 65, \"65 años o más\", \"Menos de 65 años\"))\n\nLuego especificamos los niveles.\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(jefe_mayor65 = factor(jefe_mayor65,\n    levels = c(\"Menos de 65 años\", \"65 años o más\")))\n\nLuego la vemos.\n\nconcentrado %&gt;% tabyl(jefe_mayor65)"
+  },
+  {
+    "objectID": "practicas/P3.html#recodificación-con-case_when",
+    "href": "practicas/P3.html#recodificación-con-case_when",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "7 Recodificación con case_when()",
+    "text": "7 Recodificación con case_when()\ncase_when() evalúa cada condición y asigna el valor de una variable nueva a partir de una antigua. Es como una serie de “si se cumple esto, asigna esto”.\nmutate(nueva_var = case_when(\n  condición1 ~ \"valor1\",\n  condición2 ~ \"valor2\",\n  TRUE        ~ NA_character_   # para los casos que no cumplen ninguna condición\n))\n\n7.1 Ejemplo: rangos de edad de la persona jefa del hogar\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    rango_edad_jefe = case_when(\n      edad_jefe &gt;= 18 & edad_jefe &lt;= 29 ~ \"18-29\",\n      edad_jefe &gt;= 30 & edad_jefe &lt;= 44 ~ \"30-44\",\n      edad_jefe &gt;= 45 & edad_jefe &lt;= 59 ~ \"45-59\",\n      edad_jefe &gt;= 60 & edad_jefe &lt;= 74 ~ \"60-74\",\n      edad_jefe &gt;= 75                   ~ \"75 o más\",\n      TRUE                              ~ NA_character_\n    )\n  )\n\nconcentrado %&gt;% tabyl(rango_edad_jefe)\n\nConvertimos a factor y especificamos niveles:\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    rango_edad_jefe = factor(rango_edad_jefe,\n      levels = c(\"18-29\", \"30-44\", \"45-59\", \"60-74\", \"75 o más\")))\n\n\n\n7.2 Ejemplo: nivel de escolaridad del jefe o jefa del hogar\nLa variable educa_jefe sigue la siguiente clasificación del INEGI:\n\n\n\nCódigo\nDescripción\n\n\n\n\n1\nSin instrucción\n\n\n2\nPreescolar\n\n\n3\nPrimaria incompleta\n\n\n4\nPrimaria completa\n\n\n5\nSecundaria incompleta\n\n\n6\nSecundaria completa\n\n\n7\nPreparatoria incompleta\n\n\n8\nPreparatoria completa\n\n\n9\nProfesional incompleta\n\n\n10\nProfesional completa\n\n\n11\nPosgrado\n\n\n\nAgrupamos estos códigos en tres grandes niveles:\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    nivel_educa = case_when(\n      educa_jefe %in% c(\"01\", \"02\", \"03\", \"04\") ~ \"Básica o menos\",\n      educa_jefe %in% c(\"05\", \"06\", \"07\", \"08\") ~ \"Media superior\",\n      educa_jefe %in% c(\"09\", \"10\", \"11\")        ~ \"Superior\",\n      TRUE                                        ~ NA_character_\n    ),\n    nivel_educa = factor(nivel_educa,\n      levels = c(\"Básica o menos\", \"Media superior\", \"Superior\"))\n  )\n\nconcentrado %&gt;% tabyl(nivel_educa)\n\nVerificamos que la recodificación sea correcta con una tabla cruzada:\n\ntable(concentrado$educa_jefe, concentrado$nivel_educa)"
+  },
+  {
+    "objectID": "practicas/P3.html#recodificación-con-recode",
+    "href": "practicas/P3.html#recodificación-con-recode",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "8 Recodificación con recode()",
+    "text": "8 Recodificación con recode()\nrecode() es útil para hacer sustituciones directas de valores, sin necesidad de escribir condiciones. Funciona bien para variables con pocos valores distintos y conocidos.\n\n8.1 Ejemplo: etiquetas para el estrato socioeconómico\nLa variable est_socio tiene cuatro categorías (1 a 4). Le asignamos etiquetas descriptivas:\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    estrato_label = recode(est_socio,\n      `1` = \"Bajo\",\n      `2` = \"Medio bajo\",\n      `3` = \"Medio alto\",\n      `4` = \"Alto\",\n      .default = NA_character_\n    )\n  )\n\nconcentrado %&gt;% tabyl(estrato_label)\n\n\n\n\n\n\n\nTiprecode() vs case_when()\n\n\n\nrecode() es más conciso cuando se trata de sustituciones uno a uno con valores conocidos. case_when() es más flexible cuando las condiciones implican rangos numéricos, operadores lógicos (&, |) o combinaciones de varias variables."
+  },
+  {
+    "objectID": "practicas/P3.html#colapsar-categorías-con-forcatsfct_lump_prop",
+    "href": "practicas/P3.html#colapsar-categorías-con-forcatsfct_lump_prop",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "9 Colapsar categorías con forcats::fct_lump_prop()",
+    "text": "9 Colapsar categorías con forcats::fct_lump_prop()\nCuando una variable categórica tiene muchas categorías poco frecuentes, conviene agruparlas en una categoría “Otros”.\n\n9.1 Ejemplo: colapsar niveles poco frecuentes de educación\nPrimero convertimos a factor.\n\nconcentrado$educa_jefe &lt;- as.factor(concentrado$educa_jefe)\n\nRevisamos las proporciones actuales.\n\nconcentrado %&gt;% tabyl(educa_jefe)\n\nColapsamos las categorías con menos del 10% de los casos.\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    educa_agrupada = fct_lump_prop(educa_jefe, prop = 0.10, other_level = \"Otros\")\n  )\n\nRevisamos cuáles quedaron.\n\nconcentrado %&gt;% tabyl(educa_agrupada)\n\nUna vez agrupadas las categorías con menos del 10%, podemos etiquetar las más frecuentes con fct_recode():\n\nconcentrado &lt;- concentrado %&gt;%\n  mutate(\n    educa_agrupada = fct_recode(educa_agrupada,\n      \"Primaria incompleta\"   = \"03\",\n      \"Primaria completa\"     = \"04\",\n      \"Secundaria completa\"   = \"06\",\n      \"Preparatoria completa\" = \"08\",\n      \"Profesional completa\"  = \"10\"\n    )\n  )\n\nLa vemos.\n\nconcentrado %&gt;% tabyl(educa_agrupada)"
+  },
+  {
+    "objectID": "practicas/P3.html#fechas",
+    "href": "practicas/P3.html#fechas",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "10 Fechas",
+    "text": "10 Fechas\n\n10.1 Extraer componentes de una fecha\nLa variable fecha_inicio viene como character. ¿Qué pasa si sólo tuviéramos la variable fecha_inicio y queremos extraer el año, mes y día para generar tres variables distintas? Antes de extraer cualquier componente, debemos convertirla al tipo Date con ymd(), que asume el orden Año-Mes-Día:\n\nvictimas &lt;- victimas %&gt;%\n  mutate(fecha_inicio = ymd(fecha_inicio))\n\nLa función ymd() de lubridate convierte en texto la fecha, asumiendo que el formato está en orden Year-Month-Day (como viene originalmente).\nAhora sí, queremos extraer el año, mes y día a partir de fecha_inicio.\n\nvictimas &lt;- victimas %&gt;%\n  mutate(\n    annio = year(fecha_inicio),  # Año\n    mes   = month(fecha_inicio), # Mes (número)\n    dia   = day(fecha_inicio)    # Día\n  )\n\nLos objetos Date en R se almacenan como números enteros (días transcurridos desde cierta fecha). El formato que vemos al imprimir es solo una representación. Esto significa que el orden día/mes/año no existe dentro del objeto; solo existe al momento de imprimirlo o exportarlo.\nformat() convierte una fecha a character con el orden deseado:\n\nvictimas &lt;- victimas %&gt;%\n  mutate(\n    fecha_formateada1 = format(fecha_inicio, \"%d-%m-%Y\"), # día-mes-año\n    fecha_formateada2 = format(fecha_inicio, \"%m/%d/%Y\"), # mes/día/año\n    fecha_formateada3 = format(fecha_inicio, \"%Y/%m/%d\")  # año/mes/día\n  )\n\n\n\n10.2 Cálculo de duraciones\nNo necesitamos cambiar formatos para hacer cálculos. difftime() calcula la diferencia entre dos fechas directamente sobre objetos Date:\n\n# Convertir fecha_hecho a Date\nvictimas &lt;- victimas %&gt;%\n  mutate(fecha_hecho = ymd(fecha_hecho))\n\n# Calcular días entre el hecho y el inicio de la carpeta\nvictimas &lt;- victimas %&gt;%\n  mutate(\n    diferencia_dias = as.numeric(difftime(fecha_inicio, fecha_hecho, units = \"days\"))\n  )\n\n\n\n10.3 Creación de variables de fecha\nSi tenemos el mes y el año en columnas distintas, podemos combinarlas con make_date(). Como esta función requiere al menos día, mes y año, asigna el día 1 por defecto cuando solo se proveen mes y año:\n\nvictimas &lt;- victimas %&gt;%\n  mutate(fecha_mes_año = make_date(month = mes, year = annio))\n\n# Reformatear para mostrar solo mes y año\nvictimas &lt;- victimas %&gt;%\n  mutate(fecha_mes_año = format(fecha_mes_año, \"%m/%Y\"))\n\nSi tenemos la fecha en una columna y la hora en otra, las unimos con paste() antes de convertir:\n\nvictimas &lt;- victimas %&gt;%\n  mutate(fecha_hora = ymd_hms(paste(fecha_inicio, hora_inicio)))"
+  },
+  {
+    "objectID": "practicas/P3.html#optativo-etiquetas-provenientes-de-stata-con-haven",
+    "href": "practicas/P3.html#optativo-etiquetas-provenientes-de-stata-con-haven",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "11 (Optativo) Etiquetas provenientes de Stata con {haven}",
+    "text": "11 (Optativo) Etiquetas provenientes de Stata con {haven}\nCuando los datos provienen de archivos .dta (Stata), las variables suelen traer etiquetas de valor (value labels). {haven} las preserva como atributos del objeto en R.\n\n11.1 Leer el archivo y revisar etiquetas\nSi tuviéramos que importar bases en formato Stata:\n\nlapop_dta &lt;- read_dta(here(\"data\", \"raw\", \"mex_lapop_2023.dta\"))\n\nPodemos ver las etiquetas de la variable.\n\nattr(lapop_dta$ur, \"labels\")\n\n\n\n11.2 Convertir etiquetas a factor\nas_factor() convierte las etiquetas Stata en niveles de factor en R.\n\nlapop_dta &lt;- lapop_dta %&gt;%\n  mutate(ur = as_factor(ur))\n\nVeamos los niveles.\n\nlevels(lapop_dta$ur)\n\n\n\n\n\n\n\nNotaas_factor() de {haven}\n\n\n\nA diferencia de as.factor() de R base, haven::as_factor() usa las etiquetas del archivo Stata como niveles del factor (en lugar de los valores numéricos). Esto facilita enormemente el trabajo con microdatos del INEGI distribuidos en formato Stata."
+  },
+  {
+    "objectID": "practicas/P3.html#ejercicio",
+    "href": "practicas/P3.html#ejercicio",
+    "title": "Sesión 3: Tipos de variables, creación y recodificación",
+    "section": "12 Ejercicio",
+    "text": "12 Ejercicio\n\nAbre la base concentradohogar.csv con here(\"data\", \"raw\", \"concentradohogar.csv\").\nUsando if_else(), crea una variable rural a partir de tam_loc que asigne \"Rural\" a los hogares que viven en localidades con menos de 2500 habitantes y \"Urbano\" a todas las demás. Conviértela a factor con niveles.\nCon case_when(), crea una variable rango_ing que clasifique el ingreso corriente en cuartiles:\n\n\"Q1\": menor o igual al cuartil 1.\n\"Q2\": mayor al Q1 y menor o igual a la mediana.\n\"Q3\": mayor a la mediana y menor o igual al Q3.\n\"Q4\": mayor al cuartil 3."
   }
 ]
