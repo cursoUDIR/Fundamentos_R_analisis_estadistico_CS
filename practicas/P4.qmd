@@ -1,0 +1,243 @@
+---
+title: "Práctica 4 (Sesión 4): Exploración de dataframes con dplyr"
+subtitle: "Pipes, verbos principales, selección por patrones (ends_with, rangos) y *_at()"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Explorar tablas o dataframes con un flujo reproducible usando `dplyr` y pipes (`%>%` o `%>%`).
+-   Seleccionar, filtrar, ordenar, renombrar, agrupar y resumir variables con los verbos principales de `dplyr`.
+-   Seleccionar columnas con *helpers* (por ejemplo `ends_with()`, `contains()`, `matches()`, `where()`) y con rangos del tipo `var1:var2`.
+-   Aplicar transformaciones o renombres a múltiples columnas con `mutate_at()` y `rename_at()` (y reconocer su equivalente con `across()` / `rename_with()`).
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete       | Función principal                                                                 |
+|---------------|-----------------------------------------------------------------------------------|
+| `{dplyr}`     | Verbos para manipulación de datos (`select`, `filter`, `group_by`, `summarise`)  |
+| `{tidyr}`     | Apoyo para reestructuración en formato tidy                                       |
+| `{janitor}`   | Limpieza de nombres y utilidades rápidas                                          |
+| `{skimr}`     | Resumen rápido del contenido de un dataframe                                      |
+| `{stringr}`   | Patrones y expresiones regulares (útil con `matches()`)                           |
+| `{pacman}`    | Carga e instalación compacta de paquetes                                          |
+
+```{r}
+#| eval: true
+pacman::p_load(
+  dplyr,
+  tidyr,
+  janitor,
+  skimr,
+  stringr
+)
+```
+
+::: callout-note
+## Nota sobre `*_at()`
+
+En versiones recientes de `dplyr`, `mutate_at()` y `rename_at()` han sido reemplazadas por `across()` y `rename_with()`.  
+En este curso las revisamos porque aún aparecen en muchos códigos “heredados” y es útil reconocerlas. Cuando sea posible, mostramos también el equivalente moderno.
+:::
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con **una tabla principal** (por ejemplo, una tabla de hogares de la ENIGH 2024) y, si lo desean, con **una tabla auxiliar** para practicar filtrado y selección por patrones.
+
+En los ejemplos asumimos que ya tienen un objeto llamado `concentrado` en el ambiente. Si todavía no lo han leído, aquí está un ejemplo de lectura (solo referencia):
+
+```{r}
+#| eval: true
+library(readr)
+library(here)
+
+concentrado <- read_csv(here("data", "raw", "concentradohogar.csv")) %>%
+  janitor::clean_names()
+```
+
+Inspección rápida:
+
+```{r}
+glimpse(concentrado)
+skim(concentrado)
+```
+
+------------------------------------------------------------------------
+
+## 1. Duración y dinámica (2 horas, sesión práctica)
+
+-   **10–15 min**: recordatorio de pipes y lectura rápida del dataframe.  
+-   **20 min**: demo corta: `select()` (helpers + rangos), `filter()`, `group_by()` + `summarise()`.  
+-   **35–40 min**: práctica guiada (en parejas o individual).  
+-   **10 min**: revisión rápida de resultados y dudas.  
+-   **25–30 min**: avance de la entrega (con plantilla).  
+
+------------------------------------------------------------------------
+
+## 2. Verbos principales de dplyr (mínimo para hoy)
+
+### 2.1 `select()` + rangos `var1:var2`
+
+El operador `var1:var2` selecciona **todas las columnas entre `var1` y `var2`** en el orden en que aparecen en el dataframe.
+
+```{r}
+# Ajusta los nombres a tu tabla
+concentrado %>%
+  select(folioviv:sexo_jefe)
+```
+
+### 2.2 `select()` + helpers: `ends_with()`
+
+```{r}
+# Variables que terminan con "_pc" (ejemplo)
+concentrado %>%
+  select(ends_with("_cor"))
+```
+
+### 2.3 `filter()`
+
+```{r}
+concentrado %>%
+  filter(tam_loc == 1)
+```
+
+### 2.4 `group_by()` + `summarise()`
+
+```{r}
+concentrado %>%
+  group_by(tam_loc) %>%
+  summarise(
+    n = n(),
+    media = mean(ing_cor, na.rm = TRUE),
+    mediana = median(ing_cor, na.rm = TRUE)
+  ) %>%
+  arrange(desc(n))
+```
+
+------------------------------------------------------------------------
+
+## 3. Renombrar y transformar “en bloque” con `rename_at()` y `mutate_at()`
+
+### 3.1 `rename_at()` (renombrar varias columnas)
+
+Ejemplo: agregar un prefijo a un conjunto de variables seleccionadas por patrón.
+
+```{r}
+#| eval: true
+concentrado2 <- concentrado %>%
+  rename_at(
+    vars(ends_with("_cor")),
+    ~ paste0("pc_", .x)
+  )
+```
+
+Equivalente moderno (referencia):
+
+```{r}
+#| eval: true
+concentrado2 <- concentrado %>%
+  rename_with(
+    .fn = ~ paste0("pc_", .x),
+    .cols = ends_with("cor")
+  )
+```
+
+### 3.2 `mutate_at()` (transformar varias columnas)
+
+Ejemplo: convertir a miles un conjunto de variables seleccionadas por rango o patrón.
+
+```{r}
+#| eval: false
+concentrado3 <- concentrado %>%
+  mutate_at(
+    vars(var1:var2),   # 
+    ~ .x / 1000
+  )
+```
+
+Equivalente moderno (referencia):
+
+```{r}
+#| eval: false
+concentrado3 <- concentrado %>%
+  mutate(
+    across(var1:var2, ~ .x / 1000)
+  )
+```
+
+------------------------------------------------------------------------
+
+## 4. Mini-ejercicio guiado (en clase)
+
+1) Selecciona variables usando:
+-   un **rango** (`var1:var2`), y  
+-   un **helper** (`ends_with()` o `contains()`).  
+
+2) Filtra un subconjunto (por ejemplo, un tamaño de localidad o condición de interés).
+
+3) Genera una tabla con `group_by()` + `summarise()` que incluya `n()` y **dos estadísticos** (media/mediana o media/cuantiles).
+
+------------------------------------------------------------------------
+
+## 5. Práctica 4 (para entregar)
+
+### Entrega
+
+-   Un archivo `P4.qmd` con código comentado (reproducible).
+-   Trabajen con una tabla/dataframe de una fuente nacional (ENIGH 2024 u otra disponible para el grupo).
+
+### Parte A. Exploración y selección (obligatoria)
+
+1) Incluye `glimpse()` y `skim()` de la tabla principal.  
+2) Haz dos selecciones:
+-   una con **rango** `var1:var2`, y  
+-   una con **helper** `ends_with()` (o `contains()` / `matches()` / `where()`).  
+3) Aplica un `filter()` y explica en una línea el criterio elegido.
+
+### Parte B. Resúmenes por grupos (obligatoria)
+
+4) Construye **una** tabla resumen con `group_by()` + `summarise()` que incluya:
+-   `n = n()` y al menos **dos** estadísticos (por ejemplo media y mediana).
+
+### Parte C. Transformación o renombre en bloque (obligatoria)
+
+5) Elige **una** de estas dos opciones:
+-   **Opción 1 (renombre):** usa `rename_at()` para renombrar al menos 4 columnas seleccionadas con `ends_with()` o un rango.  
+-   **Opción 2 (transformación):** usa `mutate_at()` para transformar al menos 4 columnas (por ejemplo, dividir entre 1000, aplicar log a un subconjunto, etc.).  
+
+*(Si prefieres usar el equivalente moderno con `rename_with()` o `across()`, también es válido, pero indícalo.)*
+
+### Producto esperado
+
+-   `P4.qmd` con: exploración, selección por rango y helper, filtrado, un resumen por grupos y una operación “en bloque” (`rename_at()` o `mutate_at()`).
+
+------------------------------------------------------------------------
+
+## Apéndice: atajos útiles
+
+-   `count(var)` equivale a `group_by(var) %>% summarise(n = n())`.
+-   `distinct()` ayuda a ver valores únicos.
+-   En la Sesión 5 veremos `left_join()` y `anti_join()` para diagnosticar llaves al unir tablas.
