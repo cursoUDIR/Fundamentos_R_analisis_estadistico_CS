@@ -1,0 +1,388 @@
+---
+title: "Sesión 6: Variables cuantitativas — Medidas y tabulados en enfoque tidy"
+subtitle: "Estadística descriptiva con R base y {dplyr} · Caso ENIGH 2024"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Calcular medidas de tendencia central, dispersión y posición 
+- Interpretar medidas de sesgo (asimetría).
+- Construir tablas resumen con `summarise()` y `across()`.
+- Detectar valores extremos y faltantes.
+- **Comparar la sintaxis de R base con la sintaxis tidy (`{dplyr}`)** para las mismas operaciones.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal                                               |
+|-------------|-----------------------------------------------------------------|
+| `{dplyr}`   | Manipulación de datos: `summarise()`, `across()`, `group_by()` |
+| `{skimr}`   | Resumen rápido y completo de un dataframe                       |
+| `{janitor}` | Tablas de frecuencia con `tabyl()`                              |
+| `{e1071}`   | Cálculo de asimetría con `skewness()`                           |
+| `{gt}`      | Tablas formateadas para reportes                                |
+| `{knitr}`   | Tablas básicas con `kable()`                                    |
+
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  skimr,
+  janitor,
+  e1071,
+  gt,
+  knitr,
+  here
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con la base `concentradohogar` de la **ENIGH 2024**. Las variables principales son:
+
+| Variable    | Descripción                                       | Tipo       |
+|-------------|---------------------------------------------------|------------|
+| `ing_cor`   | Ingreso corriente trimestral del hogar (pesos)    | Continua   |
+| `sexo_jefe` | Sexo de la persona jefa del hogar (1 = Hombre, 2 = Mujer) | Nominal    |
+
+```{r}
+#| eval: false
+concentrado <- read_csv(here("data", "raw", "concentradohogar.csv")) |>
+  janitor::clean_names()
+```
+
+Una inspección rápida antes de comenzar:
+
+```{r}
+#| eval: false
+glimpse(concentrado)
+```
+
+------------------------------------------------------------------------
+
+## Exploración rápida con `skim()`
+
+`skimr::skim()` nos da: número de observaciones, missing, media, desviación estándar, cuartiles y un histograma.
+
+```{r}
+#| eval: false
+skim(concentrado, where(is.numeric))
+```
+
+------------------------------------------------------------------------
+
+## Medidas de tendencia central
+
+Las medidas de tendencia central resumen el "centro" de la distribución. 
+
+### R base 
+
+```{r}
+#| eval: false
+mean(concentrado$ing_cor, na.rm=T)
+median(concentrado$ing_cor, na.rm=T)
+summary(concentrado$ing_cor)
+```
+
+### Dplyr
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    Media = mean(ing_cor, na.rm=TRUE),
+    Mediana = median(ing_cor, na.rm = TRUE))
+```
+
+::: {.callout-note}
+## Media vs. Mediana
+Cuando la media es mayor que la mediana, la distribución tiene **sesgo positivo**: algunos valores muy altos "jalan" la media. En distribuciones de ingresos esto es casi siempre el caso.
+:::
+
+------------------------------------------------------------------------
+
+## Medidas de posición: cuantiles
+
+Los cuantiles dividen la distribución en partes iguales. Por ejemplo los **cuartiles** (4 partes), los **deciles** (10 partes) y los **percentiles** (100 partes).
+
+### R base: `summary()` y `quantile()`
+
+```{r}
+#| eval: false
+summary(concentrado$ing_cor)
+```
+
+```{r}
+#| eval: false
+
+# Cuartiles (Q1, Q2=mediana, Q3)
+quantile(concentrado$ing_cor, probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
+
+# Deciles
+quantile(concentrado$ing_cor, probs = seq(0.1, 0.9, by = 0.1), na.rm = TRUE)
+```
+
+### dplyr: `summarise()` con `quantile()`
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    Q1  = quantile(ing_cor, 0.25, na.rm = TRUE),
+    Q2  = quantile(ing_cor, 0.50, na.rm = TRUE),
+    Q3  = quantile(ing_cor, 0.75, na.rm = TRUE),
+    P10 = quantile(ing_cor, 0.10, na.rm = TRUE),
+    P90 = quantile(ing_cor, 0.90, na.rm = TRUE)
+  )
+```
+
+------------------------------------------------------------------------
+
+
+## Medidas de dispersión
+
+Las medidas de dispersión describen qué tan "esparcidos" están los datos alrededor del centro.
+
+### Varianza y desviación estándar
+
+#### R base
+
+```{r}
+#| eval: false
+var(concentrado$ing_cor,  na.rm = TRUE)
+sd(concentrado$ing_cor,   na.rm = TRUE)
+```
+
+#### Dplyr
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    Varianza = var(ing_cor, na.rm = TRUE),
+    Desv       = sd(ing_cor,  na.rm = TRUE)
+  )
+```
+
+### Rango y rango intercuartílico (RIC)
+
+El rango corresponde al valor máximo menos el valor mínimo. Mientras que el rango intercuartílico corresponde al cuartil 3 menos el cuartil 1.
+
+#### R base
+
+```{r}
+#| eval: false
+max(concentrado$ing_cor,   na.rm = TRUE)-min(concentrado$ing_cor,   na.rm = TRUE)
+IQR(concentrado$ing_cor,   na.rm = TRUE)
+```
+
+#### Dplyr 
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    Rango = max(ing_cor, na.rm = TRUE)-min(ing_cor, na.rm = TRUE),
+    RIC    = IQR(ing_cor, na.rm = TRUE)
+  )
+```
+
+------------------------------------------------------------------------
+
+
+## Medidas de sesgo (asimetría)
+
+El **coeficiente de asimetría** (skewness) indica la dirección e intensidad de la cola de la distribución.
+
+- **Sesgo = 0**: distribución simétrica.
+- **Sesgo > 0**: sesgo positivo; la media > mediana.
+- **Sesgo < 0**: sesgo negativo; la media < mediana.
+
+```{r}
+#| eval: false
+e1071::skewness(concentrado$ing_cor, na.rm = TRUE)
+```
+
+::: {.callout-note}
+## Interpretación
+Un sesgo positivo grande confirma que la distribución del ingreso tiene una cola larga hacia la derecha: la mayoría de los hogares se concentra en valores relativamente bajos, mientras que unos pocos tienen ingresos muy elevados. 
+:::
+
+------------------------------------------------------------------------
+
+## Tabla descriptiva con `summarise()` y `across()`
+
+### Varias variables cuantitativas con `across()`
+
+Cuando queremos aplicar las mismas funciones a múltiples columnas, `across()` evita repetir código.
+
+```{r}
+#| eval: true
+# Seleccionamos un subconjunto de variables cuantitativas de ejemplo
+concentrado |>
+  summarise(
+    across(
+      .cols = c(ing_cor, gasto_mon, percep_ing),  
+      .fns  = list(
+        Media   = ~ mean(.x,   na.rm = TRUE),
+        Mediana = ~ median(.x, na.rm = TRUE),
+        DE      = ~ sd(.x,     na.rm = TRUE),
+        Sesgo   = ~ e1071::skewness(.x, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}" #controla cómo se llaman las columnas resultantes del across().
+    )
+  ) |>
+  tidyr::pivot_longer(everything(), # pasa de formato wide a long
+                      names_to  = c("Variable", "Estadístico"),
+                      names_sep = "_(?=[^_]+$)") |>   # parte el nombre de la columna en la última "_" para separar variable y estadístico
+  tidyr::pivot_wider(names_from = "Estadístico", values_from = "value") |>  # regresa a wide, pero ahora cada estadístico es una columna y cada fila es una variable
+  knitr::kable(digits = 2, caption = "Estadísticos descriptivos · variables seleccionadas")   # hace la tabla con 2 decimales y título
+```
+
+------------------------------------------------------------------------
+
+
+## Detección de valores faltantes y extremos
+
+### Valores faltantes (NAs)
+
+#### R base
+
+```{r}
+#| eval: false
+sum(is.na(concentrado$ing_cor))
+mean(is.na(concentrado$ing_cor)) * 100  # porcentaje
+```
+
+#### Dplyr
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    n_faltantes = sum(is.na(ing_cor)),
+    pct_faltantes = mean(is.na(ing_cor)) * 100
+  )
+```
+
+### Valores extremos (outliers)
+
+Una regla común: un valor es **extremo** si está más de 1.5 * RIC por encima del Q3 o por debajo del Q1 (criterio de Tukey).
+
+Volvamos a calcular los cuartiles y el RIC.
+
+```{r}
+#| eval: false
+q1  <- quantile(concentrado$ing_cor, 0.25, na.rm = TRUE)
+q3  <- quantile(concentrado$ing_cor, 0.75, na.rm = TRUE)
+ric <- q3 - q1
+```
+
+
+Ahora el límite inferior y superior.
+
+
+```{r}
+#| eval: false
+limite_sup <- q3 + (1.5 * ric)
+limite_inf <- q1 - (1.5 * ric)
+```
+
+¿Cuántos hogares están por encima del límite superior?
+
+
+```{r}
+#| eval: true
+concentrado |>
+  summarise(
+    n_outliers_sup = sum(ing_cor > limite_sup, na.rm = TRUE),
+    pct_outliers   = mean(ing_cor > limite_sup, na.rm = TRUE) * 100
+  )
+```
+
+------------------------------------------------------------------------
+
+## Filtrar valores
+
+Podemos volver a hacer nuestra tabla pero con valores de ingreso mayor o igual a 0 y menor o igual al límite superior.
+
+```{r}
+#| eval: true
+concentrado |>
+  dplyr::filter(ing_cor >= 0, ing_cor <= 170320.5) |>
+  dplyr::summarise(
+    `N`              = dplyr::n(),
+    `Media`          = mean(ing_cor,              na.rm = TRUE),
+    `Mediana`        = median(ing_cor,             na.rm = TRUE),
+    `Desv. estándar` = sd(ing_cor,                na.rm = TRUE),
+    `Mínimo`         = min(ing_cor,               na.rm = TRUE),
+    `Q1`             = quantile(ing_cor, 0.25,    na.rm = TRUE),
+    `Q3`             = quantile(ing_cor, 0.75,    na.rm = TRUE),
+    `Máximo`         = max(ing_cor,               na.rm = TRUE),
+    `Asimetría`      = e1071::skewness(ing_cor,   na.rm = TRUE),
+    `% faltantes`    = mean(is.na(ing_cor)) * 100
+  ) |>
+  gt::gt() |>
+  gt::tab_header(
+    title    = gt::md("**Estadísticos descriptivos del ingreso corriente trimestral**")
+  ) |>
+  gt::fmt_number(
+    columns  = c(Media, Mediana, `Desv. estándar`, Mínimo, Q1, Q3, Máximo),
+    decimals = 0,
+    sep_mark = ","
+  ) |>
+  gt::fmt_number(
+    columns  = c(Asimetría, `% faltantes`),
+    decimals = 2
+  ) |>
+  gt::tab_source_note("Fuente: ENIGH 2024, INEGI. Ingreso en pesos corrientes trimestrales.") |>
+  gt::tab_footnote(
+    footnote  = "Criterio de Tukey: outlier si ing_cor > Q3 + 1.5*RIC.",
+    locations = gt::cells_column_labels(columns = Asimetría)
+  )
+```
+
+------------------------------------------------------------------------
+
+## Resumen: R base vs. {dplyr}
+
+| Operación               | R base                                  | dplyr / tidy                              |
+|-------------------------|-----------------------------------------|-------------------------------------------|
+| Resumen general         | `summary(df$var)`                       | `skim(df)`                                |
+| Media                   | `mean(df$var, na.rm=TRUE)`              | `summarise(Media = mean(var, na.rm=TRUE))`|
+| Mediana                 | `median(df$var, na.rm=TRUE)`            | `summarise(Mediana = median(...))`        |
+| Desviación estándar     | `sd(df$var, na.rm=TRUE)`               | `summarise(DE = sd(...))`                 |
+| Cuantiles               | `quantile(df$var, probs=...)`           | `summarise(Q1 = quantile(var, 0.25, ...))`|
+| Valores faltantes       | `sum(is.na(df$var))`                   | `summarise(n_na = sum(is.na(var)))`       |
+
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1. Elabora una tabla descriptiva univariada de variables cuantitativas seleccionadas (dos o más), que incluya  media, mediana, desviación estándar, mínimo, máximo, q1, q3 y sesgo.
+
+
