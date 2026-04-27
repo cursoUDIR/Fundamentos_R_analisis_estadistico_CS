@@ -1,0 +1,504 @@
+---
+title: "Sesión 7: Variables cualitativas — Frecuencias, porcentajes y presentación en tablas"
+subtitle: "Tabulados con {janitor} y {dplyr} · Caso ENSU 2025 — Morelia"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Construir tablas de frecuencias absolutas, relativas y porcentajes con `janitor::tabyl()` y `dplyr::count()`.
+- Agregar totales, porcentajes y formato a las tablas con las funciones `adorn_*()` de `{janitor}`.
+- Ordenar y manejar categorías poco frecuentes con `forcats::fct_lump()` y `forcats::fct_reorder()`.
+- Presentar tablas listas para reporte con `{gt}` y `knitr::kable()`.
+- **Comparar la sintaxis de R base con la sintaxis tidy** para las mismas operaciones.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal                                                        |
+|-------------|--------------------------------------------------------------------------|
+| `{janitor}` | `tabyl()`, `adorn_totals()`, `adorn_percentages()`, `adorn_pct_formatting()` |
+| `{dplyr}`   | `count()`, `mutate()`, `group_by()`, `filter()`                          |
+| `{forcats}` | `fct_lump()`, `fct_reorder()`                                            |
+| `{gt}`      | Tablas formateadas para reportes                                          |
+| `{knitr}`   | Tablas básicas con `kable()`                                             |
+
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  janitor,
+  forcats,
+  gt,
+  knitr,
+  here
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con la **Encuesta Nacional de Seguridad Pública Urbana (ENSU), cuarto trimestre de 2025**, filtrada para la ciudad de **Morelia** (`cd == "29"`).
+
+Las variables principales de esta sesión son:
+
+| Variable       | Pregunta                                                              | Códigos                                      |
+|----------------|-----------------------------------------------------------------------|----------------------------------------------|
+| `BP1_1`        | ¿Considera que vivir en Morelia es seguro o inseguro?                 | 1 Seguro, 2 Inseguro, 9 NS/NR                |
+| `BP1_2_03`     | Percepción de seguridad en la calle                                   | 1 Seguro(a), 2 Inseguro(a), 3 No aplica, 9 NS/NR |
+| `BP1_2_09`     | Percepción de seguridad en el transporte público                      | 1 Seguro(a), 2 Inseguro(a), 3 No aplica, 9 NS/NR |
+| `BP1_3`        | Expectativa sobre la delincuencia en los próximos 12 meses            | 1 Mejorará, 2 Igual de bien, 3 Igual de mal, 4 Empeorará, 9 NS/NR |
+| `BP1_8_1`      | Efectividad de la Policía Preventiva Municipal                        | 1 Muy efectivo … 4 Nada efectivo, 9 NS/NR    |
+| `BP1_8_2`      | Efectividad de la Policía Estatal                                     | 1 Muy efectivo … 4 Nada efectivo, 9 NS/NR    |
+| `BP1_8_3`      | Efectividad de la Guardia Nacional                                    | 1 Muy efectivo … 4 Nada efectivo, 9 NS/NR    |
+| `BP1_9_1`      | Confianza en la Policía Preventiva Municipal                          | 1 Mucha confianza … 4 Mucha desconfianza, 9 NS/NR |
+| `BP1_9_2`      | Confianza en la Policía Estatal                                       | 1 Mucha confianza … 4 Mucha desconfianza, 9 NS/NR |
+| `BP1_9_3`      | Confianza en la Guardia Nacional                                      | 1 Mucha confianza … 4 Mucha desconfianza, 9 NS/NR |
+
+### Leer y filtrar la base
+
+```{r}
+#| eval: false
+load(here("data", "raw", "BD_ENSU_1225.RData"))
+```
+
+Filtramos solo Morelia (cd == "29") y limpiamos nombres
+
+```{r}
+#| eval: false
+morelia <- ENSU_CB_1225 |>
+  filter(CD == "29") |>
+  janitor::clean_names()
+```
+
+Una inspección rápida:
+
+```{r}
+#| eval: false
+glimpse(morelia)
+```
+
+------------------------------------------------------------------------
+
+## Recodificación de variables
+
+Antes de tabular, convertimos los códigos numéricos a etiquetas legibles y tratamos los valores 9 (No sabe/No responde) y 3 (No aplica) como `NA`.
+
+### Percepción general de seguridad (`BP1_1`)
+
+```{r}
+#| eval: false
+morelia <- morelia |>
+  mutate(
+    seg_ciudad = case_when(
+      bp1_1 == 1 ~ "Seguro",
+      bp1_1 == 2 ~ "Inseguro",
+      TRUE       ~ NA_character_
+    ),
+    seg_ciudad = factor(seg_ciudad, levels = c("Inseguro", "Seguro"))
+  )
+```
+
+### Percepción de seguridad en la calle y en el transporte
+
+Hagamos una función:
+
+```{r}
+#| eval: false
+recodificar_lugar <- function(x) {
+  case_when(
+    x == 1 ~ "Seguro(a)",
+    x == 2 ~ "Inseguro(a)",
+    TRUE   ~ NA_character_
+  )
+}
+```
+
+Ahora la aplicamos:
+```{r}
+#| eval: false
+morelia <- morelia |>
+  mutate(
+    seg_calle       = factor(recodificar_lugar(bp1_2_03),
+                             levels = c("Inseguro(a)", "Seguro(a)")),
+    seg_transporte  = factor(recodificar_lugar(bp1_2_09),
+                             levels = c("Inseguro(a)", "Seguro(a)"))
+  )
+```
+
+### Expectativa sobre delincuencia (`BP1_3`)
+
+```{r}
+#| eval: false
+morelia <- morelia |>
+  mutate(
+    expectativa = case_when(
+      bp1_3 == 1 ~ "Mejorará",
+      bp1_3 == 2 ~ "Seguirá igual de bien",
+      bp1_3 == 3 ~ "Seguirá igual de mal",
+      bp1_3 == 4 ~ "Empeorará",
+      TRUE       ~ NA_character_
+    ),
+    expectativa = factor(expectativa,
+                         levels = c("Empeorará", "Seguirá igual de mal","Seguirá igual de bien", "Mejorará"))
+  )
+```
+
+### Efectividad de autoridades (`BP1_8_*`)
+
+```{r}
+#| eval: false
+recodificar_efectividad <- function(x) {
+  case_when(
+    x %in% c(1, 2) ~ "Muy/algo efectivo",
+    x %in% c(3, 4) ~ "Poco/nada efectivo",
+    TRUE           ~ NA_character_
+  )
+}
+
+niveles_efectividad <- c("Poco/nada efectivo", "Muy/algo efectivo")
+
+morelia <- morelia |>
+  mutate(
+    efect_mun      = factor(recodificar_efectividad(bp1_8_1), levels = niveles_efectividad),
+    efect_estatal  = factor(recodificar_efectividad(bp1_8_2), levels = niveles_efectividad),
+    efect_gn       = factor(recodificar_efectividad(bp1_8_3), levels = niveles_efectividad)
+  )
+```
+
+### Confianza en autoridades (`BP1_9_*`)
+
+```{r}
+#| eval: false
+recodificar_confianza <- function(x) {
+  case_when(
+    x %in% c(1,2) ~ "Mucha/algo confianza",
+   x %in% c(3,4)  ~ "Algo/mucha desconfianza",
+    TRUE   ~ NA_character_
+  )
+}
+
+niveles_confianza <- c("Algo/mucha desconfianza", "Mucha/algo confianza")
+
+morelia <- morelia |>
+  mutate(
+    conf_mun     = factor(recodificar_confianza(bp1_9_1), levels = niveles_confianza),
+    conf_estatal = factor(recodificar_confianza(bp1_9_2), levels = niveles_confianza),
+    conf_gn      = factor(recodificar_confianza(bp1_9_3), levels = niveles_confianza)
+  )
+```
+
+------------------------------------------------------------------------
+
+## Tablas de frecuencia: R base vs. {janitor} vs. {dplyr}
+
+### Percepción general de seguridad en Morelia
+
+#### R base: `table()` y `prop.table()`
+
+```{r}
+#| eval: false
+# Frecuencias absolutas
+table(morelia$seg_ciudad)
+
+# Frecuencias relativas (proporciones)
+prop.table(table(morelia$seg_ciudad))
+
+# Porcentajes redondeados
+round(prop.table(table(morelia$seg_ciudad)) * 100, 1)
+```
+
+#### {janitor}: `tabyl()` + `adorn_*()`
+
+`tabyl()` produce frecuencias absolutas y relativas. Las funciones `adorn_*()` agregan totales, porcentajes con formato y etiquetas.
+
+```{r}
+#| eval: false
+morelia |>
+  tabyl(seg_ciudad) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting(digits = 1) |>
+  knitr::kable(
+    caption   = "Percepción de seguridad en Morelia · ENSU T4 2025",
+    col.names = c("Percepción", "n", "%")
+  )
+```
+
+::: {.callout-note}
+## ¿Qué hace cada `adorn_*()`?
+
+- `adorn_totals("row")`: agrega una fila de totales.
+- `adorn_percentages()`: convierte frecuencias a proporciones (por defecto sobre el total de filas).
+- `adorn_pct_formatting(digits = 1)`: da formato de porcentaje con un decimal.
+- `adorn_ns()`: muestra también los valores absolutos junto a los porcentajes.
+:::
+
+#### {dplyr}: `count()` + `mutate()`
+
+```{r}
+#| eval: false
+morelia |>
+  count(seg_ciudad, name = "n") |>
+  mutate(
+    pct = round(n / sum(n) * 100, 1)
+  ) |>
+  knitr::kable(
+    caption  = "Percepción de seguridad en Morelia · ENSU T4 2025",
+    col.names = c("Percepción", "n", "%")
+  )
+```
+
+------------------------------------------------------------------------
+
+## Percepción de seguridad por lugar
+
+
+```{r}
+#| eval: false
+# Calle
+morelia |>
+  tabyl(seg_calle) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting(digits = 1) |>
+  knitr::kable(caption = "Percepción de seguridad: en la calle")
+
+# Transporte público
+morelia |>
+  tabyl(seg_transporte) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting(digits = 1) |>
+  knitr::kable(caption = "Percepción de seguridad: en el transporte público")
+```
+
+### Comparación en una sola tabla con `pivot_longer()`
+
+Podemos comparar varios lugares y reestructurar a formato long.
+
+```{r}
+#| eval: false
+morelia |>
+  select(seg_calle, seg_transporte) |>
+  pivot_longer(
+    cols      = everything(),
+    names_to  = "lugar",
+    values_to = "percepcion"
+  ) |>
+  mutate(
+    lugar = recode(lugar,
+      "seg_calle"      = "Calle",
+      "seg_transporte" = "Transporte público"
+    )
+  ) |>
+  filter(!is.na(percepcion)) |>
+  count(lugar, percepcion) |>
+  group_by(lugar) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup() |>
+  pivot_wider(
+    names_from  = percepcion,
+    values_from = c(n, pct)
+  ) |>
+  knitr::kable(caption = "Percepción de seguridad por lugar · Morelia · ENSU T4 2025")
+```
+
+------------------------------------------------------------------------
+
+## Expectativa sobre la delincuencia
+
+### Tabla con frecuencias acumuladas
+
+Para variables ordinales (como escalas de Likert), las **frecuencias acumuladas** ayudan a interpretar la distribución.
+
+```{r}
+#| eval: false
+morelia |>
+  tabyl(expectativa) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting(digits = 1) |>
+  knitr::kable(caption = "Expectativa sobre delincuencia en los próximos 12 meses · Morelia")
+```
+
+```{r}
+#| eval: false
+morelia |>
+  count(expectativa) |>
+  filter(!is.na(expectativa)) |>
+  mutate(
+    pct     = round(n / sum(n) * 100, 1),
+    pct_acum = cumsum(pct)
+  ) |>
+  knitr::kable(
+    caption   = "Expectativa sobre delincuencia — frecuencias acumuladas · Morelia",
+    col.names = c("Expectativa", "n", "%", "% acumulado")
+  )
+```
+
+::: {.callout-note}
+## ¿Cuándo usar frecuencias acumuladas?
+Las frecuencias acumuladas son útiles en variables **ordinales** (donde el orden importa), como escalas de satisfacción, efectividad o confianza. Permiten responder preguntas como: *¿qué porcentaje considera que la situación mejorará o seguirá igual de bien?*
+:::
+
+------------------------------------------------------------------------
+
+## Desempeño y confianza en autoridades
+
+### Comparación de efectividad entre autoridades
+
+```{r}
+#| eval: false
+morelia |>
+  select(efect_mun, efect_estatal, efect_gn) |>
+  pivot_longer(
+    cols      = everything(),
+    names_to  = "autoridad",
+    values_to = "efectividad"
+  ) |>
+  mutate(
+    autoridad = recode(autoridad,
+      "efect_mun"     = "Policía Municipal",
+      "efect_estatal" = "Policía Estatal",
+      "efect_gn"      = "Guardia Nacional"
+    )
+  ) |>
+  filter(!is.na(efectividad)) |>
+  count(autoridad, efectividad) |>
+  group_by(autoridad) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(names_from = efectividad, values_from = pct) |>
+  gt() |>
+  tab_header(
+    title    = "Efectividad percibida de las autoridades de seguridad (%)",
+    subtitle = "Morelia · ENSU T4 2025"
+  ) |>
+  tab_spanner(
+    label   = "Evaluación (%)",
+    columns = c(`Poco/nada efectivo`, `Muy/algo efectivo`)
+  ) |>
+  cols_label(autoridad = "Autoridad") |>
+  tab_source_note("Fuente: ENSU T4 2025, INEGI. Porcentajes sobre respuestas válidas.")
+```
+
+### Comparación de confianza entre autoridades
+
+```{r}
+#| eval: false
+morelia |>
+  select(conf_mun, conf_estatal, conf_gn) |>
+  pivot_longer(
+    cols      = everything(),
+    names_to  = "autoridad",
+    values_to = "confianza"
+  ) |>
+  mutate(
+    autoridad = recode(autoridad,
+      "conf_mun"     = "Policía Municipal",
+      "conf_estatal" = "Policía Estatal",
+      "conf_gn"      = "Guardia Nacional"
+    )
+  ) |>
+  filter(!is.na(confianza)) |>
+  count(autoridad, confianza) |>
+  group_by(autoridad) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(names_from = confianza, values_from = pct) |>
+  gt() |>
+  tab_header(
+    title    = "Confianza en las autoridades de seguridad (%)",
+    subtitle = "Morelia · ENSU T4 2025"
+  ) |>
+  tab_spanner(
+    label   = "Nivel de confianza (%)",
+    columns = c(`Algo/mucha desconfianza`, `Mucha/algo confianza`)
+  ) |>
+  cols_label(autoridad = "Autoridad") |>
+  tab_source_note("Fuente: ENSU T4 2025, INEGI. Porcentajes sobre respuestas válidas.")
+```
+
+------------------------------------------------------------------------
+
+## Ordenamiento de categorías con `{forcats}`
+
+A veces es útil ordenar las categorías por frecuencia para facilitar la lectura.
+
+### `fct_reorder()`: ordenar por frecuencia
+
+```{r}
+#| eval: false
+morelia |>
+  count(efect_mun) |>
+  filter(!is.na(efect_mun)) |>
+  mutate(
+    efect_mun = fct_reorder(efect_mun, n, .desc = TRUE)
+  ) |>
+  arrange(efect_mun) |>
+  knitr::kable(caption = "Efectividad Policía Municipal (ordenada por frecuencia)")
+```
+
+### `fct_lump()`: colapsar categorías poco frecuentes
+
+Cuando hay categorías con muy pocos casos, `fct_lump()` las agrupa en "Otro".
+
+Ejemplo con expectativa: conservar solo las 2 categorías más frecuentes.
+```{r}
+#| eval: false
+morelia |>
+  mutate(
+    expectativa_agrup = fct_lump(expectativa, n = 2, other_level = "Otras respuestas")
+  ) |>
+  tabyl(expectativa_agrup) |>
+  adorn_totals("row") |>
+  adorn_pct_formatting(digits = 1) |>
+  knitr::kable(caption = "Expectativa sobre delincuencia (categorías agrupadas)")
+```
+
+::: {.callout-tip}
+## `fct_lump()` vs. `fct_lump_prop()`
+- `fct_lump(n = 2)`: conserva las *n* categorías más frecuentes.
+- `fct_lump_prop(prop = 0.05)`: conserva las categorías que superan el 5% del total.
+Ambas son útiles para limpiar tablas con muchas categorías residuales.
+:::
+
+------------------------------------------------------------------------
+
+## Resumen comparativo: R base vs. {janitor} vs. {dplyr}
+
+| Operación                        | R base                              | {janitor}                          | {dplyr}                              |
+|----------------------------------|-------------------------------------|------------------------------------|--------------------------------------|
+| Frecuencias absolutas            | `table(df$var)`                     | `tabyl(var)`                       | `count(var)`                         |
+| Frecuencias relativas            | `prop.table(table(df$var))`         | `tabyl()` (incluye `valid_percent`)| `count() |> mutate(pct = n/sum(n))`  |
+| Agregar total                    | `addmargins(table(df$var))`         | `adorn_totals("row")`              | manual con `bind_rows()`             |
+| Formato de porcentaje            | `round(...*100, 1)`                 | `adorn_pct_formatting(digits=1)`   | `scales::percent()`                  |
+| Frecuencias acumuladas           | `cumsum(prop.table(...))`           | manual con `mutate(cumsum(...))`   | `mutate(pct_acum = cumsum(pct))`     |
+| Tabla lista para reporte         | requiere formato extra              | `kable()` directo                  | `gt()` con opciones                  |
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1. Tablas de frecuencias y porcentajes para variables cualitativas seleccionadas (mínimo 3 -dictómica, nominal, ordinal-, con base de datos de su interés).
+
