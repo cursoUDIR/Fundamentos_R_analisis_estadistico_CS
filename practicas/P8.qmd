@@ -1,0 +1,490 @@
+---
+title: "Sesión 8: Relaciones entre variables — Tablas de contingencia y comparación de grupos"
+subtitle: "Análisis bivariado con {dplyr}, {gtsummary} y {gt} · Caso ENCOAP 2025"
+author: "Ana Escoto y Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Construir tablas de contingencia con porcentajes por renglón y por columna.
+- Comparar medias y medianas de variables cuantitativas entre grupos.
+- Elegir el estadístico adecuado según el tipo de variable y la pregunta de investigación.
+- Interpretar sustantivamente las diferencias observadas.
+- Usar `{gtsummary}` para producir tablas listas para reporte.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete       | Función principal                                                        |
+|---------------|--------------------------------------------------------------------------|
+| `{dplyr}`     | `left_join()`, `count()`, `group_by()`, `summarise()`, `mutate()`        |
+| `{tidyr}`     | `pivot_wider()`, `pivot_longer()`                                        |
+| `{gtsummary}` | `tbl_cross()`, `tbl_summary()`                                           |
+| `{gt}`        | Formato avanzado de tablas para reporte                                  |
+| `{janitor}`   | `tabyl()`, `adorn_*()`                                                   |
+
+```{r}
+#| eval: false
+pacman::p_load(
+  tidyverse,
+  gtsummary,
+  gt,
+  janitor,
+  here
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con la **ENCOAP 2025** (Encuesta Nacional de Confianza en la
+Administración Pública). La encuesta está distribuida en tres archivos:
+
+| Archivo        | Contenido                                                                                      | Llave               |
+|----------------|------------------------------------------------------------------------------------------------|---------------------|
+| `TB_SEC_IVaIX` | Secciones IV–IX: confianza, participación política y sociodemográficos del informante seleccionado | `ID_VIV` + `ID_PER` |
+| `TSDEM`        | Características sociodemográficas de todos los integrantes del hogar                           | `ID_VIV` + `ID_PER` |
+| `TVIV`         | Características de la vivienda                                                                 | `ID_VIV`            |
+
+Cargamos la base
+
+```{r}
+#| eval: false
+load(here("data", "raw", "bd_encoap_2025.RData"))
+```
+
+------------------------------------------------------------------------
+
+## Unión de bases de datos
+
+La ENCOAP 2025 requiere unir tres archivos. La tabla de referencia
+(**TB_SEC_IVaIX**) contiene las respuestas del informante seleccionado
+y es la que define el número de observaciones finales.
+Las otras dos tablas aportan información complementaria.
+
+
+```{r}
+#| eval: false
+encoap <- TB_SEC_IVaIX |>
+  # --- Unión 1: TSDEM por ID_VIV + ID_PER (mismo nivel: persona) ---
+  left_join(
+    TSDEM |> select(ID_VIV, ID_PER,
+                    R_INF, PAREN, SEXO, EDAD,
+                    NAC_D, NAC_M, COD, NIV, GRA,
+                    P3_8, P3_9, P3_10, P3_11),
+    by = c("ID_VIV", "ID_PER")
+  ) |>
+  # --- Unión 2: TVIV por ID_VIV (nivel vivienda — se replica a cada persona) ---
+  left_join(
+    TVIV |> select(ID_VIV, P1_1, P2_1, P2_2, P2_3, P2_4),
+    by = "ID_VIV"
+  )
+
+```
+Verificamos que no cambió el número de filas
+```{r}
+#| eval: false
+nrow(encoap) == nrow(TB_SEC_IVaIX)   # debe ser TRUE
+```
+
+::: {.callout-tip}
+## ¿Por qué usamos `select()` dentro de cada `left_join()`?
+
+Para no importar columnas duplicadas como `UPM`, `CVE_ENT`, `DOMINIO`
+o `FAC_VIV` que ya existen en `TB_SEC_IVaIX`. Si no filtramos,
+R las renombrará automáticamente con sufijos `.x` / `.y`, lo que
+complica el análisis posterior.
+:::
+
+------------------------------------------------------------------------
+
+## Recodificación de variables con `case_when()`
+
+Antes de analizar, convertimos los códigos numéricos a etiquetas
+legibles y tratamos los valores de no respuesta (99, 98, 9) como `NA`.
+
+```{r}
+#| eval: false
+encoap <- encoap |>
+  mutate(
+
+    # ------------------------------------------------------------------
+    # Confianza en el gobierno federal (P4_2_01): numérica, 99 → NA
+    # ------------------------------------------------------------------
+    confianza_gob_fed = as.numeric(P4_2_01),
+    confianza_gob_fed = na_if(confianza_gob_fed, 99),
+
+    # Confianza en las Fuerzas Armadas (P4_2_16)
+    confianza_ffaa = as.numeric(P4_2_16),
+    confianza_ffaa = na_if(confianza_ffaa, 99),
+
+    # Satisfacción con educación pública (P6_1)
+    satisfaccion_edu = as.numeric(P6_1),
+    satisfaccion_edu = na_if(satisfaccion_edu, 99),
+
+    # ------------------------------------------------------------------
+    # Nivel de ingreso del hogar (P9_6): 8 categorías → 3 grupos
+    # ------------------------------------------------------------------
+    P9_6_num = as.numeric(P9_6),
+    P9_6_num = na_if(P9_6_num, 98),   # no sabe
+    P9_6_num = na_if(P9_6_num, 99),   # prefiere no responder
+    P9_6_num = na_if(P9_6_num, 9),    # no recibe ingresos
+
+    ingreso_grupo = case_when(
+      P9_6_num %in% c(1, 2, 3) ~ "Bajo (hasta $10,000)",
+      P9_6_num %in% c(4, 5, 6) ~ "Medio ($10,001–$17,500)",
+      P9_6_num %in% c(7, 8)    ~ "Alto (más de $17,500)",
+      TRUE                      ~ NA_character_
+    ) |>
+      factor(levels = c("Bajo (hasta $10,000)",
+                        "Medio ($10,001–$17,500)",
+                        "Alto (más de $17,500)")),
+
+    # ------------------------------------------------------------------
+    # Género (P9_5)
+    # ------------------------------------------------------------------
+    genero = case_when(
+      P9_5 == 1 ~ "Masculino",
+      P9_5 == 2 ~ "Femenino",
+      P9_5 == 3 ~ "Otro género",
+      TRUE      ~ NA_character_
+    ) |>
+      factor(levels = c("Femenino", "Masculino", "Otro género")),
+
+    # ------------------------------------------------------------------
+    # Conocimiento de IA (P9_9): 3 niveles
+    # ------------------------------------------------------------------
+    P9_9_num = na_if(as.numeric(P9_9), 9),
+
+    conocimiento_ia = case_when(
+      P9_9_num == 1 ~ "Lo sabe y puede explicarlo",
+      P9_9_num == 2 ~ "Lo sabe más o menos",
+      P9_9_num == 3 ~ "No sabe qué significa",
+      TRUE          ~ NA_character_
+    ) |>
+      factor(levels = c("Lo sabe y puede explicarlo",
+                        "Lo sabe más o menos",
+                        "No sabe qué significa")),
+
+    # ------------------------------------------------------------------
+    # Usa IA para informarse (P9_12_07): dicotómica
+    # ------------------------------------------------------------------
+    usa_ia_info = case_when(
+      P9_12_07 == 1 ~ "Sí usa IA",
+      P9_12_07 == 0 ~ "No usa IA",
+      TRUE          ~ NA_character_
+    ) |>
+      factor(levels = c("No usa IA", "Sí usa IA")),
+
+    # ------------------------------------------------------------------
+    # Participación en marchas (P8_3_07): dicotómica
+    # ------------------------------------------------------------------
+    participa_marcha = case_when(
+      P8_3_07 == 1 ~ "Sí participó",
+      P8_3_07 == 2 ~ "No participó",
+      TRUE         ~ NA_character_
+    ) |>
+      factor(levels = c("No participó", "Sí participó"))
+  )
+```
+
+Una inspección rápida de las variables recodificadas:
+
+```{r}
+#| eval: false
+encoap |> count(ingreso_grupo)
+encoap |> count(genero)
+encoap |> count(conocimiento_ia)
+encoap |> count(usa_ia_info)
+encoap |> count(participa_marcha)
+```
+
+------------------------------------------------------------------------
+
+## Parte I: Análisis cuali–cuali
+
+### ¿Qué es una tabla de contingencia?
+
+Una **tabla de contingencia** (o tabla cruzada) muestra la distribución
+conjunta de dos variables categóricas. Cada celda contiene la frecuencia
+(o porcentaje) de observaciones que pertenecen simultáneamente a una
+categoría de cada variable.
+
+::: {.callout-note}
+## ¿Porcentajes por renglón o por columna?
+
+La elección depende de la dirección de la pregunta de investigación:
+
+- **% por renglón**: la variable de renglón es la independiente.
+  *"De las personas con ingreso bajo, ¿qué porcentaje usa IA para informarse?"*
+- **% por columna**: la variable de columna es la independiente.
+  *"Entre quienes usan IA, ¿qué porcentaje tiene ingreso alto?"*
+
+Una regla práctica: los porcentajes deben sumar 100 % **en la dirección
+de la variable independiente**.
+:::
+
+------------------------------------------------------------------------
+
+### Tabla 1: Nivel de ingreso × Uso de IA para informarse
+
+#### Con `dplyr::count()` y `pivot_wider()`
+
+Frecuencias absolutas
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(ingreso_grupo), !is.na(usa_ia_info)) |>
+  count(ingreso_grupo, usa_ia_info) |>
+  pivot_wider(
+    names_from  = usa_ia_info,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  adorn_totals(c("row", "col")) |>
+  knitr::kable(caption = "Frecuencias absolutas: ingreso × uso de IA · ENCOAP 2025")
+```
+
+
+Porcentajes por renglón (ingreso como variable independiente)
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(ingreso_grupo), !is.na(usa_ia_info)) |>
+  count(ingreso_grupo, usa_ia_info) |>
+  group_by(ingreso_grupo) |>
+  mutate(pct = round(n / sum(n) * 100, 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(
+    names_from  = usa_ia_info,
+    values_from = pct
+  ) |>
+  knitr::kable(
+    caption   = "% por renglón: de cada grupo de ingreso, ¿qué proporción usa IA?",
+    col.names = c("Ingreso", "No usa IA (%)", "Sí usa IA (%)")
+  )
+```
+
+#### Con `gtsummary::tbl_cross()`
+
+`tbl_cross()` produce tablas de contingencia formateadas con totales
+y porcentajes en sólo código.
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(ingreso_grupo), !is.na(usa_ia_info)) |>
+  tbl_cross(
+    row     = ingreso_grupo,
+    col     = usa_ia_info,
+    percent = "row",          # "row", "col" o "cell"
+    label   = list(
+      ingreso_grupo ~ "Nivel de ingreso del hogar",
+      usa_ia_info   ~ "Usa IA para informarse"
+    )
+  ) |>
+  bold_labels() |>
+  modify_caption("**Nivel de ingreso × Uso de IA para informarse · ENCOAP 2025**")
+```
+
+::: {.callout-tip}
+## Cambiar la dirección del porcentaje en `tbl_cross()`
+El argumento `percent` acepta tres valores:
+
+- `"row"`: porcentajes que suman 100 por renglón.
+- `"col"`: porcentajes que suman 100 por columna.
+- `"cell"`: porcentajes sobre el total general.
+:::
+
+
+------------------------------------------------------------------------
+
+### Tabla 2: Conocimiento de IA × Uso de IA para informarse
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(conocimiento_ia), !is.na(usa_ia_info)) |>
+  tbl_cross(
+    row     = conocimiento_ia,
+    col     = usa_ia_info,
+    percent = "row",
+    label   = list(
+      conocimiento_ia ~ "Conocimiento sobre IA",
+      usa_ia_info     ~ "Usa IA para informarse"
+    )
+  ) |>
+  bold_labels() |>
+  modify_caption("**Conocimiento de IA × Uso de IA para informarse · ENCOAP 2025**")
+```
+
+
+------------------------------------------------------------------------
+
+### Tabla 3: Género × Participación en marchas
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(genero), !is.na(participa_marcha),
+         genero != "Otro género") |>   # excluimos por n pequeño
+  tbl_cross(
+    row     = genero,
+    col     = participa_marcha,
+    percent = "row",
+    label   = list(
+      genero           ~ "Género",
+      participa_marcha ~ "Participó en una marcha (últimos 12 meses)"
+    )
+  ) |>
+  bold_labels() |>
+  modify_caption("**Género × Participación en marchas · ENCOAP 2025**")
+```
+
+
+------------------------------------------------------------------------
+
+## Parte II: Análisis cuali–cuanti
+
+::: {.callout-note}
+## Variables de confianza (0–10) en encuestas
+
+Las escalas del 0 al 10 son técnicamente **discretas**, pero con
+suficientes categorías suelen tratarse como cuantitativas. En ciencias
+sociales es convención reportar tanto la media como la mediana, ya que
+estas escalas frecuentemente presentan sesgo hacia los extremos
+(polarización) o hacia valores altos (deseabilidad social).
+:::
+
+------------------------------------------------------------------------
+
+### Tabla 4: Confianza en el gobierno federal por nivel de ingreso
+
+#### Con `dplyr::group_by()` y `summarise()`
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(ingreso_grupo), !is.na(confianza_gob_fed)) |>
+  group_by(ingreso_grupo) |>
+  summarise(
+    n       = n(),
+    media   = mean(confianza_gob_fed,     na.rm = TRUE),
+    mediana = median(confianza_gob_fed,   na.rm = TRUE),
+    de      = sd(confianza_gob_fed,       na.rm = TRUE),
+    q1      = quantile(confianza_gob_fed, 0.25, na.rm = TRUE),
+    q3      = quantile(confianza_gob_fed, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+  knitr::kable(
+    caption   = "Confianza en el gobierno federal por nivel de ingreso · ENCOAP 2025",
+    col.names = c("Ingreso", "n", "Media", "Mediana", "DE", "Q1", "Q3")
+  )
+```
+
+#### Con `gtsummary::tbl_summary()`
+
+`tbl_summary()` genera automáticamente el estadístico adecuado según el
+tipo de variable y permite estratificar con `by =`.
+
+```{r}
+#| eval: false
+encoap |>
+  filter(!is.na(ingreso_grupo), !is.na(confianza_gob_fed)) |>
+  select(confianza_gob_fed, ingreso_grupo) |>
+  tbl_summary(
+    by        = ingreso_grupo,
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd}) / {median} [{p25}, {p75}]"
+    ),
+    digits  = list(all_continuous() ~ 2),
+    label   = list(
+      confianza_gob_fed ~ "Confianza en el gobierno federal (0–10)"
+    ),
+    missing = "no"
+  ) |>
+  add_overall() |>
+  bold_labels() |>
+  modify_spanning_header(
+    all_stat_cols() ~ "**Nivel de ingreso del hogar**"
+  ) |>
+  modify_caption(
+    "**Confianza en el gobierno federal según ingreso · ENCOAP 2025**"
+  )
+```
+
+
+------------------------------------------------------------------------
+
+## Criterios para elegir estadísticos: resumen
+
+| Tipo de relación | Variables           | Herramienta principal          | Estadístico clave            |
+|------------------|---------------------|--------------------------------|------------------------------|
+| Cuali–cuali      | Dos categóricas     | `tbl_cross()`, `tabyl()`       | % por renglón o columna      |
+| Cuali–cuanti     | Categórica + escala | `tbl_summary()`, `summarise()` | Media, mediana, DE, RIC      |
+| Cuali–cuanti     | Con prueba formal   | `tbl_summary(add_p())`         | ANOVA (≥3 grupos), t (2 grupos) |
+
+::: {.callout-warning}
+## Diferencia descriptiva ≠ diferencia significativa
+
+Una tabla puede mostrar diferencias numéricas entre grupos sin que
+éstas sean estadísticamente significativas. La significancia estadística
+(p < 0.05) indica que la diferencia observada es poco probable si
+la hipótesis nula fuera verdadera — pero no dice nada sobre la
+**magnitud** ni la **relevancia sustantiva** de esa diferencia.
+
+Siempre interpretar en conjunto: tamaño de la diferencia, n por grupo
+y contexto teórico.
+:::
+
+------------------------------------------------------------------------
+
+## Resumen comparativo: `dplyr` vs. `gtsummary`
+
+| Tarea                                   | `dplyr` + `tidyr`                            | `gtsummary`                          |
+|-----------------------------------------|----------------------------------------------|--------------------------------------|
+| Tabla de contingencia con porcentajes   | `count()` + `group_by()` + `pivot_wider()`   | `tbl_cross(percent = "row")`         |
+| Descriptivos por grupo                  | `group_by()` + `summarise()`                 | `tbl_summary(by = grupo)`            |
+| Varias variables por grupo              | `summarise(across(...))`                     | `tbl_summary()` con múltiples vars   |
+| Prueba de diferencia                    | `aov()` o `t.test()` por separado            | `add_p()` dentro de `tbl_summary()`  |
+| Tabla lista para publicar               | Requiere `gt()` o `kable()` adicional        | Directamente exportable              |
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1. Elige dos variables categóricas de la ENCOAP 2025 distintas a las
+   vistas en clase y construye una tabla de contingencia con
+   porcentajes por renglón **y** por columna. Interpreta sustantivamente
+   cuál dirección es la más adecuada para tu pregunta de investigación.
+
+2. Selecciona una variable cuantitativa de confianza o satisfacción
+   (secciones IV o VI) y compara sus estadísticos descriptivos
+   (media, mediana, DE) entre al menos tres grupos. ¿Qué patrón observas?
+   ¿Es consistente con alguna hipótesis teórica sobre confianza
+   institucional en México?
