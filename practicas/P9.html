@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ana Escoto">
+<meta name="author" content="Mónica Lara">
+
+<title>Sesión 9: Factores de expansión, diseño muestral y coeficiente de variación (CV) – Fundamentos de R para el Análisis Estadístico en Ciencias Sociales</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-065a5179aebd64318d7ea99d77b64a9e.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-60d4398d82fec002ccec76571ed06d15.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No se han encontrado resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Fundamentos de R para el Análisis Estadístico en Ciencias Sociales</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Buscar"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Navegación de palanca" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Inicio</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-módulos" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Módulos</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-módulos">    
+        <li>
+    <a class="dropdown-item" href="../modulos/modulo1.html">
+ <span class="dropdown-text">1. Principios de R y dataframes</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../modulos/modulo2.html">
+ <span class="dropdown-text">2. Estadística descriptiva y encuestas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../modulos/modulo3.html">
+ <span class="dropdown-text">3. Visualización y reportes con Quarto</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../modulos/modulo4.html">
+ <span class="dropdown-text">4. Inferencia estadística</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/tu-org/fundamentos-r-cs"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contenido</h2>
+   
+  <ul>
+  <li><a href="#objetivos-de-la-sesión" id="toc-objetivos-de-la-sesión" class="nav-link active" data-scroll-target="#objetivos-de-la-sesión"><span class="header-section-number">1</span> Objetivos de la sesión</a></li>
+  <li><a href="#contenidos" id="toc-contenidos" class="nav-link" data-scroll-target="#contenidos"><span class="header-section-number">2</span> Contenidos</a></li>
+  <li><a href="#paquetes-de-esta-sesión" id="toc-paquetes-de-esta-sesión" class="nav-link" data-scroll-target="#paquetes-de-esta-sesión"><span class="header-section-number">3</span> Paquetes de esta sesión</a></li>
+  <li><a href="#datos-de-esta-sesión" id="toc-datos-de-esta-sesión" class="nav-link" data-scroll-target="#datos-de-esta-sesión"><span class="header-section-number">4</span> Datos de esta sesión</a>
+  <ul class="collapse">
+  <li><a href="#lectura-sugerida-elige-una" id="toc-lectura-sugerida-elige-una" class="nav-link" data-scroll-target="#lectura-sugerida-elige-una"><span class="header-section-number">4.1</span> Lectura sugerida (elige una)</a></li>
+  </ul></li>
+  <li><a href="#qué-hace-el-factor-de-expansión-y-qué-cambia-cuando-incorporamos-el-diseño" id="toc-qué-hace-el-factor-de-expansión-y-qué-cambia-cuando-incorporamos-el-diseño" class="nav-link" data-scroll-target="#qué-hace-el-factor-de-expansión-y-qué-cambia-cuando-incorporamos-el-diseño"><span class="header-section-number">5</span> 1. ¿Qué hace el factor de expansión y qué cambia cuando incorporamos el diseño?</a></li>
+  <li><a href="#diagnóstico-rápido-del-ponderador" id="toc-diagnóstico-rápido-del-ponderador" class="nav-link" data-scroll-target="#diagnóstico-rápido-del-ponderador"><span class="header-section-number">6</span> 2. Diagnóstico rápido del ponderador</a></li>
+  <li><a href="#tabulados-ponderados-rápidos-sin-varianza-tally-count" id="toc-tabulados-ponderados-rápidos-sin-varianza-tally-count" class="nav-link" data-scroll-target="#tabulados-ponderados-rápidos-sin-varianza-tally-count"><span class="header-section-number">7</span> 3. Tabulados ponderados “rápidos” (sin varianza): tally / count</a>
+  <ul class="collapse">
+  <li><a href="#frecuencias-ponderadas-con-countwt-..." id="toc-frecuencias-ponderadas-con-countwt-..." class="nav-link" data-scroll-target="#frecuencias-ponderadas-con-countwt-..."><span class="header-section-number">7.1</span> 3.1 Frecuencias ponderadas con <code>count(wt = ...)</code></a></li>
+  <li><a href="#tabla-de-porcentajes-con-janitor" id="toc-tabla-de-porcentajes-con-janitor" class="nav-link" data-scroll-target="#tabla-de-porcentajes-con-janitor"><span class="header-section-number">7.2</span> 3.2 Tabla de porcentajes con {janitor}</a></li>
+  </ul></li>
+  <li><a href="#construir-el-diseño-con-srvyr" id="toc-construir-el-diseño-con-srvyr" class="nav-link" data-scroll-target="#construir-el-diseño-con-srvyr"><span class="header-section-number">8</span> 4. Construir el diseño con {srvyr}</a>
+  <ul class="collapse">
+  <li><a href="#diseño-mínimo-solo-ponderador" id="toc-diseño-mínimo-solo-ponderador" class="nav-link" data-scroll-target="#diseño-mínimo-solo-ponderador"><span class="header-section-number">8.1</span> 4.1 Diseño mínimo (solo ponderador)</a></li>
+  <li><a href="#diseño-completo-ponderador-estrato-upm" id="toc-diseño-completo-ponderador-estrato-upm" class="nav-link" data-scroll-target="#diseño-completo-ponderador-estrato-upm"><span class="header-section-number">8.2</span> 4.2 Diseño completo (ponderador + estrato + UPM)</a></li>
+  <li><a href="#lonely-psu-si-aparece-advertencia" id="toc-lonely-psu-si-aparece-advertencia" class="nav-link" data-scroll-target="#lonely-psu-si-aparece-advertencia"><span class="header-section-number">8.3</span> 4.3 <em>Lonely PSU</em> (si aparece advertencia)</a></li>
+  </ul></li>
+  <li><a href="#estimaciones-con-diseño-medias-proporciones-y-totales" id="toc-estimaciones-con-diseño-medias-proporciones-y-totales" class="nav-link" data-scroll-target="#estimaciones-con-diseño-medias-proporciones-y-totales"><span class="header-section-number">9</span> 5. Estimaciones con diseño: medias, proporciones y totales</a>
+  <ul class="collapse">
+  <li><a href="#media-ponderada-con-error-estándar-e-ic" id="toc-media-ponderada-con-error-estándar-e-ic" class="nav-link" data-scroll-target="#media-ponderada-con-error-estándar-e-ic"><span class="header-section-number">9.1</span> 5.1 Media ponderada (con error estándar e IC)</a></li>
+  <li><a href="#proporción-ponderada-binaria" id="toc-proporción-ponderada-binaria" class="nav-link" data-scroll-target="#proporción-ponderada-binaria"><span class="header-section-number">9.2</span> 5.2 Proporción ponderada (binaria)</a></li>
+  <li><a href="#totales-ponderados" id="toc-totales-ponderados" class="nav-link" data-scroll-target="#totales-ponderados"><span class="header-section-number">9.3</span> 5.3 Totales ponderados</a></li>
+  </ul></li>
+  <li><a href="#tabulados-ponderados-por-grupos-con-diseño-y-varianza" id="toc-tabulados-ponderados-por-grupos-con-diseño-y-varianza" class="nav-link" data-scroll-target="#tabulados-ponderados-por-grupos-con-diseño-y-varianza"><span class="header-section-number">10</span> 6. Tabulados ponderados por grupos (con diseño y varianza)</a></li>
+  <li><a href="#coeficiente-de-variación-cv-concepto-e-importancia" id="toc-coeficiente-de-variación-cv-concepto-e-importancia" class="nav-link" data-scroll-target="#coeficiente-de-variación-cv-concepto-e-importancia"><span class="header-section-number">11</span> 7. Coeficiente de variación (CV): concepto e importancia</a>
+  <ul class="collapse">
+  <li><a href="#qué-es-el-cv" id="toc-qué-es-el-cv" class="nav-link" data-scroll-target="#qué-es-el-cv"><span class="header-section-number">11.1</span> 7.1 ¿Qué es el CV?</a></li>
+  <li><a href="#por-qué-es-importante" id="toc-por-qué-es-importante" class="nav-link" data-scroll-target="#por-qué-es-importante"><span class="header-section-number">11.2</span> 7.2 ¿Por qué es importante?</a></li>
+  <li><a href="#calcular-cv-con-resultados-de-srvyr" id="toc-calcular-cv-con-resultados-de-srvyr" class="nav-link" data-scroll-target="#calcular-cv-con-resultados-de-srvyr"><span class="header-section-number">11.3</span> 7.3 Calcular CV con resultados de <code>{srvyr}</code></a></li>
+  </ul></li>
+  <li><a href="#comparación-ponderado-vs.-no-ponderado-misma-tabla" id="toc-comparación-ponderado-vs.-no-ponderado-misma-tabla" class="nav-link" data-scroll-target="#comparación-ponderado-vs.-no-ponderado-misma-tabla"><span class="header-section-number">12</span> 8. Comparación ponderado vs.&nbsp;no ponderado (misma tabla)</a></li>
+  <li><a href="#ejercicio" id="toc-ejercicio" class="nav-link" data-scroll-target="#ejercicio"><span class="header-section-number">13</span> Ejercicio</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Sesión 9: Factores de expansión, diseño muestral y coeficiente de variación (CV)</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Código</button></div></div>
+<p class="subtitle lead">Diseño con {srvyr}: medias, proporciones, totales, tabulados ponderados y CV</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autores/as</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ana Escoto </p>
+             <p>Mónica Lara </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Fecha de publicación</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">11 de mayo de 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="objetivos-de-la-sesión" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="objetivos-de-la-sesión"><span class="header-section-number">1</span> Objetivos de la sesión</h2>
+<p>Al finalizar esta sesión podrán:</p>
+<ul>
+<li>Identificar el <strong>factor de expansión</strong> y los componentes del <strong>diseño muestral</strong> (estratos y UPM).</li>
+<li>Construir un objeto de encuesta con <code>{srvyr}</code> usando <code>weights</code>, <code>strata</code> e <code>ids</code>.</li>
+<li>Calcular <strong>medias, proporciones y totales ponderados</strong>, incluyendo errores estándar e intervalos de confianza.</li>
+<li>Elaborar tabulados ponderados por grupos y comparar con resultados no ponderados.</li>
+<li>Calcular e interpretar el <strong>coeficiente de variación (CV)</strong> como medida de precisión.</li>
+</ul>
+<hr>
+</section>
+<section id="contenidos" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="contenidos"><span class="header-section-number">2</span> Contenidos</h2>
+<ul>
+<li>Factor de expansión y diseño muestral (estratos y UPM).</li>
+<li>Diseño con <code>{srvyr}</code>: <code>as_survey_design()</code>.</li>
+<li>Estimación: <code>survey_mean()</code>, <code>survey_prop()</code>, <code>survey_total()</code>.</li>
+<li>Varianza/precisión: <code>vartype = "se"</code>, <code>vartype = "ci"</code> y cálculo de <strong>CV</strong>.</li>
+<li>Comparación ponderado vs no ponderado.</li>
+</ul>
+<p><strong>Paquetes:</strong> <code>{srvyr}</code> <code>{survey}</code> <code>{dplyr}</code> <code>{tidyr}</code> <code>{janitor}</code> <code>{gt}</code><br>
+<strong>Funciones clave:</strong> <code>as_survey_design()</code> · <code>survey_mean()</code> · <code>survey_total()</code> · <code>survey_prop()</code> · <code>group_by()</code> · <code>summarise()</code> · <code>unweighted()</code></p>
+<hr>
+</section>
+<section id="paquetes-de-esta-sesión" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="paquetes-de-esta-sesión"><span class="header-section-number">3</span> Paquetes de esta sesión</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paquete</th>
+<th>Función principal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>{srvyr}</code></td>
+<td>Interfaz tidy para encuestas complejas</td>
+</tr>
+<tr class="even">
+<td><code>{survey}</code></td>
+<td>Infraestructura de diseño muestral (varianza, opciones)</td>
+</tr>
+<tr class="odd">
+<td><code>{dplyr}</code></td>
+<td>Manipulación y tabulados</td>
+</tr>
+<tr class="even">
+<td><code>{tidyr}</code></td>
+<td>Reestructuración (si se requiere)</td>
+</tr>
+<tr class="odd">
+<td><code>{janitor}</code></td>
+<td>Tablas rápidas (porcentajes/totales)</td>
+</tr>
+<tr class="even">
+<td><code>{gt}</code></td>
+<td>Tablas para reporte</td>
+</tr>
+<tr class="odd">
+<td><code>{here}</code></td>
+<td>Rutas reproducibles</td>
+</tr>
+<tr class="even">
+<td><code>{pacman}</code></td>
+<td>Carga e instalación compacta</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">"pacman"</span>)) <span class="fu">install.packages</span>(<span class="st">"pacman"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  srvyr,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  survey,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  dplyr,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  tidyr,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  janitor,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  gt,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  here,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  readr,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  arrow</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="datos-de-esta-sesión" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="datos-de-esta-sesión"><span class="header-section-number">4</span> Datos de esta sesión</h2>
+<p>Trabajaremos con una tabla de hogares (ENIGH como ejemplo). En el <strong>código de esta práctica</strong> usaremos nombres de diseño que ya conoces de otras fuentes:</p>
+<ul>
+<li><strong>estrato:</strong> <code>est_dis</code></li>
+<li><strong>UPM:</strong> <code>upm</code></li>
+<li><strong>ponderador:</strong> <code>factor</code></li>
+</ul>
+<blockquote class="blockquote">
+<p>Si tu tabla de ENIGH 2024 usa nombres distintos, cambia esos tres nombres en el bloque de “Diseño completo”.</p>
+</blockquote>
+<section id="lectura-sugerida-elige-una" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="lectura-sugerida-elige-una"><span class="header-section-number">4.1</span> Lectura sugerida (elige una)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: Parquet (recomendado)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.parquet"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: CSV</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.csv"</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Inspección rápida:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="qué-hace-el-factor-de-expansión-y-qué-cambia-cuando-incorporamos-el-diseño" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="qué-hace-el-factor-de-expansión-y-qué-cambia-cuando-incorporamos-el-diseño"><span class="header-section-number">5</span> 1. ¿Qué hace el factor de expansión y qué cambia cuando incorporamos el diseño?</h2>
+<ul>
+<li>El <strong>factor de expansión</strong> permite pasar de la muestra a estimaciones representativas (poblacionales).</li>
+<li>El <strong>diseño muestral</strong> (estratos + UPM) determina <strong>cómo se calcula la varianza</strong> (errores estándar, IC, CV).</li>
+<li>Tabulados con <code>count(wt = factor)</code> o <code>tally(wt = factor)</code> usan peso, pero <strong>no</strong> incorporan automáticamente varianza del diseño.</li>
+<li>Con <code>{srvyr}</code> sí podemos estimar con varianza (por ejemplo <code>vartype = "se"</code> o <code>"ci"</code>).</li>
+</ul>
+<hr>
+</section>
+<section id="diagnóstico-rápido-del-ponderador" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="diagnóstico-rápido-del-ponderador"><span class="header-section-number">6</span> 2. Diagnóstico rápido del ponderador</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(factor)),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">min</span>(factor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">p50 =</span> <span class="fu">quantile</span>(factor, <span class="fl">0.50</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">p95 =</span> <span class="fu">quantile</span>(factor, <span class="fl">0.95</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">max</span>(factor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="tabulados-ponderados-rápidos-sin-varianza-tally-count" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="tabulados-ponderados-rápidos-sin-varianza-tally-count"><span class="header-section-number">7</span> 3. Tabulados ponderados “rápidos” (sin varianza): tally / count</h2>
+<section id="frecuencias-ponderadas-con-countwt-..." class="level3" data-number="7.1">
+<h3 data-number="7.1" class="anchored" data-anchor-id="frecuencias-ponderadas-con-countwt-..."><span class="header-section-number">7.1</span> 3.1 Frecuencias ponderadas con <code>count(wt = ...)</code></h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sexo_jefe, <span class="at">wt =</span> factor) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) </span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabla-de-porcentajes-con-janitor" class="level3" data-number="7.2">
+<h3 data-number="7.2" class="anchored" data-anchor-id="tabla-de-porcentajes-con-janitor"><span class="header-section-number">7.2</span> 3.2 Tabla de porcentajes con {janitor}</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sexo_jefe, <span class="at">wt =</span> factor) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_totals</span>(<span class="st">"row"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_percentages</span>(<span class="st">"all"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_pct_formatting</span>()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Estos tabulados son útiles para “tener una idea”, pero si vas a reportar precisión (IC, CV), necesitas el diseño con <code>{srvyr}</code>.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="construir-el-diseño-con-srvyr" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="construir-el-diseño-con-srvyr"><span class="header-section-number">8</span> 4. Construir el diseño con {srvyr}</h2>
+<section id="diseño-mínimo-solo-ponderador" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="diseño-mínimo-solo-ponderador"><span class="header-section-number">8.1</span> 4.1 Diseño mínimo (solo ponderador)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>diseno_min <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> factor)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="diseño-completo-ponderador-estrato-upm" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="diseño-completo-ponderador-estrato-upm"><span class="header-section-number">8.2</span> 4.2 Diseño completo (ponderador + estrato + UPM)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>diseno <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ids =</span> upm,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata =</span> est_dis,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> factor,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">nest =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="lonely-psu-si-aparece-advertencia" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="lonely-psu-si-aparece-advertencia"><span class="header-section-number">8.3</span> 4.3 <em>Lonely PSU</em> (si aparece advertencia)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">survey.lonely.psu =</span> <span class="st">"adjust"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="estimaciones-con-diseño-medias-proporciones-y-totales" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="estimaciones-con-diseño-medias-proporciones-y-totales"><span class="header-section-number">9</span> 5. Estimaciones con diseño: medias, proporciones y totales</h2>
+<section id="media-ponderada-con-error-estándar-e-ic" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="media-ponderada-con-error-estándar-e-ic"><span class="header-section-number">9.1</span> 5.1 Media ponderada (con error estándar e IC)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>diseno <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="proporción-ponderada-binaria" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="proporción-ponderada-binaria"><span class="header-section-number">9.2</span> 5.2 Proporción ponderada (binaria)</h3>
+<p>Ejemplo: define una variable binaria (ajusta a tus variables reales).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>diseno2 <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">es_urbano =</span> tam_loc <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>diseno2 <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_urbano =</span> <span class="fu">survey_mean</span>(es_urbano, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="totales-ponderados" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="totales-ponderados"><span class="header-section-number">9.3</span> 5.3 Totales ponderados</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>diseno <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_hogares =</span> <span class="fu">survey_total</span>(<span class="dv">1</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>)))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="tabulados-ponderados-por-grupos-con-diseño-y-varianza" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="tabulados-ponderados-por-grupos-con-diseño-y-varianza"><span class="header-section-number">10</span> 6. Tabulados ponderados por grupos (con diseño y varianza)</h2>
+<p>Ejemplo: media de ingreso por tamaño de localidad.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tab_ing <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_muestral =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>tab_ing</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Tabla bonita:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tab_ing <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="fu">where</span>(is.numeric), <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Media ponderada de ingreso por grupo (con SE e IC)"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="coeficiente-de-variación-cv-concepto-e-importancia" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="coeficiente-de-variación-cv-concepto-e-importancia"><span class="header-section-number">11</span> 7. Coeficiente de variación (CV): concepto e importancia</h2>
+<section id="qué-es-el-cv" class="level3" data-number="11.1">
+<h3 data-number="11.1" class="anchored" data-anchor-id="qué-es-el-cv"><span class="header-section-number">11.1</span> 7.1 ¿Qué es el CV?</h3>
+<p>Para una estimación () (por ejemplo, una media o proporción), el <strong>coeficiente de variación</strong> se define como:</p>
+<p>[ CV() = ]</p>
+<p>A veces se reporta en porcentaje:</p>
+<p>[ CV% = 100 ]</p>
+</section>
+<section id="por-qué-es-importante" class="level3" data-number="11.2">
+<h3 data-number="11.2" class="anchored" data-anchor-id="por-qué-es-importante"><span class="header-section-number">11.2</span> 7.2 ¿Por qué es importante?</h3>
+<ul>
+<li>Resume <strong>precisión relativa</strong>: no solo “qué tan grande es el error”, sino qué tan grande es <strong>respecto a la estimación</strong>.</li>
+<li>Permite evaluar <strong>confiabilidad</strong> de resultados: estimaciones con CV alto suelen ser inestables (por ejemplo, subpoblaciones pequeñas).</li>
+<li>En muchos reportes institucionales se usa para decidir si una cifra es “publicable” o debe marcarse como <strong>baja precisión</strong>.</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Regla práctica (orientativa)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No hay un umbral universal, pero en práctica aplicada se usa algo como:</p>
+<ul>
+<li>CV &lt; 15%: buena precisión<br>
+</li>
+<li>15% ≤ CV &lt; 30%: precisión moderada (cuidado en interpretación)<br>
+</li>
+<li>CV ≥ 30%: baja precisión (evitar conclusiones fuertes)</li>
+</ul>
+<p>Estos umbrales dependen del estándar del proyecto/institución.</p>
+</div>
+</div>
+</section>
+<section id="calcular-cv-con-resultados-de-srvyr" class="level3" data-number="11.3">
+<h3 data-number="11.3" class="anchored" data-anchor-id="calcular-cv-con-resultados-de-srvyr"><span class="header-section-number">11.3</span> 7.3 Calcular CV con resultados de <code>{srvyr}</code></h3>
+<p><strong>Opción A: pedir SE y calcular CV manualmente</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cv_tab <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="st">"se"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv =</span> media_ing_se <span class="sc">/</span> media_ing,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_pct =</span> <span class="dv">100</span> <span class="sc">*</span> cv</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>cv_tab</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Opción B: calcular CV para una proporción</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cv_prop <span class="ot">&lt;-</span> diseno2 <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_urbano =</span> <span class="fu">survey_mean</span>(es_urbano, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="st">"se"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv =</span> prop_urbano_se <span class="sc">/</span> prop_urbano,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_pct =</span> <span class="dv">100</span> <span class="sc">*</span> cv</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>cv_prop</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="comparación-ponderado-vs.-no-ponderado-misma-tabla" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="comparación-ponderado-vs.-no-ponderado-misma-tabla"><span class="header-section-number">12</span> 8. Comparación ponderado vs.&nbsp;no ponderado (misma tabla)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>no_pond <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing_no =</span> <span class="fu">mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>pond <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_muestral =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    tam_loc,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing_pond =</span> media_ing,</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> media_ing_se,</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_low =</span> media_ing_low,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_high =</span> media_ing_upp</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>comparativa <span class="ot">&lt;-</span> no_pond <span class="sc">|&gt;</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pond, <span class="at">by =</span> <span class="st">"tam_loc"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">diferencia =</span> media_ing_pond <span class="sc">-</span> media_ing_no</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>comparativa</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="ejercicio" class="level2" data-number="13">
+<h2 data-number="13" class="anchored" data-anchor-id="ejercicio"><span class="header-section-number">13</span> Ejercicio</h2>
+<ol type="1">
+<li><strong>Diagnóstico del ponderador</strong>
+<ul>
+<li>Reporta <code>min</code>, <code>p95</code> y <code>max</code> del ponderador (<code>factor</code>).<br>
+</li>
+<li>Escribe 2–3 líneas sobre si observas ponderadores extremos y por qué importa.</li>
+</ul></li>
+<li><strong>Tabulado ponderado “rápido” (sin varianza)</strong>
+<ul>
+<li>Elige una variable categórica (por ejemplo <code>sexo_jefe</code> u otra) y construye una tabla de frecuencias ponderadas con porcentajes (puede ser con <code>count(wt=...)</code> y <code>adorn_percentages()</code>).</li>
+</ul></li>
+<li><strong>Diseño con <code>{srvyr}</code></strong>
+<ul>
+<li>Construye un diseño <strong>completo</strong> con <code>ids = upm</code>, <code>strata = est_dis</code> y <code>weights = factor</code>.<br>
+</li>
+<li>Si no tienes <code>est_dis</code> o <code>upm</code> en tu tabla, justifica y usa diseño mínimo.</li>
+</ul></li>
+<li><strong>Estimaciones con varianza</strong>
+<ul>
+<li>Calcula: (i) una media ponderada con <code>vartype = c("se","ci")</code>, (ii) una proporción ponderada (define una binaria), y (iii) un total ponderado.</li>
+</ul></li>
+<li><strong>CV por grupos (clave de la sesión)</strong>
+<ul>
+<li>Calcula el <strong>CV%</strong> de al menos una estimación (media o proporción) por <strong>tres o más grupos</strong> (por ejemplo <code>tam_loc</code>).<br>
+</li>
+<li>Identifica el grupo con mayor CV y explica (4–6 líneas) por qué podría ocurrir.</li>
+</ul></li>
+<li><strong>Comparación ponderado vs.&nbsp;no ponderado</strong>
+<ul>
+<li>Para una media por grupos, compara ponderado vs no ponderado e interpreta las diferencias (4–6 líneas).</li>
+</ul></li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/cursoUDIR\.github\.io\/Fundamentos_R_analisis_estadistico_CS\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Sesión 9: Factores de expansión, diseño muestral y coeficiente de variación (CV)"</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Diseño con {srvyr}: medias, proporciones, totales, tabulados ponderados y CV"</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">  - "Ana Escoto"</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">  - "Mónica Lara"</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="an">lang:</span><span class="co"> es</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: "Contenido"</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">    theme: cosmo</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co">    highlight-style: github</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co">    df-print: kable</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objetivos de la sesión</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>Al finalizar esta sesión podrán:</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Identificar el **factor de expansión** y los componentes del **diseño muestral** (estratos y UPM).</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Construir un objeto de encuesta con <span class="in">`{srvyr}`</span> usando <span class="in">`weights`</span>, <span class="in">`strata`</span> e <span class="in">`ids`</span>.</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Calcular **medias, proporciones y totales ponderados**, incluyendo errores estándar e intervalos de confianza.</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Elaborar tabulados ponderados por grupos y comparar con resultados no ponderados.</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Calcular e interpretar el **coeficiente de variación (CV)** como medida de precisión.</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## Contenidos</span></span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Factor de expansión y diseño muestral (estratos y UPM).</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Diseño con <span class="in">`{srvyr}`</span>: <span class="in">`as_survey_design()`</span>.</span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Estimación: <span class="in">`survey_mean()`</span>, <span class="in">`survey_prop()`</span>, <span class="in">`survey_total()`</span>.</span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Varianza/precisión: <span class="in">`vartype = "se"`</span>, <span class="in">`vartype = "ci"`</span> y cálculo de **CV**.</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Comparación ponderado vs no ponderado.</span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>**Paquetes:** <span class="in">`{srvyr}`</span> <span class="in">`{survey}`</span> <span class="in">`{dplyr}`</span> <span class="in">`{tidyr}`</span> <span class="in">`{janitor}`</span> <span class="in">`{gt}`</span>  </span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>**Funciones clave:** <span class="in">`as_survey_design()`</span> · <span class="in">`survey_mean()`</span> · <span class="in">`survey_total()`</span> · <span class="in">`survey_prop()`</span> · <span class="in">`group_by()`</span> · <span class="in">`summarise()`</span> · <span class="in">`unweighted()`</span></span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Paquetes de esta sesión</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Paquete     <span class="pp">|</span> Función principal <span class="pp">|</span></span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------|-------------------|</span></span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{srvyr}`</span>   <span class="pp">|</span> Interfaz tidy para encuestas complejas <span class="pp">|</span></span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{survey}`</span>  <span class="pp">|</span> Infraestructura de diseño muestral (varianza, opciones) <span class="pp">|</span></span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{dplyr}`</span>   <span class="pp">|</span> Manipulación y tabulados <span class="pp">|</span></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{tidyr}`</span>   <span class="pp">|</span> Reestructuración (si se requiere) <span class="pp">|</span></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{janitor}`</span> <span class="pp">|</span> Tablas rápidas (porcentajes/totales) <span class="pp">|</span></span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{gt}`</span>      <span class="pp">|</span> Tablas para reporte <span class="pp">|</span></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{here}`</span>    <span class="pp">|</span> Rutas reproducibles <span class="pp">|</span></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`{pacman}`</span>  <span class="pp">|</span> Carga e instalación compacta <span class="pp">|</span></span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(<span class="st">"pacman"</span>)) <span class="fu">install.packages</span>(<span class="st">"pacman"</span>)</span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a>  srvyr,</span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a>  survey,</span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a>  dplyr,</span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a>  tidyr,</span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a>  janitor,</span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a>  gt,</span>
+<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a>  here,</span>
+<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a>  readr,</span>
+<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a>  arrow</span>
+<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a><span class="fu">## Datos de esta sesión</span></span>
+<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a>Trabajaremos con una tabla de hogares (ENIGH como ejemplo). En el **código de esta práctica** usaremos nombres de diseño que ya conoces de otras fuentes:</span>
+<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**estrato:** <span class="in">`est_dis`</span></span>
+<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**UPM:** <span class="in">`upm`</span></span>
+<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**ponderador:** <span class="in">`factor`</span></span>
+<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Si tu tabla de ENIGH 2024 usa nombres distintos, cambia esos tres nombres en el bloque de “Diseño completo”.</span></span>
+<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lectura sugerida (elige una)</span></span>
+<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 1: Parquet (recomendado)</span></span>
+<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.parquet"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a><span class="co"># Opción 2: CSV</span></span>
+<span id="cb19-111"><a href="#cb19-111" aria-hidden="true" tabindex="-1"></a>concentrado <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"raw"</span>, <span class="st">"concentradohogar.csv"</span>),</span>
+<span id="cb19-112"><a href="#cb19-112" aria-hidden="true" tabindex="-1"></a>                               <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-113"><a href="#cb19-113" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
+<span id="cb19-114"><a href="#cb19-114" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-115"><a href="#cb19-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-116"><a href="#cb19-116" aria-hidden="true" tabindex="-1"></a>Inspección rápida:</span>
+<span id="cb19-117"><a href="#cb19-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-120"><a href="#cb19-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-121"><a href="#cb19-121" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-122"><a href="#cb19-122" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(concentrado)</span>
+<span id="cb19-123"><a href="#cb19-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-124"><a href="#cb19-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-125"><a href="#cb19-125" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-126"><a href="#cb19-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-127"><a href="#cb19-127" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. ¿Qué hace el factor de expansión y qué cambia cuando incorporamos el diseño?</span></span>
+<span id="cb19-128"><a href="#cb19-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-129"><a href="#cb19-129" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>El **factor de expansión** permite pasar de la muestra a estimaciones representativas (poblacionales).</span>
+<span id="cb19-130"><a href="#cb19-130" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>El **diseño muestral** (estratos + UPM) determina **cómo se calcula la varianza** (errores estándar, IC, CV).</span>
+<span id="cb19-131"><a href="#cb19-131" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Tabulados con <span class="in">`count(wt = factor)`</span> o <span class="in">`tally(wt = factor)`</span> usan peso, pero **no** incorporan automáticamente varianza del diseño.</span>
+<span id="cb19-132"><a href="#cb19-132" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Con <span class="in">`{srvyr}`</span> sí podemos estimar con varianza (por ejemplo <span class="in">`vartype = "se"`</span> o <span class="in">`"ci"`</span>).</span>
+<span id="cb19-133"><a href="#cb19-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-134"><a href="#cb19-134" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-135"><a href="#cb19-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-136"><a href="#cb19-136" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Diagnóstico rápido del ponderador</span></span>
+<span id="cb19-137"><a href="#cb19-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-140"><a href="#cb19-140" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-141"><a href="#cb19-141" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-142"><a href="#cb19-142" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-143"><a href="#cb19-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-144"><a href="#cb19-144" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb19-145"><a href="#cb19-145" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(factor)),</span>
+<span id="cb19-146"><a href="#cb19-146" aria-hidden="true" tabindex="-1"></a>    <span class="at">min =</span> <span class="fu">min</span>(factor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a>    <span class="at">p50 =</span> <span class="fu">quantile</span>(factor, <span class="fl">0.50</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a>    <span class="at">p95 =</span> <span class="fu">quantile</span>(factor, <span class="fl">0.95</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a>    <span class="at">max =</span> <span class="fu">max</span>(factor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Tabulados ponderados “rápidos” (sin varianza): tally / count</span></span>
+<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1 Frecuencias ponderadas con `count(wt = ...)`</span></span>
+<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-163"><a href="#cb19-163" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sexo_jefe, <span class="at">wt =</span> factor) <span class="sc">|&gt;</span></span>
+<span id="cb19-165"><a href="#cb19-165" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) </span>
+<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-168"><a href="#cb19-168" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2 Tabla de porcentajes con {janitor}</span></span>
+<span id="cb19-169"><a href="#cb19-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-173"><a href="#cb19-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-174"><a href="#cb19-174" aria-hidden="true" tabindex="-1"></a>concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sexo_jefe, <span class="at">wt =</span> factor) <span class="sc">|&gt;</span></span>
+<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_totals</span>(<span class="st">"row"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_percentages</span>(<span class="st">"all"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">adorn_pct_formatting</span>()</span>
+<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a>::: callout-note</span>
+<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## Nota</span></span>
+<span id="cb19-183"><a href="#cb19-183" aria-hidden="true" tabindex="-1"></a>Estos tabulados son útiles para “tener una idea”, pero si vas a reportar precisión (IC, CV), necesitas el diseño con <span class="in">`{srvyr}`</span>.</span>
+<span id="cb19-184"><a href="#cb19-184" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Construir el diseño con {srvyr}</span></span>
+<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a><span class="fu">### 4.1 Diseño mínimo (solo ponderador)</span></span>
+<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a>diseno_min <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(<span class="at">weights =</span> factor)</span>
+<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### 4.2 Diseño completo (ponderador + estrato + UPM)</span></span>
+<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-204"><a href="#cb19-204" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-205"><a href="#cb19-205" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-206"><a href="#cb19-206" aria-hidden="true" tabindex="-1"></a>diseno <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-207"><a href="#cb19-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(</span>
+<span id="cb19-208"><a href="#cb19-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">ids =</span> upm,</span>
+<span id="cb19-209"><a href="#cb19-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata =</span> est_dis,</span>
+<span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> factor,</span>
+<span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a>    <span class="at">nest =</span> <span class="cn">TRUE</span></span>
+<span id="cb19-212"><a href="#cb19-212" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-214"><a href="#cb19-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-215"><a href="#cb19-215" aria-hidden="true" tabindex="-1"></a><span class="fu">### 4.3 *Lonely PSU* (si aparece advertencia)</span></span>
+<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-220"><a href="#cb19-220" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-221"><a href="#cb19-221" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">survey.lonely.psu =</span> <span class="st">"adjust"</span>)</span>
+<span id="cb19-222"><a href="#cb19-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a><span class="fu">## 5. Estimaciones con diseño: medias, proporciones y totales</span></span>
+<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.1 Media ponderada (con error estándar e IC)</span></span>
+<span id="cb19-229"><a href="#cb19-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-232"><a href="#cb19-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-233"><a href="#cb19-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-234"><a href="#cb19-234" aria-hidden="true" tabindex="-1"></a>diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.2 Proporción ponderada (binaria)</span></span>
+<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-242"><a href="#cb19-242" aria-hidden="true" tabindex="-1"></a>Ejemplo: define una variable binaria (ajusta a tus variables reales).</span>
+<span id="cb19-243"><a href="#cb19-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-248"><a href="#cb19-248" aria-hidden="true" tabindex="-1"></a>diseno2 <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-249"><a href="#cb19-249" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">es_urbano =</span> tam_loc <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb19-250"><a href="#cb19-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a>diseno2 <span class="sc">|&gt;</span></span>
+<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_urbano =</span> <span class="fu">survey_mean</span>(es_urbano, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb19-254"><a href="#cb19-254" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-255"><a href="#cb19-255" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-256"><a href="#cb19-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-257"><a href="#cb19-257" aria-hidden="true" tabindex="-1"></a><span class="fu">### 5.3 Totales ponderados</span></span>
+<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-262"><a href="#cb19-262" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-263"><a href="#cb19-263" aria-hidden="true" tabindex="-1"></a>diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-264"><a href="#cb19-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_hogares =</span> <span class="fu">survey_total</span>(<span class="dv">1</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>)))</span>
+<span id="cb19-265"><a href="#cb19-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-267"><a href="#cb19-267" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-269"><a href="#cb19-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## 6. Tabulados ponderados por grupos (con diseño y varianza)</span></span>
+<span id="cb19-270"><a href="#cb19-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a>Ejemplo: media de ingreso por tamaño de localidad.</span>
+<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-275"><a href="#cb19-275" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a>tab_ing <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_muestral =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
+<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a>tab_ing</span>
+<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-287"><a href="#cb19-287" aria-hidden="true" tabindex="-1"></a>Tabla bonita:</span>
+<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-291"><a href="#cb19-291" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a>tab_ing <span class="sc">|&gt;</span></span>
+<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>() <span class="sc">|&gt;</span></span>
+<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="fu">where</span>(is.numeric), <span class="at">decimals =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_header</span>(<span class="at">title =</span> <span class="st">"Media ponderada de ingreso por grupo (con SE e IC)"</span>)</span>
+<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a><span class="fu">## 7. Coeficiente de variación (CV): concepto e importancia</span></span>
+<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a><span class="fu">### 7.1 ¿Qué es el CV?</span></span>
+<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-305"><a href="#cb19-305" aria-hidden="true" tabindex="-1"></a>Para una estimación <span class="sc">\(</span>\hat{\theta}<span class="sc">\)</span> (por ejemplo, una media o proporción), el **coeficiente de variación** se define como:</span>
+<span id="cb19-306"><a href="#cb19-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-307"><a href="#cb19-307" aria-hidden="true" tabindex="-1"></a><span class="sc">\[</span></span>
+<span id="cb19-308"><a href="#cb19-308" aria-hidden="true" tabindex="-1"></a>CV(\hat{\theta}) = \frac{SE(\hat{\theta})}{\hat{\theta}}</span>
+<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a><span class="sc">\]</span></span>
+<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-311"><a href="#cb19-311" aria-hidden="true" tabindex="-1"></a>A veces se reporta en porcentaje:</span>
+<span id="cb19-312"><a href="#cb19-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a><span class="sc">\[</span></span>
+<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a>CV\% = 100 \times \frac{SE(\hat{\theta})}{\hat{\theta}}</span>
+<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a><span class="sc">\]</span></span>
+<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-317"><a href="#cb19-317" aria-hidden="true" tabindex="-1"></a><span class="fu">### 7.2 ¿Por qué es importante?</span></span>
+<span id="cb19-318"><a href="#cb19-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-319"><a href="#cb19-319" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Resume **precisión relativa**: no solo “qué tan grande es el error”, sino qué tan grande es **respecto a la estimación**.</span>
+<span id="cb19-320"><a href="#cb19-320" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Permite evaluar **confiabilidad** de resultados: estimaciones con CV alto suelen ser inestables (por ejemplo, subpoblaciones pequeñas).</span>
+<span id="cb19-321"><a href="#cb19-321" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>En muchos reportes institucionales se usa para decidir si una cifra es “publicable” o debe marcarse como **baja precisión**.</span>
+<span id="cb19-322"><a href="#cb19-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-323"><a href="#cb19-323" aria-hidden="true" tabindex="-1"></a>::: callout-important</span>
+<span id="cb19-324"><a href="#cb19-324" aria-hidden="true" tabindex="-1"></a><span class="fu">## Regla práctica (orientativa)</span></span>
+<span id="cb19-325"><a href="#cb19-325" aria-hidden="true" tabindex="-1"></a>No hay un umbral universal, pero en práctica aplicada se usa algo como:</span>
+<span id="cb19-326"><a href="#cb19-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-327"><a href="#cb19-327" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>CV &lt; 15%: buena precisión  </span>
+<span id="cb19-328"><a href="#cb19-328" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>15% ≤ CV &lt; 30%: precisión moderada (cuidado en interpretación)  </span>
+<span id="cb19-329"><a href="#cb19-329" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>CV ≥ 30%: baja precisión (evitar conclusiones fuertes)</span>
+<span id="cb19-330"><a href="#cb19-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-331"><a href="#cb19-331" aria-hidden="true" tabindex="-1"></a>Estos umbrales dependen del estándar del proyecto/institución.</span>
+<span id="cb19-332"><a href="#cb19-332" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-333"><a href="#cb19-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-334"><a href="#cb19-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### 7.3 Calcular CV con resultados de `{srvyr}`</span></span>
+<span id="cb19-335"><a href="#cb19-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-336"><a href="#cb19-336" aria-hidden="true" tabindex="-1"></a>**Opción A: pedir SE y calcular CV manualmente**</span>
+<span id="cb19-337"><a href="#cb19-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-340"><a href="#cb19-340" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-341"><a href="#cb19-341" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-342"><a href="#cb19-342" aria-hidden="true" tabindex="-1"></a>cv_tab <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-343"><a href="#cb19-343" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb19-344"><a href="#cb19-344" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-345"><a href="#cb19-345" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="st">"se"</span>)</span>
+<span id="cb19-346"><a href="#cb19-346" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb19-347"><a href="#cb19-347" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-348"><a href="#cb19-348" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv =</span> media_ing_se <span class="sc">/</span> media_ing,</span>
+<span id="cb19-349"><a href="#cb19-349" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_pct =</span> <span class="dv">100</span> <span class="sc">*</span> cv</span>
+<span id="cb19-350"><a href="#cb19-350" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-351"><a href="#cb19-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-352"><a href="#cb19-352" aria-hidden="true" tabindex="-1"></a>cv_tab</span>
+<span id="cb19-353"><a href="#cb19-353" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-354"><a href="#cb19-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-355"><a href="#cb19-355" aria-hidden="true" tabindex="-1"></a>**Opción B: calcular CV para una proporción**</span>
+<span id="cb19-356"><a href="#cb19-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-359"><a href="#cb19-359" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-360"><a href="#cb19-360" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-361"><a href="#cb19-361" aria-hidden="true" tabindex="-1"></a>cv_prop <span class="ot">&lt;-</span> diseno2 <span class="sc">|&gt;</span></span>
+<span id="cb19-362"><a href="#cb19-362" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb19-363"><a href="#cb19-363" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-364"><a href="#cb19-364" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_urbano =</span> <span class="fu">survey_mean</span>(es_urbano, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="st">"se"</span>)</span>
+<span id="cb19-365"><a href="#cb19-365" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb19-366"><a href="#cb19-366" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-367"><a href="#cb19-367" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv =</span> prop_urbano_se <span class="sc">/</span> prop_urbano,</span>
+<span id="cb19-368"><a href="#cb19-368" aria-hidden="true" tabindex="-1"></a>    <span class="at">cv_pct =</span> <span class="dv">100</span> <span class="sc">*</span> cv</span>
+<span id="cb19-369"><a href="#cb19-369" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-370"><a href="#cb19-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-371"><a href="#cb19-371" aria-hidden="true" tabindex="-1"></a>cv_prop</span>
+<span id="cb19-372"><a href="#cb19-372" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-373"><a href="#cb19-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-374"><a href="#cb19-374" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-375"><a href="#cb19-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-376"><a href="#cb19-376" aria-hidden="true" tabindex="-1"></a><span class="fu">## 8. Comparación ponderado vs. no ponderado (misma tabla)</span></span>
+<span id="cb19-377"><a href="#cb19-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-380"><a href="#cb19-380" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb19-381"><a href="#cb19-381" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb19-382"><a href="#cb19-382" aria-hidden="true" tabindex="-1"></a>no_pond <span class="ot">&lt;-</span> concentrado <span class="sc">|&gt;</span></span>
+<span id="cb19-383"><a href="#cb19-383" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb19-384"><a href="#cb19-384" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-385"><a href="#cb19-385" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb19-386"><a href="#cb19-386" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing_no =</span> <span class="fu">mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-387"><a href="#cb19-387" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb19-388"><a href="#cb19-388" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-389"><a href="#cb19-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-390"><a href="#cb19-390" aria-hidden="true" tabindex="-1"></a>pond <span class="ot">&lt;-</span> diseno <span class="sc">|&gt;</span></span>
+<span id="cb19-391"><a href="#cb19-391" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tam_loc) <span class="sc">|&gt;</span></span>
+<span id="cb19-392"><a href="#cb19-392" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb19-393"><a href="#cb19-393" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_muestral =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
+<span id="cb19-394"><a href="#cb19-394" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing =</span> <span class="fu">survey_mean</span>(ing_cor, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>))</span>
+<span id="cb19-395"><a href="#cb19-395" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb19-396"><a href="#cb19-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb19-397"><a href="#cb19-397" aria-hidden="true" tabindex="-1"></a>    tam_loc,</span>
+<span id="cb19-398"><a href="#cb19-398" aria-hidden="true" tabindex="-1"></a>    <span class="at">media_ing_pond =</span> media_ing,</span>
+<span id="cb19-399"><a href="#cb19-399" aria-hidden="true" tabindex="-1"></a>    <span class="at">se =</span> media_ing_se,</span>
+<span id="cb19-400"><a href="#cb19-400" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_low =</span> media_ing_low,</span>
+<span id="cb19-401"><a href="#cb19-401" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_high =</span> media_ing_upp</span>
+<span id="cb19-402"><a href="#cb19-402" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-403"><a href="#cb19-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-404"><a href="#cb19-404" aria-hidden="true" tabindex="-1"></a>comparativa <span class="ot">&lt;-</span> no_pond <span class="sc">|&gt;</span></span>
+<span id="cb19-405"><a href="#cb19-405" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pond, <span class="at">by =</span> <span class="st">"tam_loc"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-406"><a href="#cb19-406" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-407"><a href="#cb19-407" aria-hidden="true" tabindex="-1"></a>    <span class="at">diferencia =</span> media_ing_pond <span class="sc">-</span> media_ing_no</span>
+<span id="cb19-408"><a href="#cb19-408" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-409"><a href="#cb19-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-410"><a href="#cb19-410" aria-hidden="true" tabindex="-1"></a>comparativa</span>
+<span id="cb19-411"><a href="#cb19-411" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-412"><a href="#cb19-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-413"><a href="#cb19-413" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb19-414"><a href="#cb19-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-415"><a href="#cb19-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejercicio</span></span>
+<span id="cb19-416"><a href="#cb19-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-417"><a href="#cb19-417" aria-hidden="true" tabindex="-1"></a>1) **Diagnóstico del ponderador**  </span>
+<span id="cb19-418"><a href="#cb19-418" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Reporta <span class="in">`min`</span>, <span class="in">`p95`</span> y <span class="in">`max`</span> del ponderador (<span class="in">`factor`</span>).  </span>
+<span id="cb19-419"><a href="#cb19-419" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Escribe 2–3 líneas sobre si observas ponderadores extremos y por qué importa.</span>
+<span id="cb19-420"><a href="#cb19-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-421"><a href="#cb19-421" aria-hidden="true" tabindex="-1"></a>2) **Tabulado ponderado “rápido” (sin varianza)**  </span>
+<span id="cb19-422"><a href="#cb19-422" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Elige una variable categórica (por ejemplo <span class="in">`sexo_jefe`</span> u otra) y construye una tabla de frecuencias ponderadas con porcentajes (puede ser con <span class="in">`count(wt=...)`</span> y <span class="in">`adorn_percentages()`</span>).</span>
+<span id="cb19-423"><a href="#cb19-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-424"><a href="#cb19-424" aria-hidden="true" tabindex="-1"></a>3) **Diseño con `{srvyr}`**  </span>
+<span id="cb19-425"><a href="#cb19-425" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Construye un diseño **completo** con <span class="in">`ids = upm`</span>, <span class="in">`strata = est_dis`</span> y <span class="in">`weights = factor`</span>.  </span>
+<span id="cb19-426"><a href="#cb19-426" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Si no tienes <span class="in">`est_dis`</span> o <span class="in">`upm`</span> en tu tabla, justifica y usa diseño mínimo.</span>
+<span id="cb19-427"><a href="#cb19-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-428"><a href="#cb19-428" aria-hidden="true" tabindex="-1"></a>4) **Estimaciones con varianza**  </span>
+<span id="cb19-429"><a href="#cb19-429" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Calcula: (i) una media ponderada con <span class="in">`vartype = c("se","ci")`</span>, (ii) una proporción ponderada (define una binaria), y (iii) un total ponderado.</span>
+<span id="cb19-430"><a href="#cb19-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-431"><a href="#cb19-431" aria-hidden="true" tabindex="-1"></a>5) **CV por grupos (clave de la sesión)**  </span>
+<span id="cb19-432"><a href="#cb19-432" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Calcula el **CV%** de al menos una estimación (media o proporción) por **tres o más grupos** (por ejemplo <span class="in">`tam_loc`</span>).  </span>
+<span id="cb19-433"><a href="#cb19-433" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Identifica el grupo con mayor CV y explica (4–6 líneas) por qué podría ocurrir.</span>
+<span id="cb19-434"><a href="#cb19-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-435"><a href="#cb19-435" aria-hidden="true" tabindex="-1"></a>6) **Comparación ponderado vs. no ponderado**  </span>
+<span id="cb19-436"><a href="#cb19-436" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Para una media por grupos, compara ponderado vs no ponderado e interpreta las diferencias (4–6 líneas).</span>
+<span id="cb19-437"><a href="#cb19-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-438"><a href="#cb19-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-439"><a href="#cb19-439" aria-hidden="true" tabindex="-1"></a> </span>
+</code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Dra. Ana Ruth Escoto Castillo (FCPyS, UNAM) · Dra. Mónica Lara Escalante (IIS, UNAM)</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Sitio construido con <a href="https://quarto.org">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
