@@ -1,0 +1,284 @@
+---
+title: "Práctica 10 (Sesión 10): ggplot2 y gráficos univariados (cuantitativas)"
+subtitle: "Histogramas, densidad y boxplots: elecciones de escala y lectura crítica"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Construir gráficos univariados para variables cuantitativas con `ggplot2` (histograma, densidad y boxplot).
+-   Tomar decisiones explícitas sobre **binwidth**, escalas y transformaciones (por ejemplo log).
+-   Detectar y comunicar patrones básicos: asimetría, colas, valores extremos y diferencias de escala.
+-   Producir figuras listas para reporte: título, ejes, unidades, notas y exportación.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Estructura de `ggplot2`: datos + estética + geometrías + escalas.
+-   Histogramas: elección de `binwidth` y lectura de distribuciones.
+-   Densidad: interpretación y comparación con histograma.
+-   Boxplot: mediana, IQR y outliers (regla 1.5×IQR).
+-   Buenas prácticas: títulos, unidades, etiquetas, escalas y exportación.
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{scales}` `{janitor}`  
+**Funciones clave:** `ggplot()` · `aes()` · `geom_histogram()` · `geom_density()` · `geom_boxplot()` · `labs()` · `theme_minimal()` · `ggsave()`
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal |
+|------------|-------------------|
+| `{ggplot2}` | Visualización con gramática de gráficos |
+| `{dplyr}`   | Preparación de datos para graficar |
+| `{scales}`  | Etiquetas y formatos en ejes (miles, porcentaje, etc.) |
+| `{janitor}` | Limpieza de nombres (si se requiere) |
+| `{here}`    | Rutas reproducibles |
+| `{pacman}`  | Carga e instalación compacta |
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  ggplot2,
+  dplyr,
+  scales,
+  janitor,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con una tabla a nivel hogar (ENIGH 2024 como ejemplo).  
+En los ejemplos asumimos que ya cuentan con un objeto llamado `concentrado`.
+
+### Lectura sugerida (elige una)
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado por rapidez)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+Inspección rápida:
+
+```{r}
+#| eval: false
+dplyr::glimpse(concentrado)
+```
+
+------------------------------------------------------------------------
+
+## 1. Recordatorio mínimo: estructura de ggplot2
+
+En `ggplot2` una figura se arma como:
+
+-   `ggplot(data, aes(...))` define datos y estética.
+-   `geom_*()` define la geometría (hist, densidad, boxplot).
+-   `scale_*()` ajusta escalas (etiquetas, transformaciones).
+-   `labs()` y `theme_*()` mejoran la comunicación.
+
+------------------------------------------------------------------------
+
+## 2. Histogramas (variable cuantitativa)
+
+### 2.1 Histograma “rápido”
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram() +
+  labs(
+    title = "Histograma de ingreso corriente (muestra)",
+    x = "Ingreso corriente",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+```
+
+### 2.2 Elegir `binwidth` (lo importante)
+
+Con variables económicas es común que haya asimetría. Cambiar `binwidth` cambia lo que “vemos”.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram(binwidth = 1000) +
+  labs(
+    title = "Histograma con binwidth = 1000",
+    x = "Ingreso corriente",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram(binwidth = 5000) +
+  labs(
+    title = "Histograma con binwidth = 5000",
+    x = "Ingreso corriente",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+```
+
+::: callout-note
+## Nota
+No hay un “binwidth correcto” universal. La elección depende del rango de la variable y de tu objetivo (detectar colas, ver multimodalidad, etc.).
+:::
+
+------------------------------------------------------------------------
+
+## 3. Densidad (comparación con histograma)
+
+La densidad es una versión suavizada de la distribución (área = 1). Es útil para ver forma general cuando hay mucha asimetría.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = ing_cor)) +
+  geom_density() +
+  labs(
+    title = "Densidad de ingreso corriente",
+    x = "Ingreso corriente",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+### 3.1 Histograma + densidad en la misma figura
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 2000, alpha = 0.4) +
+  geom_density() +
+  labs(
+    title = "Histograma (densidad) + curva de densidad",
+    x = "Ingreso corriente",
+    y = "Densidad"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 4. Boxplot (mediana, IQR y outliers)
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(y = ing_cor)) +
+  geom_boxplot() +
+  labs(
+    title = "Boxplot de ingreso corriente",
+    y = "Ingreso corriente"
+  ) +
+  theme_minimal()
+```
+
+### 4.1 Boxplot con escala log (cuando hay cola larga)
+
+En variables como ingreso, una escala log suele mejorar la lectura.
+
+```{r}
+#| eval: false
+ggplot(concentrado |> filter(ing_cor > 0), aes(y = ing_cor)) +
+  geom_boxplot() +
+  scale_y_log10(labels = scales::label_number()) +
+  labs(
+    title = "Boxplot de ingreso corriente (escala log10)",
+    y = "Ingreso corriente (log10)"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 5. Lectura crítica: faltantes y ceros
+
+Antes de interpretar, revisa si hay NA y si la variable puede tener ceros.
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    n = n(),
+    na_ing = sum(is.na(ing_cor)),
+    ceros_ing = sum(ing_cor == 0, na.rm = TRUE)
+  )
+```
+
+::: callout-important
+## Importante
+Si hay muchos ceros o NA, **tu histograma puede mezclar fenómenos** (por ejemplo, hogares sin ingresos reportados vs ingresos efectivamente cero). Eso afecta la interpretación.
+:::
+
+------------------------------------------------------------------------
+
+## 6. Exportación (figuras listas para reporte)
+
+```{r}
+#| eval: false
+g1 <- ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram(binwidth = 2000) +
+  labs(title = "Ingreso corriente: histograma", x = "Ingreso corriente", y = "Frecuencia") +
+  theme_minimal()
+
+ggsave(filename = "fig_hist_ing.png", plot = g1, width = 7, height = 4, dpi = 300)
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1) **Elige una variable cuantitativa** (por ejemplo `ing_cor`, `gasto_mon`, o alguna otra disponible).  
+   - Reporta cuántos NA y cuántos ceros tiene (si aplica).
+
+2) Construye **dos histogramas** de esa variable con **dos binwidth distintos**.  
+   - Escribe 4–6 líneas: ¿qué cambia cuando cambias el binwidth? ¿Qué versión te ayuda más para tu objetivo?
+
+3) Construye una **curva de densidad** de la misma variable y compara con el histograma (3–5 líneas).
+
+4) Construye un **boxplot** de la variable.  
+   - Si la distribución es muy asimétrica, agrega una versión con **escala log10** (solo si hay valores > 0).  
+   - Escribe 4–6 líneas sobre outliers/colas y lo que muestra el boxplot.
+
+5) Exporta **una** figura final con `ggsave()` (incluye el archivo en tu carpeta de trabajo).

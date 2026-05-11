@@ -1,0 +1,286 @@
+---
+title: "PSesión 11: Gráficos univariados para cualitativas"
+subtitle: "Barras/columnas, proporciones vs conteos, ordenamiento de categorías y coord_flip()"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Construir gráficos univariados para variables cualitativas con `ggplot2` (barras/columnas).
+-   Diferenciar y aplicar **conteos** vs **proporciones** (porcentaje) en gráficos.
+-   Ordenar y agrupar categorías para comunicación efectiva (`fct_reorder()`, `fct_lump()`).
+-   Mejorar legibilidad con `coord_flip()` y elecciones de escala/etiquetas.
+-   Exportar una figura lista para reporte con `ggsave()`.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Gráficos univariados para cualitativas: `geom_bar()` y `geom_col()`.
+-   Conteos vs proporciones; cuándo conviene cada uno.
+-   Ordenamiento y reducción de categorías con `{forcats}`.
+-   Etiquetas y formatos con `{scales}`.
+-   Buenas prácticas: títulos, ejes, notas y exportación.
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{forcats}` `{scales}` `{janitor}`  
+**Funciones clave:** `geom_bar()` · `geom_col()` · `fct_reorder()` · `fct_lump()` · `coord_flip()` · `scale_y_continuous()` · `label_percent()` · `ggsave()`
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal |
+|------------|-------------------|
+| `{ggplot2}` | Visualización con gramática de gráficos |
+| `{dplyr}`   | Preparación de datos |
+| `{forcats}` | Manejo/ordenamiento de factores (categorías) |
+| `{scales}`  | Formato de ejes (porcentaje, separador de miles) |
+| `{janitor}` | Limpieza de nombres (si se requiere) |
+| `{here}`    | Rutas reproducibles |
+| `{pacman}`  | Carga e instalación compacta |
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  ggplot2,
+  dplyr,
+  forcats,
+  scales,
+  janitor,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con una tabla a nivel hogar (ENIGH 2024 como ejemplo).  
+En los ejemplos asumimos que ya cuentan con un objeto llamado `concentrado`.
+
+### Lectura sugerida (elige una)
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1. Elegir una variable cualitativa
+
+Ejemplos típicos en encuestas de hogares:
+
+-   Tamaño de localidad (`tam_loc`)
+-   Estrato (`estrato`)
+-   Tipo de hogar (si existe)
+-   Sexo del jefe/a (si existe)
+
+> Ajusta los nombres a tu tabla. Si tu variable está codificada numéricamente, conviene recodificarla a factor con etiquetas antes de graficar.
+
+```{r}
+#| eval: false
+concentrado |> 
+  count(tam_loc) |>
+  arrange(desc(n))
+```
+
+------------------------------------------------------------------------
+
+## 2. Gráfico de barras (conteos) con `geom_bar()`
+
+`geom_bar()` cuenta automáticamente las observaciones (no necesita tabla previa).
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = as.factor(tam_loc))) +
+  geom_bar() +
+  labs(
+    title = "Distribución de hogares por tamaño de localidad (conteos)",
+    x = "Tamaño de localidad",
+    y = "Número de hogares (muestra)"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 3. Gráfico de proporciones (porcentaje)
+
+Hay dos formas comunes:
+
+### 3.1 Proporciones con estadística en `geom_bar(position = "fill")`
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = as.factor(tam_loc))) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    title = "Distribución de hogares por tamaño de localidad (porcentaje)",
+    x = "Tamaño de localidad",
+    y = "Porcentaje"
+  ) +
+  theme_minimal()
+```
+
+### 3.2 Proporciones calculadas previamente (recomendado para control)
+
+```{r}
+#| eval: false
+tab_prop <- concentrado |>
+  count(tam_loc) |>
+  mutate(p = n / sum(n))
+
+ggplot(tab_prop, aes(x = as.factor(tam_loc), y = p)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    title = "Distribución por tamaño de localidad (porcentaje)",
+    x = "Tamaño de localidad",
+    y = "Porcentaje"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 4. Ordenamiento de categorías con {forcats}
+
+Cuando las categorías tienen un orden “analítico” (por ejemplo, mayor a menor frecuencia), conviene ordenar el factor.
+
+```{r}
+#| eval: false
+tab_prop2 <- concentrado |>
+  count(tam_loc) |>
+  mutate(tam_loc = forcats::fct_reorder(as.factor(tam_loc), n))
+
+ggplot(tab_prop2, aes(x = tam_loc, y = n)) +
+  geom_col() +
+  labs(
+    title = "Tamaño de localidad ordenado por frecuencia",
+    x = "Tamaño de localidad (ordenado)",
+    y = "Número de hogares"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 5. Reducir categorías con `fct_lump()`
+
+Útil cuando hay muchas categorías (ej. estados, municipios, ocupaciones).
+
+Ejemplo genérico (ajusta la variable):
+
+```{r}
+#| eval: false
+df_lump <- concentrado |>
+  mutate(entidad = forcats::fct_lump(as.factor(ubica_geo), n = 10)) |>
+  count(entidad) |>
+  mutate(entidad = forcats::fct_reorder(entidad, n))
+
+ggplot(df_lump, aes(x = entidad, y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top 10 categorías + 'Other' (ejemplo)",
+    x = "",
+    y = "Número de hogares"
+  ) +
+  theme_minimal()
+```
+
+::: callout-note
+## Nota
+En ENIGH, `ubica_geo` suele ser un código (entidad/municipio). Si quieres un “nombre”, necesitarías un catálogo. En esta práctica el objetivo es el manejo de categorías, no los nombres.
+:::
+
+------------------------------------------------------------------------
+
+## 6. Mejorar legibilidad con `coord_flip()`
+
+Cuando hay muchas categorías o etiquetas largas, `coord_flip()` suele ser la mejor opción.
+
+```{r}
+#| eval: false
+ggplot(tab_prop2, aes(x = tam_loc, y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Distribución (conteos) con coord_flip()",
+    x = "",
+    y = "Número de hogares"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 7. Exportación de una figura
+
+```{r}
+#| eval: false
+g1 <- ggplot(tab_prop, aes(x = as.factor(tam_loc), y = p)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Distribución por tamaño de localidad (porcentaje)",
+       x = "Tamaño de localidad", y = "Porcentaje") +
+  theme_minimal()
+
+ggsave("fig_p11_categorica.png", plot = g1, width = 7, height = 4, dpi = 300)
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1) Elige **una variable cualitativa** (si tiene muchas categorías, mejor).  
+   - Muestra un `count()` ordenado para ver frecuencias.
+
+2) Construye **dos gráficos** de esa variable:
+   - Uno de **conteos** (`geom_bar()` o `geom_col()`), y
+   - Uno de **porcentajes** (con `position = "fill"` o calculando `p = n/sum(n)`).
+
+3) Ordena las categorías por frecuencia usando `fct_reorder()`.
+
+4) Si tu variable tiene muchas categorías, crea una versión con `fct_lump()` (por ejemplo top 8 o top 10).
+
+5) Haz al menos **una** figura con `coord_flip()` para mejorar legibilidad.
+
+6) Exporta **una** figura final con `ggsave()`.

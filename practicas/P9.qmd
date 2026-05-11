@@ -1,0 +1,403 @@
+---
+title: "Sesión 9: Factores de expansión, diseño muestral y coeficiente de variación (CV)"
+subtitle: "Diseño con {srvyr}: medias, proporciones, totales, tabulados ponderados y CV"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Identificar el **factor de expansión** y los componentes del **diseño muestral** (estratos y UPM).
+-   Construir un objeto de encuesta con `{srvyr}` usando `weights`, `strata` e `ids`.
+-   Calcular **medias, proporciones y totales ponderados**, incluyendo errores estándar e intervalos de confianza.
+-   Elaborar tabulados ponderados por grupos y comparar con resultados no ponderados.
+-   Calcular e interpretar el **coeficiente de variación (CV)** como medida de precisión.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Factor de expansión y diseño muestral (estratos y UPM).
+-   Diseño con `{srvyr}`: `as_survey_design()`.
+-   Estimación: `survey_mean()`, `survey_prop()`, `survey_total()`.
+-   Varianza/precisión: `vartype = "se"`, `vartype = "ci"` y cálculo de **CV**.
+-   Comparación ponderado vs no ponderado.
+
+**Paquetes:** `{srvyr}` `{survey}` `{dplyr}` `{tidyr}` `{janitor}` `{gt}`  
+**Funciones clave:** `as_survey_design()` · `survey_mean()` · `survey_total()` · `survey_prop()` · `group_by()` · `summarise()` · `unweighted()`
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete     | Función principal |
+|------------|-------------------|
+| `{srvyr}`   | Interfaz tidy para encuestas complejas |
+| `{survey}`  | Infraestructura de diseño muestral (varianza, opciones) |
+| `{dplyr}`   | Manipulación y tabulados |
+| `{tidyr}`   | Reestructuración (si se requiere) |
+| `{janitor}` | Tablas rápidas (porcentajes/totales) |
+| `{gt}`      | Tablas para reporte |
+| `{here}`    | Rutas reproducibles |
+| `{pacman}`  | Carga e instalación compacta |
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  srvyr,
+  survey,
+  dplyr,
+  tidyr,
+  janitor,
+  gt,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con una tabla de hogares (ENIGH como ejemplo). En el **código de esta práctica** usaremos nombres de diseño que ya conoces de otras fuentes:
+
+-   **estrato:** `est_dis`
+-   **UPM:** `upm`
+-   **ponderador:** `factor`
+
+> Si tu tabla de ENIGH 2024 usa nombres distintos, cambia esos tres nombres en el bloque de “Diseño completo”.
+
+### Lectura sugerida (elige una)
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+Inspección rápida:
+
+```{r}
+#| eval: false
+glimpse(concentrado)
+```
+
+------------------------------------------------------------------------
+
+## 1. ¿Qué hace el factor de expansión y qué cambia cuando incorporamos el diseño?
+
+-   El **factor de expansión** permite pasar de la muestra a estimaciones representativas (poblacionales).
+-   El **diseño muestral** (estratos + UPM) determina **cómo se calcula la varianza** (errores estándar, IC, CV).
+-   Tabulados con `count(wt = factor)` o `tally(wt = factor)` usan peso, pero **no** incorporan automáticamente varianza del diseño.
+-   Con `{srvyr}` sí podemos estimar con varianza (por ejemplo `vartype = "se"` o `"ci"`).
+
+------------------------------------------------------------------------
+
+## 2. Diagnóstico rápido del ponderador
+
+```{r}
+#| eval: false
+concentrado |>
+  summarise(
+    n = n(),
+    n_na = sum(is.na(factor)),
+    min = min(factor, na.rm = TRUE),
+    p50 = quantile(factor, 0.50, na.rm = TRUE),
+    p95 = quantile(factor, 0.95, na.rm = TRUE),
+    max = max(factor, na.rm = TRUE)
+  )
+```
+
+------------------------------------------------------------------------
+
+## 3. Tabulados ponderados “rápidos” (sin varianza): tally / count
+
+### 3.1 Frecuencias ponderadas con `count(wt = ...)`
+
+```{r}
+#| eval: false
+concentrado |>
+  count(sexo_jefe, wt = factor) |>
+  mutate(p = n / sum(n)) 
+```
+
+### 3.2 Tabla de porcentajes con {janitor}
+
+```{r}
+#| eval: false
+concentrado |>
+  count(sexo_jefe, wt = factor) |>
+  janitor::adorn_totals("row") |>
+  janitor::adorn_percentages("all") |>
+  janitor::adorn_pct_formatting()
+```
+
+::: callout-note
+## Nota
+Estos tabulados son útiles para “tener una idea”, pero si vas a reportar precisión (IC, CV), necesitas el diseño con `{srvyr}`.
+:::
+
+------------------------------------------------------------------------
+
+## 4. Construir el diseño con {srvyr}
+
+### 4.1 Diseño mínimo (solo ponderador)
+
+```{r}
+#| eval: false
+diseno_min <- concentrado |>
+  as_survey_design(weights = factor)
+```
+
+### 4.2 Diseño completo (ponderador + estrato + UPM)
+
+```{r}
+#| eval: false
+diseno <- concentrado |>
+  as_survey_design(
+    ids = upm,
+    strata = est_dis,
+    weights = factor,
+    nest = TRUE
+  )
+```
+
+### 4.3 *Lonely PSU* (si aparece advertencia)
+
+```{r}
+#| eval: false
+options(survey.lonely.psu = "adjust")
+```
+
+------------------------------------------------------------------------
+
+## 5. Estimaciones con diseño: medias, proporciones y totales
+
+### 5.1 Media ponderada (con error estándar e IC)
+
+```{r}
+#| eval: false
+diseno |>
+  summarise(
+    media_ing = survey_mean(ing_cor, na.rm = TRUE, vartype = c("se", "ci"))
+  )
+```
+
+### 5.2 Proporción ponderada (binaria)
+
+Ejemplo: define una variable binaria (ajusta a tus variables reales).
+
+```{r}
+#| eval: false
+diseno2 <- diseno |>
+  mutate(es_urbano = tam_loc == 1)
+
+diseno2 |>
+  summarise(
+    prop_urbano = survey_mean(es_urbano, na.rm = TRUE, vartype = c("se", "ci"))
+  )
+```
+
+### 5.3 Totales ponderados
+
+```{r}
+#| eval: false
+diseno |>
+  summarise(total_hogares = survey_total(1, vartype = c("se", "ci")))
+```
+
+------------------------------------------------------------------------
+
+## 6. Tabulados ponderados por grupos (con diseño y varianza)
+
+Ejemplo: media de ingreso por tamaño de localidad.
+
+```{r}
+#| eval: false
+tab_ing <- diseno |>
+  group_by(tam_loc) |>
+  summarise(
+    n_muestral = unweighted(n()),
+    media_ing = survey_mean(ing_cor, na.rm = TRUE, vartype = c("se", "ci"))
+  )
+
+tab_ing
+```
+
+Tabla bonita:
+
+```{r}
+#| eval: false
+tab_ing |>
+  gt::gt() |>
+  gt::fmt_number(columns = where(is.numeric), decimals = 2) |>
+  gt::tab_header(title = "Media ponderada de ingreso por grupo (con SE e IC)")
+```
+
+------------------------------------------------------------------------
+
+## 7. Coeficiente de variación (CV): concepto e importancia
+
+### 7.1 ¿Qué es el CV?
+
+Para una estimación \(\hat{\theta}\) (por ejemplo, una media o proporción), el **coeficiente de variación** se define como:
+
+\[
+CV(\hat{\theta}) = \frac{SE(\hat{\theta})}{\hat{\theta}}
+\]
+
+A veces se reporta en porcentaje:
+
+\[
+CV\% = 100 \times \frac{SE(\hat{\theta})}{\hat{\theta}}
+\]
+
+### 7.2 ¿Por qué es importante?
+
+-   Resume **precisión relativa**: no solo “qué tan grande es el error”, sino qué tan grande es **respecto a la estimación**.
+-   Permite evaluar **confiabilidad** de resultados: estimaciones con CV alto suelen ser inestables (por ejemplo, subpoblaciones pequeñas).
+-   En muchos reportes institucionales se usa para decidir si una cifra es “publicable” o debe marcarse como **baja precisión**.
+
+::: callout-important
+## Regla práctica (orientativa)
+No hay un umbral universal, pero en práctica aplicada se usa algo como:
+
+- CV < 15%: buena precisión  
+- 15% ≤ CV < 30%: precisión moderada (cuidado en interpretación)  
+- CV ≥ 30%: baja precisión (evitar conclusiones fuertes)
+
+Estos umbrales dependen del estándar del proyecto/institución.
+:::
+
+### 7.3 Calcular CV con resultados de `{srvyr}`
+
+**Opción A: pedir SE y calcular CV manualmente**
+
+```{r}
+#| eval: false
+cv_tab <- diseno |>
+  group_by(tam_loc) |>
+  summarise(
+    media_ing = survey_mean(ing_cor, na.rm = TRUE, vartype = "se")
+  ) |>
+  mutate(
+    cv = media_ing_se / media_ing,
+    cv_pct = 100 * cv
+  )
+
+cv_tab
+```
+
+**Opción B: calcular CV para una proporción**
+
+```{r}
+#| eval: false
+cv_prop <- diseno2 |>
+  group_by(tam_loc) |>
+  summarise(
+    prop_urbano = survey_mean(es_urbano, na.rm = TRUE, vartype = "se")
+  ) |>
+  mutate(
+    cv = prop_urbano_se / prop_urbano,
+    cv_pct = 100 * cv
+  )
+
+cv_prop
+```
+
+------------------------------------------------------------------------
+
+## 8. Comparación ponderado vs. no ponderado (misma tabla)
+
+```{r}
+#| eval: false
+no_pond <- concentrado |>
+  group_by(tam_loc) |>
+  summarise(
+    n = n(),
+    media_ing_no = mean(ing_cor, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+pond <- diseno |>
+  group_by(tam_loc) |>
+  summarise(
+    n_muestral = unweighted(n()),
+    media_ing = survey_mean(ing_cor, na.rm = TRUE, vartype = c("se", "ci"))
+  ) |>
+  transmute(
+    tam_loc,
+    media_ing_pond = media_ing,
+    se = media_ing_se,
+    ci_low = media_ing_low,
+    ci_high = media_ing_upp
+  )
+
+comparativa <- no_pond |>
+  left_join(pond, by = "tam_loc") |>
+  mutate(
+    diferencia = media_ing_pond - media_ing_no
+  )
+
+comparativa
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1) **Diagnóstico del ponderador**  
+   - Reporta `min`, `p95` y `max` del ponderador (`factor`).  
+   - Escribe 2–3 líneas sobre si observas ponderadores extremos y por qué importa.
+
+2) **Tabulado ponderado “rápido” (sin varianza)**  
+   - Elige una variable categórica (por ejemplo `sexo_jefe` u otra) y construye una tabla de frecuencias ponderadas con porcentajes (puede ser con `count(wt=...)` y `adorn_percentages()`).
+
+3) **Diseño con `{srvyr}`**  
+   - Construye un diseño **completo** con `ids = upm`, `strata = est_dis` y `weights = factor`.  
+   - Si no tienes `est_dis` o `upm` en tu tabla, justifica y usa diseño mínimo.
+
+4) **Estimaciones con varianza**  
+   - Calcula: (i) una media ponderada con `vartype = c("se","ci")`, (ii) una proporción ponderada (define una binaria), y (iii) un total ponderado.
+
+5) **CV por grupos (clave de la sesión)**  
+   - Calcula el **CV%** de al menos una estimación (media o proporción) por **tres o más grupos** (por ejemplo `tam_loc`).  
+   - Identifica el grupo con mayor CV y explica (4–6 líneas) por qué podría ocurrir.
+
+6) **Comparación ponderado vs. no ponderado**  
+   - Para una media por grupos, compara ponderado vs no ponderado e interpreta las diferencias (4–6 líneas).
+
+
+ 
