@@ -1,0 +1,472 @@
+---
+title: "Práctica 13 : Gráficos con más de dos variables"
+subtitle: "Codificación estética, facetas y escalas"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Construir gráficos de dispersión que incorporen una tercera variable cualitativa mediante **color** y/o **forma**.
+-   Aplicar **facetas** (`facet_wrap()` y `facet_grid()`) para comparar distribuciones entre grupos.
+-   Elegir **paletas perceptualmente adecuadas** con `{RColorBrewer}` y `{viridis}` según el tipo de variable.
+-   Controlar y simplificar **leyendas** con `guides()`.
+-   Producir figuras multivariadas listas para reporte: título, ejes, unidades, paleta consistente y exportación.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Dispersión con una tercera variable: `color`, `shape`, `size` y sobrecarga visual.
+-   Facetas: `facet_wrap()` para una variable; `facet_grid()` para dos variables.
+-   Escalas de color: secuenciales, divergentes y cualitativas con `scale_color_brewer()` y `scale_fill_brewer()`.
+-   Paletas perceptualmente uniformes: `viridis::scale_color_viridis_d()` y variantes.
+-   Control de leyendas con `guides()` y temas con `ggthemes::theme_few()`.
+-   Buenas prácticas: cuándo usar facetas vs color, cómo evitar sobrecargar el gráfico.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete | Función principal |
+|----|----|
+| `{ggplot2}` | Visualización con gramática de gráficos |
+| `{dplyr}` | Preparación de datos para graficar |
+| `{ggthemes}` | Temas adicionales para ggplot2 (ej. `theme_few()`) |
+| `{RColorBrewer}` | Paletas de color de ColorBrewer (cualitativas, secuenciales) |
+| `{viridis}` | Paletas perceptualmente uniformes y accesibles para daltónicos |
+| `{janitor}` | Limpieza de nombres de columnas |
+| `{here}` | Rutas reproducibles |
+| `{pacman}` | Carga e instalación compacta de paquetes |
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  ggplot2,
+  dplyr,
+  ggthemes,
+  RColorBrewer,
+  viridis,
+  janitor,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con la tabla a nivel hogar de la ENIGH 2024.
+
+### Abrir base
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado por rapidez)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+Inspección rápida:
+
+```{r}
+#| eval: false
+dplyr::glimpse(concentrado)
+```
+
+------------------------------------------------------------------------
+
+## 1. Recordatorio: ¿cuándo agregar una tercera (o cuarta) variable?
+
+Antes de agregar más canales estéticos, conviene preguntarse:
+
+-   ¿La variable adicional tiene una hipótesis de comparación clara?
+-   ¿El gráfico resultante sigue siendo legible? (Máximo 5–6 categorías en color)
+-   ¿Hay una alternativa más clara (facetas vs color)?
+
+En general, **color** es útil para comparar grupos dentro del mismo panel; **facetas** son útiles cuando queremos ver la forma completa de la distribución por grupo solapar las categorías.
+
+------------------------------------------------------------------------
+
+## 2. Dispersión con una variable cualitativa (color y forma)
+
+### 2.1 Dispersión de dos variables cuantitativas
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon))) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024"
+  ) +
+  theme_minimal()
+```
+
+::: callout-note
+## Nota sobre `alpha`
+
+Con bases de datos grandes (miles de hogares) es importante usar `alpha` bajo (por ejemplo `alpha = 0.2`) para reducir el solapamiento de puntos (*overplotting*). Sin este ajuste, las zonas densas aparecen como manchas oscuras y se pierde información.
+:::
+
+### 2.2 Agregar una tercera variable: localidad
+
+Primero, generamos la variable
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  mutate(localidad=case_when(
+    tam_loc==1~"100mil y más habitantes",
+      tam_loc==2~"15mil a 99,999 habitantes",
+      tam_loc==3~"2500 a 14,999 habitantes",
+      tam_loc==4~"Menos de 2500 habitantes"
+  ),
+  localidad = factor(localidad, 
+                     levels = c("Menos de 2500 habitantes","2500 a 14,999 habitantes","15mil a 99,999 habitantes", "100mil y más habitantes")))
+```
+
+```{r}
+#| eval: false
+
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad"
+  ) +
+  theme_minimal()
+
+```
+
+### 2.3 Color + forma
+
+Generemos la variable de estrato socioeconómico.
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  mutate(estrato=case_when(
+    est_socio %in% c(1,2)~"Bajo", 
+    est_socio %in% c(3,4)~"Alto", 
+  ), estrato = factor(estrato, 
+                   levels = c("Bajo","Alto")))
+```
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad, shape = estrato)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad",
+    shape="Estrato"
+  ) +
+  theme_minimal()
+```
+
+::: callout-important
+## Sobrecarga visual
+
+El consejo es evitar combinar más de dos canales estéticos simultáneamente (por ejemplo color + forma + tamaño) salvo que tengan propósitos distintos y claramente diferenciados. Con muchas categorías, el gráfico pierde legibilidad rápidamente.
+:::
+
+## Por ello, es mejor considerar las facetas.
+
+## 3. Facetas: `facet_wrap()` y `facet_grid()`
+
+Las facetas dividen un gráfico en paneles, uno por cada valor de una (o dos) variables. Son preferibles al color cuando hay muchas categorías o cuando queremos ver la distribución completa de cada grupo.
+
+### 3.1 `facet_wrap()`: una variable de agrupación
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor))) +
+  geom_histogram() +
+  facet_wrap(~ localidad) +
+  labs(
+    title = "Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Frecuencia",
+    caption="Elaboración propia con datos de ENIGH 2024"
+  ) +
+  theme_minimal()
+```
+
+### 3.2 `facet_wrap()` con escalas libres
+
+Por defecto, todos los paneles comparten el mismo eje. Si las magnitudes son muy distintas, se pueden liberar los ejes con `scales = "free"` (con precaución: dificulta la comparación entre paneles).
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor))) +
+  geom_histogram() +
+  facet_wrap(~ localidad, scales="free_y") +
+  labs(
+    title = "Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Frecuencia",
+    caption="Elaboración propia con datos de ENIGH 2024"
+  ) +
+  theme_minimal()
+```
+
+### 3.3 `facet_grid()`: dos variables de agrupación
+
+`facet_grid()` organiza los paneles en filas y columnas, una por cada combinación de dos variables.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor))) +
+  geom_histogram() +
+  facet_grid(rows = vars(estrato), cols = vars(localidad)) +
+  labs(
+    title = "Distribución de ingreso: tamaño de localidad (columnas) × estrato (filas)",
+    x = "Ingreso corriente (escala logarítimica)",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+```
+
+::: callout-note
+## `facet_wrap()` vs `facet_grid()`
+
+-   Usar `facet_wrap()` cuando tenemos **una sola** variable de agrupación (o muchas combinaciones que queremos distribuir en varias filas/columnas de forma automática).\
+-   Usar `facet_grid()` cuando tenemos **dos** variables de agrupación y queremos ver explícitamente su interacción en una cuadrícula.
+:::
+
+------------------------------------------------------------------------
+
+## 4. Escalas de color adecuadas
+
+### 4.1 Paletas cualitativas con `RColorBrewer`
+
+Para variables nominales (sin orden), podemos usar paletas **cualitativas**. ColorBrewer ofrece varias opciones probadas.
+
+```{r}
+#| eval: false
+# Ver las paletas disponibles
+RColorBrewer::display.brewer.all()
+```
+
+```{r}
+#| eval: false
+
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+   scale_color_brewer(palette = "Set2") +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad"
+  ) +
+  theme_minimal()
+  
+ 
+  
+```
+
+### 4.2 Paletas secuenciales para variables ordinales
+
+Si la variable tiene orden (por ejemplo, niveles de estrato de menor a mayor), podemos usar una paleta **secuencial**.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+   scale_color_brewer(palette = "Blues") +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad"
+  ) +
+  theme_minimal()
+```
+
+### 4.3 Paletas `viridis`
+
+`viridis` funciona bien en impresión en escala de grises y es accesible para personas con daltonismo.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "log(Ingreso corriente)",
+    y = "log(Gasto monetario)",
+    caption = "Elaboración propia con datos de ENIGH 2024",
+    color = "Localidad"
+  ) +
+  theme_minimal()
+
+```
+
+::: callout-note
+## Opciones de viridis
+
+`scale_color_viridis_d()` es para variables **discretas** (d = discrete).\
+`scale_color_viridis_c()` es para variables **continuas** (c = continuous).\
+Las opciones disponibles son: `"viridis"` (default), `"magma"`, `"plasma"`, `"inferno"`, `"cividis"`, `"mako"`, `"rocket"`, `"turbo"`.
+:::
+
+------------------------------------------------------------------------
+
+## 5. Temas y control de leyendas
+
+### 5.1 Tema `theme_few()` de `{ggthemes}`
+
+`theme_few()` es un tema limpio, sin cuadrícula de fondo, adecuado para figuras de reporte.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+   scale_color_brewer(palette = "Blues") +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad"
+  ) +
+  ggthemes::theme_few()
+```
+
+### 5.2 Control de leyendas con `guides()`
+
+`guides()` permite eliminar leyendas redundantes, cambiar el número de columnas o el tipo de guía.
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +
+  geom_point(alpha = 0.3) +
+   scale_color_brewer(palette = "Blues") +
+  guides(color = guide_legend(ncol = 2)) +
+  labs(
+    title = "Ingreso corriente vs gasto monetario (escala logarítmica)",
+    subtitle = "A nivel hogar en México 2024",
+    x = "Ingreso corriente",
+    y = "Gasto monetario",
+    caption="Elaboración propia con datos de ENIGH 2024",
+    color="Localidad"
+  ) +
+  ggthemes::theme_few()
+```
+
+------------------------------------------------------------------------
+
+## 6. Figura multivariada completa (ejemplo integrador)
+
+Aquí combinamos facetas + color + paleta adecuada + tema + leyenda controlada en una sola figura lista para reporte.
+
+```{r}
+#| eval: false
+g_final <- concentrado |> 
+  ggplot(aes(x = log(ing_cor)))+
+  geom_histogram(binwidth = 0.3, fill = "#4DAF4A", color = "white", alpha = 0.85) +
+  facet_grid(rows = vars(estrato), cols = vars(localidad), labeller = label_both) +
+  labs(
+    title = "Distribución de ingreso corriente (escala logarítmica)",
+    subtitle = "Por estrato (filas) y tipo de localidad (columnas)",
+    x = "log(Ingreso corriente)",
+    y = "Frecuencia",
+    caption = "Fuente: ENIGH 2024."
+  ) +
+  ggthemes::theme_few() +
+  theme(
+    strip.text = element_text(size = 8),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+g_final
+```
+
+::: callout-note
+## `override.aes` en `guide_legend()`
+
+Con puntos muy transparentes (`alpha` bajo), los símbolos de la leyenda son difíciles de ver. `override.aes = list(alpha = 1, size = 2)` hace que los puntos de la leyenda sean opacos y más grandes, sin cambiar los del gráfico.
+:::
+
+------------------------------------------------------------------------
+
+## 7. Exportación de la figura final
+
+```{r}
+#| eval: false
+ggsave(
+  filename = here::here("outputs", "figures", "fig_p13_multivariada.png"),
+  plot = g_final,
+  width = 10,
+  height = 7,
+  dpi = 300
+)
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1)  **Explora dos variables cuantitativas** de tu elección.
+    -   Construye un gráfico de dispersión básico y comenta brevemente qué observas (2–3 líneas).
+2)  **Agrega una tercera variable cualitativa** mediante color.
+    -   Elige una paleta de `{RColorBrewer}` o `{viridis}` según el tipo de variable (nominal vs ordinal).
+3)  **Construye dos versiones con facetas**:
+    -   Una con `facet_wrap()` usando una variable de agrupación.\
+    -   Una con `facet_grid()` usando dos variables.\
+    -   Para cada una, escribe 3–5 líneas: ¿qué facilita ver cada versión? ¿Cuándo preferirías una sobre la otra?
+4)  Exporta esa figura con `ggsave()`.
