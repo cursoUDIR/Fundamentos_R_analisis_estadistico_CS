@@ -336,102 +336,165 @@
     "text": "12 Ejercicio\n\nAbre la base concentradohogar.csv con here(\"data\", \"raw\", \"concentradohogar.csv\").\nUsando if_else(), crea una variable rural a partir de tam_loc que asigne \"Rural\" a los hogares que viven en localidades con menos de 2500 habitantes y \"Urbano\" a todas las demás. Conviértela a factor con niveles.\nCon case_when(), crea una variable rango_ing que clasifique el ingreso corriente en cuartiles:\n\n\"Q1\": menor o igual al cuartil 1.\n\"Q2\": mayor al Q1 y menor o igual a la mediana.\n\"Q3\": mayor a la mediana y menor o igual al Q3.\n\"Q4\": mayor al cuartil 3."
   },
   {
-    "objectID": "practicas/P13.html",
-    "href": "practicas/P13.html",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "objectID": "practicas/P14.html",
+    "href": "practicas/P14.html",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
     "section": "",
-    "text": "Al finalizar esta sesión podrán:\n\nConstruir gráficos de dispersión que incorporen una tercera variable cualitativa mediante color y/o forma.\nAplicar facetas (facet_wrap() y facet_grid()) para comparar distribuciones entre grupos.\nElegir paletas perceptualmente adecuadas con {RColorBrewer} y {viridis} según el tipo de variable.\nControlar y simplificar leyendas con guides().\nProducir figuras multivariadas listas para reporte: título, ejes, unidades, paleta consistente y exportación."
+    "text": "Al finalizar esta sesión podrán:\n\nInstalar un paquete desde GitHub cuando no está en CRAN.\nConstruir indicadores por entidad y municipio a partir de tablas (ENIGH 2024 como ejemplo).\nPreparar llaves tipo region (estado) y region (municipio) en el formato esperado por {mxmaps}.\nElaborar mapas coropléticos con mxstate_choropleth() y mxmunicipio_choropleth().\nTomar decisiones básicas de clasificación (número de colores) y escribir una lectura crítica del mapa.\nExportar mapas como imagen (captura o exportación del dispositivo gráfico)."
   },
   {
-    "objectID": "practicas/P13.html#objetivos-de-la-sesión",
-    "href": "practicas/P13.html#objetivos-de-la-sesión",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "objectID": "practicas/P14.html#objetivos-de-la-sesión",
+    "href": "practicas/P14.html#objetivos-de-la-sesión",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
     "section": "",
-    "text": "Al finalizar esta sesión podrán:\n\nConstruir gráficos de dispersión que incorporen una tercera variable cualitativa mediante color y/o forma.\nAplicar facetas (facet_wrap() y facet_grid()) para comparar distribuciones entre grupos.\nElegir paletas perceptualmente adecuadas con {RColorBrewer} y {viridis} según el tipo de variable.\nControlar y simplificar leyendas con guides().\nProducir figuras multivariadas listas para reporte: título, ejes, unidades, paleta consistente y exportación."
+    "text": "Al finalizar esta sesión podrán:\n\nInstalar un paquete desde GitHub cuando no está en CRAN.\nConstruir indicadores por entidad y municipio a partir de tablas (ENIGH 2024 como ejemplo).\nPreparar llaves tipo region (estado) y region (municipio) en el formato esperado por {mxmaps}.\nElaborar mapas coropléticos con mxstate_choropleth() y mxmunicipio_choropleth().\nTomar decisiones básicas de clasificación (número de colores) y escribir una lectura crítica del mapa.\nExportar mapas como imagen (captura o exportación del dispositivo gráfico)."
   },
   {
-    "objectID": "practicas/P13.html#contenidos",
-    "href": "practicas/P13.html#contenidos",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "objectID": "practicas/P14.html#contenidos",
+    "href": "practicas/P14.html#contenidos",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
     "section": "2 Contenidos",
-    "text": "2 Contenidos\n\nDispersión con una tercera variable: color, shape, size y sobrecarga visual.\nFacetas: facet_wrap() para una variable; facet_grid() para dos variables.\nEscalas de color: secuenciales, divergentes y cualitativas con scale_color_brewer() y scale_fill_brewer().\nPaletas perceptualmente uniformes: viridis::scale_color_viridis_d() y variantes.\nControl de leyendas con guides() y temas con ggthemes::theme_few().\nBuenas prácticas: cuándo usar facetas vs color, cómo evitar sobrecargar el gráfico."
+    "text": "2 Contenidos\n\nInstalación de paquetes fuera de CRAN con {remotes}.\nIndicadores por región (estado/municipio): group_by() + summarise().\nMapas con {mxmaps}:\n\nmxstate_choropleth() (estatal)\nmxmunicipio_choropleth() (municipal)\n\nPreparación de llaves con mxmaps::str_mxstate() y mxmaps::str_mxmunicipio().\nLectura crítica: clasificación, comparabilidad, tamaño muestral y límites de interpretación.\n\nPaquetes: {mxmaps} {dplyr} {janitor} {stringr} {arrow} {readr}\nFunciones clave: remotes::install_github() · mxstate_choropleth() · mxmunicipio_choropleth() · str_mxstate() · str_mxmunicipio() · group_by() · summarise()"
   },
   {
-    "objectID": "practicas/P13.html#paquetes-de-esta-sesión",
-    "href": "practicas/P13.html#paquetes-de-esta-sesión",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "objectID": "practicas/P14.html#guía-de-instalación-paquetes-que-no-están-en-cran",
+    "href": "practicas/P14.html#guía-de-instalación-paquetes-que-no-están-en-cran",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "3 Guía de instalación (paquetes que no están en CRAN)",
+    "text": "3 Guía de instalación (paquetes que no están en CRAN)\nA veces un paquete no está disponible en CRAN. En ese caso, se instala desde GitHub.\n\n3.1 1) Instalar {remotes} (una vez)\n\ninstall.packages(\"remotes\")\n\n\n\n3.2 2) Instalar {mxmaps} desde GitHub\n\nremotes::install_github(\"diegovalle/mxmaps\")\n\n\n\n3.3 ¿Cuál es la diferencia entre {remotes} y {devtools}?\n\n{remotes} es un paquete ligero cuyo objetivo principal es instalar paquetes desde GitHub (u otras fuentes) sin traer dependencias extra.\n{devtools} es un paquete más grande, pensado para desarrollo de paquetes (documentación, pruebas, chequeos, etc.).\n\n{devtools} incluye a {remotes} como dependencia y, por eso, también puede hacer devtools::install_github().\n\nPara este curso: preferimos {remotes} porque es más simple y rápido de instalar."
+  },
+  {
+    "objectID": "practicas/P14.html#paquetes-de-esta-sesión",
+    "href": "practicas/P14.html#paquetes-de-esta-sesión",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "4 Paquetes de esta sesión",
+    "text": "4 Paquetes de esta sesión\n\nif (!require(\"pacman\")) install.packages(\"pacman\")\n\npacman::p_load(\n  dplyr,\n  janitor,\n  stringr,\n  mxmaps,\n  here,\n  readr,\n  arrow\n)"
+  },
+  {
+    "objectID": "practicas/P14.html#datos-de-esta-sesión",
+    "href": "practicas/P14.html#datos-de-esta-sesión",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "5 Datos de esta sesión",
+    "text": "5 Datos de esta sesión\nUsaremos una tabla de hogares (ENIGH 2024 como ejemplo) para construir un indicador por entidad y/o municipio.\n\n5.1 Lectura sugerida (elige una)\n\n# Opción 1: Parquet (recomendado)\nconcentrado &lt;- arrow::read_parquet(here::here(\"data\", \"raw\", \"concentradohogar.parquet\")) |&gt;\n  janitor::clean_names()\n\n\n# Opción 2: CSV\nconcentrado &lt;- readr::read_csv(here::here(\"data\", \"raw\", \"concentradohogar.csv\"),\n                               show_col_types = FALSE) |&gt;\n  janitor::clean_names()"
+  },
+  {
+    "objectID": "practicas/P14.html#indicador-a-nivel-estatal-entidad",
+    "href": "practicas/P14.html#indicador-a-nivel-estatal-entidad",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "6 1) Indicador a nivel estatal (entidad)",
+    "text": "6 1) Indicador a nivel estatal (entidad)\nEn ENIGH, ubica_geo suele contener entidad y municipio en el mismo código (entidad=2 dígitos, municipio=3 dígitos).\n\nindic_est &lt;- concentrado |&gt;\n  mutate(region = stringr::str_sub(ubica_geo, 1, 2)) |&gt;\n  group_by(region) |&gt;\n  summarise(\n    value = mean(ing_cor, na.rm = TRUE),\n    n = n(),\n    .groups = \"drop\"\n  ) |&gt;\n  mutate(region = mxmaps::str_mxstate(region))\n\n\nregion: clave estatal en formato esperado por {mxmaps}\nvalue: indicador a mapear (aquí, media de ing_cor)"
+  },
+  {
+    "objectID": "practicas/P14.html#mapa-estatal-con-mxmaps",
+    "href": "practicas/P14.html#mapa-estatal-con-mxmaps",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "7 2) Mapa estatal con {mxmaps}",
+    "text": "7 2) Mapa estatal con {mxmaps}\n\nmxmaps::mxstate_choropleth(\n  indic_est,\n  num_colors = 7\n)\n\n\n\n\n\n\n\nNotaNota\n\n\n\nnum_colors controla el número de clases de color (binned). Más colores no siempre es mejor: puede dificultar la lectura."
+  },
+  {
+    "objectID": "practicas/P14.html#indicador-municipal-opcional",
+    "href": "practicas/P14.html#indicador-municipal-opcional",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "8 3) Indicador municipal (opcional)",
+    "text": "8 3) Indicador municipal (opcional)\nPara municipio, construimos una clave de 5 dígitos: entidad (2) + municipio (3).\n\nindic_mun &lt;- concentrado |&gt;\n  mutate(\n    region = stringr::str_sub(ubica_geo, 1, 5)  # \"EEMMM\"\n  ) |&gt;\n  group_by(region) |&gt;\n  summarise(\n    value = mean(ing_cor, na.rm = TRUE),\n    n = n(),\n    .groups = \"drop\"\n  ) |&gt;\n  mutate(region = mxmaps::str_mxmunicipio(region))"
+  },
+  {
+    "objectID": "practicas/P14.html#mapa-municipal-con-mxmaps-opcional",
+    "href": "practicas/P14.html#mapa-municipal-con-mxmaps-opcional",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "9 4) Mapa municipal con {mxmaps} (opcional)",
+    "text": "9 4) Mapa municipal con {mxmaps} (opcional)\n\nmxmaps::mxmunicipio_choropleth(\n  indic_mun,\n  num_colors = 7\n)\n\n\n\n\n\n\n\nImportanteRecomendación práctica\n\n\n\nEl mapa municipal puede verse muy saturado o con muchos vacíos. Si quieren, filtren a una entidad y mapeen solo sus municipios."
+  },
+  {
+    "objectID": "practicas/P14.html#exportación-una-opción-simple",
+    "href": "practicas/P14.html#exportación-una-opción-simple",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "10 5) Exportación (una opción simple)",
+    "text": "10 5) Exportación (una opción simple)\nEn {mxmaps}, los mapas (choropleths) se generan como objetos tipo ggplot. Esto permite guardarlos directamente con ggsave() sin abrir/cerrar un dispositivo gráfico manualmente.\n\n# Crear el mapa como objeto (ggplot)\ng_map_est &lt;- mxmaps::mxstate_choropleth(\n  indic_est,\n  num_colors = 7\n)\n\n# Guardarlo como imagen\nggplot2::ggsave(\n  filename = \"fig_p14_mapa_estatal.png\",\n  plot = g_map_est,\n  width = 7,\n  height = 5,\n  dpi = 300\n)"
+  },
+  {
+    "objectID": "practicas/P14.html#ejercicio",
+    "href": "practicas/P14.html#ejercicio",
+    "title": "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}",
+    "section": "11 Ejercicio",
+    "text": "11 Ejercicio\n\nElige un indicador para mapear a nivel estatal (por ejemplo media de ing_cor o gasto_mon).\n\nConstruye indic_est con dos columnas:\n\nregion (clave estatal)\n\nvalue (indicador numérico)\n\n\nGenera un mapa estatal con mxstate_choropleth() probando dos valores de num_colors (por ejemplo 5 y 9).\n\nEscribe 10–12 líneas de lectura crítica:\n\n¿qué cambia al modificar el número de clases?,\n\n¿qué limitaciones ves (promedios, outliers, tamaño muestral)?,\n\n¿qué precauciones tomarías para interpretar?\n\n\nExporta el mapa estatal como PNG usando el bloque de exportación.\n\nOpcional: Construye indic_mun y genera un mapa municipal. Ojo, la ENIGH no tiene todos los municipios, tendrás NA"
+  },
+  {
+    "objectID": "practicas/P12.html",
+    "href": "practicas/P12.html",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nConstruir visualizaciones bivariadas para (i) cuali–cuali, (ii) cuali–cuanti y (iii) cuanti–cuanti.\nElegir entre conteos y proporciones en barras apiladas (position = \"fill\").\nUsar codificación estética (color/fill/shape) de manera legible y consistente.\nAplicar escalas de color apropiadas (viridis, RColorBrewer) y temas (ggthemes) para mejorar comunicación.\nExportar figuras listas para reporte con ggsave()."
+  },
+  {
+    "objectID": "practicas/P12.html#objetivos-de-la-sesión",
+    "href": "practicas/P12.html#objetivos-de-la-sesión",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nConstruir visualizaciones bivariadas para (i) cuali–cuali, (ii) cuali–cuanti y (iii) cuanti–cuanti.\nElegir entre conteos y proporciones en barras apiladas (position = \"fill\").\nUsar codificación estética (color/fill/shape) de manera legible y consistente.\nAplicar escalas de color apropiadas (viridis, RColorBrewer) y temas (ggthemes) para mejorar comunicación.\nExportar figuras listas para reporte con ggsave()."
+  },
+  {
+    "objectID": "practicas/P12.html#contenidos",
+    "href": "practicas/P12.html#contenidos",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "2 Contenidos",
+    "text": "2 Contenidos\n\nCuali–cuali: barras apiladas (conteos y proporciones) y lectura crítica.\nCuali–cuanti: boxplot por grupo y comparación descriptiva.\nCuanti–cuanti: dispersión y tendencia (geom_smooth()).\nEscalas de color: scale_fill_viridis_d(), scale_color_viridis_d(), scale_fill_brewer().\nTemas y estilo: theme_minimal() y temas de {ggthemes}.\n\nPaquetes: {ggplot2} {dplyr} {forcats} {scales} {viridis} {RColorBrewer} {ggthemes} {janitor}\nFunciones clave: geom_bar() · geom_col() · geom_boxplot() · geom_point() · geom_smooth() · scale_fill_viridis_d() · scale_fill_brewer() · theme_*() · facet_wrap() · ggsave()"
+  },
+  {
+    "objectID": "practicas/P12.html#paquetes-de-esta-sesión",
+    "href": "practicas/P12.html#paquetes-de-esta-sesión",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
     "section": "3 Paquetes de esta sesión",
-    "text": "3 Paquetes de esta sesión\n\n\n\n\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{ggplot2}\nVisualización con gramática de gráficos\n\n\n{dplyr}\nPreparación de datos para graficar\n\n\n{ggthemes}\nTemas adicionales para ggplot2 (ej. theme_few())\n\n\n{RColorBrewer}\nPaletas de color de ColorBrewer (cualitativas, secuenciales)\n\n\n{viridis}\nPaletas perceptualmente uniformes y accesibles para daltónicos\n\n\n{janitor}\nLimpieza de nombres de columnas\n\n\n{here}\nRutas reproducibles\n\n\n{pacman}\nCarga e instalación compacta de paquetes\n\n\n\n\nif (!require(\"pacman\")) install.packages(\"pacman\")\n\npacman::p_load(\n  ggplot2,\n  dplyr,\n  ggthemes,\n  RColorBrewer,\n  viridis,\n  janitor,\n  here,\n  readr,\n  arrow\n)"
+    "text": "3 Paquetes de esta sesión\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{ggplot2}\nVisualización con gramática de gráficos\n\n\n{dplyr}\nPreparación de datos\n\n\n{forcats}\nManejo/ordenamiento de factores\n\n\n{scales}\nFormato de ejes (porcentaje, separadores, etc.)\n\n\n{viridis}\nPaletas perceptualmente adecuadas\n\n\n{RColorBrewer}\nPaletas clásicas para categorías\n\n\n{ggthemes}\nTemas estéticos para figuras\n\n\n{janitor}\nLimpieza de nombres (si se requiere)\n\n\n{here}\nRutas reproducibles\n\n\n{pacman}\nCarga e instalación compacta\n\n\n\n\nif (!require(\"pacman\")) install.packages(\"pacman\")\n\npacman::p_load(\n  ggplot2,\n  dplyr,\n  forcats,\n  scales,\n  viridis,\n  RColorBrewer,\n  ggthemes,\n  janitor,\n  here,\n  readr,\n  arrow\n)"
   },
   {
-    "objectID": "practicas/P13.html#datos-de-esta-sesión",
-    "href": "practicas/P13.html#datos-de-esta-sesión",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "objectID": "practicas/P12.html#datos-de-esta-sesión",
+    "href": "practicas/P12.html#datos-de-esta-sesión",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
     "section": "4 Datos de esta sesión",
-    "text": "4 Datos de esta sesión\nTrabajaremos con la tabla a nivel hogar de la ENIGH 2024.\n\n4.1 Abrir base\n\n# Opción 1: Parquet (recomendado por rapidez)\nconcentrado &lt;- arrow::read_parquet(here::here(\"data\", \"raw\", \"concentradohogar.parquet\")) |&gt;\n  janitor::clean_names()\n\n\n# Opción 2: CSV\nconcentrado &lt;- readr::read_csv(here::here(\"data\", \"raw\", \"concentradohogar.csv\"),\n                               show_col_types = FALSE) |&gt;\n  janitor::clean_names()\n\nInspección rápida:\n\ndplyr::glimpse(concentrado)"
+    "text": "4 Datos de esta sesión\nTrabajaremos con una tabla a nivel hogar (ENIGH 2024 como ejemplo).\nEn los ejemplos asumimos que ya cuentan con un objeto llamado concentrado.\n\n4.1 Lectura sugerida (elige una)\n\n# Opción 1: Parquet (recomendado)\nconcentrado &lt;- arrow::read_parquet(here::here(\"data\", \"raw\", \"concentradohogar.parquet\")) |&gt;\n  janitor::clean_names()\n\n\n# Opción 2: CSV\nconcentrado &lt;- readr::read_csv(here::here(\"data\", \"raw\", \"concentradohogar.csv\"),\n                               show_col_types = FALSE) |&gt;\n  janitor::clean_names()"
   },
   {
-    "objectID": "practicas/P13.html#recordatorio-cuándo-agregar-una-tercera-o-cuarta-variable",
-    "href": "practicas/P13.html#recordatorio-cuándo-agregar-una-tercera-o-cuarta-variable",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "5 1. Recordatorio: ¿cuándo agregar una tercera (o cuarta) variable?",
-    "text": "5 1. Recordatorio: ¿cuándo agregar una tercera (o cuarta) variable?\nAntes de agregar más canales estéticos, conviene preguntarse:\n\n¿La variable adicional tiene una hipótesis de comparación clara?\n¿El gráfico resultante sigue siendo legible? (Máximo 5–6 categorías en color)\n¿Hay una alternativa más clara (facetas vs color)?\n\nEn general, color es útil para comparar grupos dentro del mismo panel; facetas son útiles cuando queremos ver la forma completa de la distribución por grupo solapar las categorías."
+    "objectID": "practicas/P12.html#cualicuali-barras-apiladas-conteos-y-proporciones",
+    "href": "practicas/P12.html#cualicuali-barras-apiladas-conteos-y-proporciones",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "5 1) Cuali–cuali: barras apiladas (conteos y proporciones)",
+    "text": "5 1) Cuali–cuali: barras apiladas (conteos y proporciones)\nUsaremos como ejemplo tam_loc y est_socio (ajusta si tu tabla usa otros nombres).\n\n5.1 1.1 Conteos apilados\n\ng_cc_conteo &lt;- ggplot(concentrado, aes(x = as.factor(tam_loc), fill = as.factor(est_socio))) +\n  geom_bar() +\n  labs(\n    title = \"Cuali–cuali (conteos): tam_loc × est_socio\",\n    x = \"tam_loc\",\n    y = \"Conteo (muestra)\",\n    fill = \"est_socio\"\n  ) +\n  ggthemes::theme_few()\n\ng_cc_conteo\n\n\n\n5.2 1.2 Proporciones apiladas (porcentajes)\n\ng_cc_prop &lt;- ggplot(concentrado, aes(x = as.factor(tam_loc), fill = as.factor(est_socio))) +\n  geom_bar(position = \"fill\") +\n  scale_y_continuous(labels = scales::label_percent()) +\n  labs(\n    title = \"Cuali–cuali (proporciones): tam_loc × est_socio\",\n    x = \"tam_loc\",\n    y = \"Porcentaje\",\n    fill = \"est_socio\"\n  ) +\n  ggthemes::theme_few()\n\ng_cc_prop\n\n\n\n5.3 1.3 Colores: viridis vs Brewer (fill discreto)\n\ng_cc_viridis &lt;- g_cc_prop + scale_fill_viridis_d()\n\ng_cc_brewer &lt;- g_cc_prop + scale_fill_brewer(palette = \"Set2\")\n\ng_cc_viridis\ng_cc_brewer\n\n\n\n\n\n\n\nNota¿Conteos o proporciones?\n\n\n\n\nConteos: útiles para ver tamaño absoluto de grupos en la muestra.\nProporciones: útiles para comparar composición (estructura) entre categorías."
   },
   {
-    "objectID": "practicas/P13.html#dispersión-con-una-variable-cualitativa-color-y-forma",
-    "href": "practicas/P13.html#dispersión-con-una-variable-cualitativa-color-y-forma",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "6 2. Dispersión con una variable cualitativa (color y forma)",
-    "text": "6 2. Dispersión con una variable cualitativa (color y forma)\n\n6.1 2.1 Dispersión de dos variables cuantitativas\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon))) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotaNota sobre alpha\n\n\n\nCon bases de datos grandes (miles de hogares) es importante usar alpha bajo (por ejemplo alpha = 0.2) para reducir el solapamiento de puntos (overplotting). Sin este ajuste, las zonas densas aparecen como manchas oscuras y se pierde información.\n\n\n\n\n6.2 2.2 Agregar una tercera variable: localidad\nPrimero, generamos la variable\n\nconcentrado &lt;- concentrado |&gt;\n  mutate(localidad=case_when(\n    tam_loc==1~\"100mil y más habitantes\",\n      tam_loc==2~\"15mil a 99,999 habitantes\",\n      tam_loc==3~\"2500 a 14,999 habitantes\",\n      tam_loc==4~\"Menos de 2500 habitantes\"\n  ),\n  localidad = factor(localidad, \n                     levels = c(\"Menos de 2500 habitantes\",\"2500 a 14,999 habitantes\",\"15mil a 99,999 habitantes\", \"100mil y más habitantes\")))\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n6.3 2.3 Color + forma\nGeneremos la variable de estrato socioeconómico.\n\nconcentrado &lt;- concentrado |&gt;\n  mutate(estrato=case_when(\n    est_socio %in% c(1,2)~\"Bajo\", \n    est_socio %in% c(3,4)~\"Alto\", \n  ), estrato = factor(estrato, \n                   levels = c(\"Bajo\",\"Alto\")))\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad, shape = estrato)) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\",\n    shape=\"Estrato\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nImportanteSobrecarga visual\n\n\n\nEl consejo es evitar combinar más de dos canales estéticos simultáneamente (por ejemplo color + forma + tamaño) salvo que tengan propósitos distintos y claramente diferenciados. Con muchas categorías, el gráfico pierde legibilidad rápidamente."
+    "objectID": "practicas/P12.html#cualicuanti-boxplot-por-grupo",
+    "href": "practicas/P12.html#cualicuanti-boxplot-por-grupo",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "6 2) Cuali–cuanti: boxplot por grupo",
+    "text": "6 2) Cuali–cuanti: boxplot por grupo\nEjemplo: ing_cor por tam_loc (ajusta la variable cuantitativa si aplica).\n\ng_cq_box &lt;- ggplot(concentrado, aes(x = as.factor(tam_loc), y = ing_cor, fill = as.factor(tam_loc))) +\n  geom_boxplot(show.legend = FALSE) +\n  labs(\n    title = \"Cuali–cuanti: boxplot de ing_cor por tam_loc\",\n    x = \"tam_loc\",\n    y = \"ing_cor\"\n  ) +\n  scale_fill_viridis_d() +\n  ggthemes::theme_clean()\n\ng_cq_box\n\nOpcional: escala log (si hay cola larga y valores &gt; 0):\n\ng_cq_box_log &lt;- ggplot(concentrado |&gt; filter(ing_cor &gt; 0), aes(x = as.factor(tam_loc), y = ing_cor, fill = as.factor(tam_loc))) +\n  geom_boxplot(show.legend = FALSE) +\n  scale_y_log10(labels = scales::label_number()) +\n  scale_fill_viridis_d() +\n  labs(\n    title = \"Cuali–cuanti: boxplot de ing_cor por tam_loc (log10)\",\n    x = \"tam_loc\",\n    y = \"ing_cor (log10)\"\n  ) +\n  ggthemes::theme_clean()\n\ng_cq_box_log"
   },
   {
-    "objectID": "practicas/P13.html#por-ello-es-mejor-considerar-las-facetas.",
-    "href": "practicas/P13.html#por-ello-es-mejor-considerar-las-facetas.",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "7 Por ello, es mejor considerar las facetas.",
-    "text": "7 Por ello, es mejor considerar las facetas."
+    "objectID": "practicas/P12.html#cuanticuanti-dispersión-y-tendencia",
+    "href": "practicas/P12.html#cuanticuanti-dispersión-y-tendencia",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "7 3) Cuanti–cuanti: dispersión y tendencia",
+    "text": "7 3) Cuanti–cuanti: dispersión y tendencia\nEjemplo: ing_cor vs gasto_mon (ajusta si tu tabla usa otros nombres).\n\ng_qq &lt;- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor)) +\n  geom_point(alpha = 0.4) +\n  geom_smooth(method = \"lm\", se = TRUE) +\n  scale_x_continuous(labels = scales::label_number(big.mark = \",\")) +\n  scale_y_continuous(labels = scales::label_number(big.mark = \",\")) +\n  labs(\n    title = \"Cuanti–cuanti: dispersión ing_cor vs gasto_mon\",\n    x = \"gasto_mon\",\n    y = \"ing_cor\"\n  ) +\n  ggthemes::theme_few()\n\ng_qq\n\n\n7.1 3.1 Codificación por grupo (color) + viridis\n\ng_qq_color &lt;- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor, color = as.factor(tam_loc))) +\n  geom_point(alpha = 0.4) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  scale_color_viridis_d() +\n  labs(\n    title = \"Cuanti–cuanti con grupo: ing_cor vs gasto_mon (color = tam_loc)\",\n    x = \"gasto_mon\",\n    y = \"ing_cor\",\n    color = \"tam_loc\"\n  ) +\n  ggthemes::theme_clean()\n\ng_qq_color"
   },
   {
-    "objectID": "practicas/P13.html#facetas-facet_wrap-y-facet_grid",
-    "href": "practicas/P13.html#facetas-facet_wrap-y-facet_grid",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "8 3. Facetas: facet_wrap() y facet_grid()",
-    "text": "8 3. Facetas: facet_wrap() y facet_grid()\nLas facetas dividen un gráfico en paneles, uno por cada valor de una (o dos) variables. Son preferibles al color cuando hay muchas categorías o cuando queremos ver la distribución completa de cada grupo.\n\n8.1 3.1 facet_wrap(): una variable de agrupación\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_wrap(~ localidad) +\n  labs(\n    title = \"Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Frecuencia\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n8.2 3.2 facet_wrap() con escalas libres\nPor defecto, todos los paneles comparten el mismo eje. Si las magnitudes son muy distintas, se pueden liberar los ejes con scales = \"free\" (con precaución: dificulta la comparación entre paneles).\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_wrap(~ localidad, scales=\"free_y\") +\n  labs(\n    title = \"Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Frecuencia\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n8.3 3.3 facet_grid(): dos variables de agrupación\nfacet_grid() organiza los paneles en filas y columnas, una por cada combinación de dos variables.\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_grid(rows = vars(estrato), cols = vars(localidad)) +\n  labs(\n    title = \"Distribución de ingreso: tamaño de localidad (columnas) × estrato (filas)\",\n    x = \"Ingreso corriente (escala logarítimica)\",\n    y = \"Frecuencia\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotafacet_wrap() vs facet_grid()\n\n\n\n\nUsar facet_wrap() cuando tenemos una sola variable de agrupación (o muchas combinaciones que queremos distribuir en varias filas/columnas de forma automática).\n\nUsar facet_grid() cuando tenemos dos variables de agrupación y queremos ver explícitamente su interacción en una cuadrícula."
+    "objectID": "practicas/P12.html#facetas-opcional-para-comparación",
+    "href": "practicas/P12.html#facetas-opcional-para-comparación",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "8 4) Facetas (opcional) para comparación",
+    "text": "8 4) Facetas (opcional) para comparación\n\ng_qq_facetas &lt;- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor)) +\n  geom_point(alpha = 0.3) +\n  geom_smooth(method = \"lm\", se = FALSE) +\n  facet_wrap(~ tam_loc) +\n  scale_x_continuous(labels = scales::label_number(big.mark = \",\")) +\n  scale_y_continuous(labels = scales::label_number(big.mark = \",\")) +\n  labs(\n    title = \"Cuanti–cuanti por facetas: ing_cor vs gasto_mon (por tam_loc)\",\n    x = \"gasto_mon\",\n    y = \"ing_cor\"\n  ) +\n  theme_minimal()\n\ng_qq_facetas"
   },
   {
-    "objectID": "practicas/P13.html#escalas-de-color-adecuadas",
-    "href": "practicas/P13.html#escalas-de-color-adecuadas",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "9 4. Escalas de color adecuadas",
-    "text": "9 4. Escalas de color adecuadas\n\n9.1 4.1 Paletas cualitativas con RColorBrewer\nPara variables nominales (sin orden), podemos usar paletas cualitativas. ColorBrewer ofrece varias opciones probadas.\n\n# Ver las paletas disponibles\nRColorBrewer::display.brewer.all()\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Set2\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n9.2 4.2 Paletas secuenciales para variables ordinales\nSi la variable tiene orden (por ejemplo, niveles de estrato de menor a mayor), podemos usar una paleta secuencial.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n9.3 4.3 Paletas viridis\nviridis funciona bien en impresión en escala de grises y es accesible para personas con daltonismo.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n  scale_color_viridis_d(option = \"plasma\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"log(Ingreso corriente)\",\n    y = \"log(Gasto monetario)\",\n    caption = \"Elaboración propia con datos de ENIGH 2024\",\n    color = \"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotaOpciones de viridis\n\n\n\nscale_color_viridis_d() es para variables discretas (d = discrete).\nscale_color_viridis_c() es para variables continuas (c = continuous).\nLas opciones disponibles son: \"viridis\" (default), \"magma\", \"plasma\", \"inferno\", \"cividis\", \"mako\", \"rocket\", \"turbo\"."
+    "objectID": "practicas/P12.html#exportación",
+    "href": "practicas/P12.html#exportación",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "9 5) Exportación",
+    "text": "9 5) Exportación\n\nggsave(\"fig_p12_cuali_cuali.png\", plot = g_cc_viridis, width = 7, height = 4, dpi = 300)\nggsave(\"fig_p12_cuali_cuanti.png\", plot = g_cq_box, width = 7, height = 4, dpi = 300)\nggsave(\"fig_p12_cuanti_cuanti.png\", plot = g_qq, width = 7, height = 4, dpi = 300)"
   },
   {
-    "objectID": "practicas/P13.html#temas-y-control-de-leyendas",
-    "href": "practicas/P13.html#temas-y-control-de-leyendas",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "10 5. Temas y control de leyendas",
-    "text": "10 5. Temas y control de leyendas\n\n10.1 5.1 Tema theme_few() de {ggthemes}\ntheme_few() es un tema limpio, sin cuadrícula de fondo, adecuado para figuras de reporte.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  ggthemes::theme_few()\n\n\n\n10.2 5.2 Control de leyendas con guides()\nguides() permite eliminar leyendas redundantes, cambiar el número de columnas o el tipo de guía.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  guides(color = guide_legend(ncol = 2)) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  ggthemes::theme_few()"
-  },
-  {
-    "objectID": "practicas/P13.html#figura-multivariada-completa-ejemplo-integrador",
-    "href": "practicas/P13.html#figura-multivariada-completa-ejemplo-integrador",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "11 6. Figura multivariada completa (ejemplo integrador)",
-    "text": "11 6. Figura multivariada completa (ejemplo integrador)\nAquí combinamos facetas + color + paleta adecuada + tema + leyenda controlada en una sola figura lista para reporte.\n\ng_final &lt;- concentrado |&gt; \n  ggplot(aes(x = log(ing_cor)))+\n  geom_histogram(binwidth = 0.3, fill = \"#4DAF4A\", color = \"white\", alpha = 0.85) +\n  facet_grid(rows = vars(estrato), cols = vars(localidad), labeller = label_both) +\n  labs(\n    title = \"Distribución de ingreso corriente (escala logarítmica)\",\n    subtitle = \"Por estrato (filas) y tipo de localidad (columnas)\",\n    x = \"log(Ingreso corriente)\",\n    y = \"Frecuencia\",\n    caption = \"Fuente: ENIGH 2024.\"\n  ) +\n  ggthemes::theme_few() +\n  theme(\n    strip.text = element_text(size = 8),\n    axis.text.x = element_text(angle = 45, hjust = 1)\n  )\n\ng_final\n\n\n\n\n\n\n\nNotaoverride.aes en guide_legend()\n\n\n\nCon puntos muy transparentes (alpha bajo), los símbolos de la leyenda son difíciles de ver. override.aes = list(alpha = 1, size = 2) hace que los puntos de la leyenda sean opacos y más grandes, sin cambiar los del gráfico."
-  },
-  {
-    "objectID": "practicas/P13.html#exportación-de-la-figura-final",
-    "href": "practicas/P13.html#exportación-de-la-figura-final",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "12 7. Exportación de la figura final",
-    "text": "12 7. Exportación de la figura final\n\nggsave(\n  filename = here::here(\"outputs\", \"figures\", \"fig_p13_multivariada.png\"),\n  plot = g_final,\n  width = 10,\n  height = 7,\n  dpi = 300\n)"
-  },
-  {
-    "objectID": "practicas/P13.html#ejercicio",
-    "href": "practicas/P13.html#ejercicio",
-    "title": "Práctica 13 : Gráficos con más de dos variables",
-    "section": "13 Ejercicio",
-    "text": "13 Ejercicio\n\nExplora dos variables cuantitativas de tu elección.\n\nConstruye un gráfico de dispersión básico y comenta brevemente qué observas (2–3 líneas).\n\nAgrega una tercera variable cualitativa mediante color.\n\nElige una paleta de {RColorBrewer} o {viridis} según el tipo de variable (nominal vs ordinal).\n\nConstruye dos versiones con facetas:\n\nUna con facet_wrap() usando una variable de agrupación.\n\nUna con facet_grid() usando dos variables.\n\nPara cada una, escribe 3–5 líneas: ¿qué facilita ver cada versión? ¿Cuándo preferirías una sobre la otra?\n\nExporta esa figura con ggsave()."
+    "objectID": "practicas/P12.html#ejercicio",
+    "href": "practicas/P12.html#ejercicio",
+    "title": "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)",
+    "section": "10 Ejercicio",
+    "text": "10 Ejercicio\n\nCuali–cuali: elige dos variables categóricas (una puede ser tam_loc o est_socio).\n\nHaz una barra apilada de conteos y una de proporciones (position=\"fill\").\n\nAplica una versión con viridis y otra con Brewer (Set2).\n\nEscribe 6–8 líneas: ¿qué cambia entre conteos y proporciones? ¿qué paleta se lee mejor?\n\nCuali–cuanti: elige una variable cuantitativa (p. ej. ing_cor) y una categórica (p. ej. tam_loc).\n\nHaz un boxplot (y versión log si aplica).\n\nEscribe 4–6 líneas sobre dispersión, asimetría y outliers.\n\nCuanti–cuanti: elige dos cuantitativas (p. ej. ing_cor y gasto_mon).\n\nHaz dispersión con tendencia (geom_smooth(method=\"lm\")).\n\nAgrega color por un grupo (tam_loc u otro) con scale_color_viridis_d().\n\nEscribe 6–8 líneas: ¿ves relación? ¿cambia por grupos?\n\nExporta al menos una figura final con ggsave()."
   },
   {
     "objectID": "practicas/P10.html",
@@ -889,11 +952,116 @@
     "text": "11 7. Exportación de una figura\n\ng1 &lt;- ggplot(tab_prop, aes(x = as.factor(tam_loc), y = p)) +\n  geom_col() +\n  scale_y_continuous(labels = scales::label_percent()) +\n  labs(title = \"Distribución por tamaño de localidad (porcentaje)\",\n       x = \"Tamaño de localidad\", y = \"Porcentaje\") +\n  theme_minimal()\n\nggsave(\"fig_p11_categorica.png\", plot = g1, width = 7, height = 4, dpi = 300)"
   },
   {
+    "objectID": "practicas/P11.html#extra-introducción-al-análisis-cuali-vs.-cuali-bivariado",
+    "href": "practicas/P11.html#extra-introducción-al-análisis-cuali-vs.-cuali-bivariado",
+    "title": "Sesión 11: Gráficos univariados para cualitativas",
+    "section": "12 Extra: introducción al análisis cuali vs. cuali (bivariado)",
+    "text": "12 Extra: introducción al análisis cuali vs. cuali (bivariado)\nEsta sección es opcional. La idea es conectar lo univariado con el primer bivariado: cómo cambia la lectura cuando cruzamos dos variables categóricas.\nUsaremos como ejemplo:\n\ntam_loc (tamaño de localidad)\nclase_hog (tipo/clase de hogar)\n\n\nSi tu tabla no tiene clase_hog, sustituye por otra variable categórica (por ejemplo estrato u otra disponible).\n\n\n12.1 1) geom_bar() (cuenta automáticamente)\nBarras apiladas (conteos): el alto de la barra depende del número de casos en tam_loc.\n\nconcentrado |&gt;\n  ggplot() +\n  aes(x = as.factor(tam_loc), fill = as.factor(clase_hog)) +\n  geom_bar(position = \"stack\") +\n  labs(title = \"Cuali × Cuali (conteos): barras apiladas\",\n       x = \"tam_loc\", y = \"Conteo (muestra)\", fill = \"clase_hog\") +\n  ggthemes::theme_few()\n\nBarras apiladas (proporciones): cada barra suma 100% y muestra composición.\n\nconcentrado |&gt;\n  ggplot() +\n  aes(x = as.factor(tam_loc), fill = as.factor(clase_hog)) +\n  geom_bar(position = \"fill\") +\n  scale_y_continuous(labels = scales::label_percent()) +\n  labs(title = \"Cuali × Cuali (porcentajes): composición dentro de tam_loc\",\n       x = \"tam_loc\", y = \"Porcentaje\", fill = \"clase_hog\") +\n  ggthemes::theme_few()\n\nBarras lado a lado (dodge): útil con pocas categorías.\n\nconcentrado |&gt;\n  ggplot() +\n  aes(x = as.factor(clase_hog), fill = as.factor(tam_loc)) +\n  geom_bar(position = \"dodge\") +\n  coord_flip() +\n  labs(title = \"Cuali × Cuali (conteos): barras lado a lado\",\n       x = \"clase_hog\", y = \"Conteo (muestra)\", fill = \"tam_loc\") +\n  ggthemes::theme_clean()\n\n\nposition = \"dodge2\" suele mejorar el espaciado cuando hay categorías desbalanceadas.\n\n\nconcentrado |&gt;\n  ggplot() +\n  aes(x = as.factor(clase_hog), fill = as.factor(tam_loc)) +\n  geom_bar(position = \"dodge2\") +\n  coord_flip() +\n  labs(title = \"Cuali × Cuali (conteos): dodge2\",\n       x = \"clase_hog\", y = \"Conteo (muestra)\", fill = \"tam_loc\") +\n  ggthemes::theme_clean()\n\n\n\n12.2 2) geom_col() (tú calculas conteos o porcentajes)\nLa ventaja de geom_col() es que controlas el conteo o el porcentaje.\n\n12.2.1 2.1 Tabla de conteos\n\ntab_hog_tam &lt;- concentrado |&gt;\n  count(as.factor(clase_hog), as.factor(tam_loc), name = \"n\") |&gt;\n  janitor::clean_names()\n\ntab_hog_tam |&gt; head()\n\n\n\n12.2.2 2.2 Conteos apilados con geom_col()\n\ntab_hog_tam |&gt;\n  ggplot() +\n  aes(x = as_factor_clase_hog, y = n, fill = as_factor_tam_loc) +\n  geom_col(position = \"stack\") +\n  coord_flip() +\n  labs(title = \"Cuali × Cuali (conteos) con geom_col()\",\n       x = \"clase_hog\", y = \"Conteo\", fill = \"tam_loc\") +\n  viridis::scale_fill_viridis_d(begin = 0.2, end = 0.8) +\n  ggthemes::theme_few()\n\n\n\n12.2.3 2.3 Porcentajes dentro de clase_hog (equivalente a position = \"fill\")\nAquí calculamos el porcentaje dentro de cada clase_hog.\n\ntab_hog_tam_pct &lt;- tab_hog_tam |&gt;\n  group_by(as_factor_clase_hog) |&gt;\n  mutate(p = n / sum(n)) |&gt;\n  ungroup()\n\ntab_hog_tam_pct |&gt; head()\n\n\ntab_hog_tam_pct |&gt;\n  ggplot() +\n  aes(x = as_factor_clase_hog, y = p, fill = as_factor_tam_loc) +\n  geom_col() +\n  coord_flip() +\n  scale_y_continuous(labels = scales::label_percent()) +\n  labs(title = \"Cuali × Cuali (porcentajes): composición dentro de clase_hog\",\n       x = \"clase_hog\", y = \"Porcentaje\", fill = \"tam_loc\") +\n  scale_fill_brewer(palette = \"Set2\") +\n  ggthemes::theme_clean()\n\n\n\n12.2.4 2.4 Etiquetar barras (porcentajes)\n\ntab_hog_tam_pct |&gt;\n  ggplot() +\n  aes(x = as_factor_clase_hog, y = p, fill = as_factor_tam_loc) +\n  geom_col() +\n  geom_text(\n    aes(label = scales::percent(p, accuracy = 1)),\n    position = position_stack(vjust = 0.5),\n    size = 3\n  ) +\n  coord_flip() +\n  scale_y_continuous(labels = scales::label_percent()) +\n  labs(title = \"Cuali × Cuali (porcentajes) con etiquetas\",\n       x = \"clase_hog\", y = \"Porcentaje\", fill = \"tam_loc\") +\n  viridis::scale_fill_viridis_d(option = \"plasma\", begin = 0.2, end = 0.85) +\n  ggthemes::theme_few()\n\n\nTip: si se enciman etiquetas, muestra solo las celdas grandes (por ejemplo p &gt;= 0.05)."
+  },
+  {
     "objectID": "practicas/P11.html#ejercicio",
     "href": "practicas/P11.html#ejercicio",
     "title": "Sesión 11: Gráficos univariados para cualitativas",
-    "section": "12 Ejercicio",
-    "text": "12 Ejercicio\n\nElige una variable cualitativa (si tiene muchas categorías, mejor).\n\nMuestra un count() ordenado para ver frecuencias.\n\nConstruye dos gráficos de esa variable:\n\nUno de conteos (geom_bar() o geom_col()), y\nUno de porcentajes (con position = \"fill\" o calculando p = n/sum(n)).\n\nOrdena las categorías por frecuencia usando fct_reorder().\nSi tu variable tiene muchas categorías, crea una versión con fct_lump() (por ejemplo top 8 o top 10).\nHaz al menos una figura con coord_flip() para mejorar legibilidad.\nExporta una figura final con ggsave()."
+    "section": "13 Ejercicio",
+    "text": "13 Ejercicio\n\nElige una variable cualitativa (si tiene muchas categorías, mejor).\n\nMuestra un count() ordenado para ver frecuencias.\n\nConstruye dos gráficos de esa variable:\n\nUno de conteos (geom_bar() o geom_col()), y\nUno de porcentajes (con position = \"fill\" o calculando p = n/sum(n)).\n\nOrdena las categorías por frecuencia usando fct_reorder().\nSi tu variable tiene muchas categorías, crea una versión con fct_lump() (por ejemplo top 8 o top 10).\nHaz al menos una figura con coord_flip() para mejorar legibilidad.\nExporta una figura final con ggsave()."
+  },
+  {
+    "objectID": "practicas/P13.html",
+    "href": "practicas/P13.html",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nConstruir gráficos de dispersión que incorporen una tercera variable cualitativa mediante color y/o forma.\nAplicar facetas (facet_wrap() y facet_grid()) para comparar distribuciones entre grupos.\nElegir paletas perceptualmente adecuadas con {RColorBrewer} y {viridis} según el tipo de variable.\nControlar y simplificar leyendas con guides().\nProducir figuras multivariadas listas para reporte: título, ejes, unidades, paleta consistente y exportación."
+  },
+  {
+    "objectID": "practicas/P13.html#objetivos-de-la-sesión",
+    "href": "practicas/P13.html#objetivos-de-la-sesión",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "",
+    "text": "Al finalizar esta sesión podrán:\n\nConstruir gráficos de dispersión que incorporen una tercera variable cualitativa mediante color y/o forma.\nAplicar facetas (facet_wrap() y facet_grid()) para comparar distribuciones entre grupos.\nElegir paletas perceptualmente adecuadas con {RColorBrewer} y {viridis} según el tipo de variable.\nControlar y simplificar leyendas con guides().\nProducir figuras multivariadas listas para reporte: título, ejes, unidades, paleta consistente y exportación."
+  },
+  {
+    "objectID": "practicas/P13.html#contenidos",
+    "href": "practicas/P13.html#contenidos",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "2 Contenidos",
+    "text": "2 Contenidos\n\nDispersión con una tercera variable: color, shape, size y sobrecarga visual.\nFacetas: facet_wrap() para una variable; facet_grid() para dos variables.\nEscalas de color: secuenciales, divergentes y cualitativas con scale_color_brewer() y scale_fill_brewer().\nPaletas perceptualmente uniformes: viridis::scale_color_viridis_d() y variantes.\nControl de leyendas con guides() y temas con ggthemes::theme_few().\nBuenas prácticas: cuándo usar facetas vs color, cómo evitar sobrecargar el gráfico."
+  },
+  {
+    "objectID": "practicas/P13.html#paquetes-de-esta-sesión",
+    "href": "practicas/P13.html#paquetes-de-esta-sesión",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "3 Paquetes de esta sesión",
+    "text": "3 Paquetes de esta sesión\n\n\n\n\n\n\n\nPaquete\nFunción principal\n\n\n\n\n{ggplot2}\nVisualización con gramática de gráficos\n\n\n{dplyr}\nPreparación de datos para graficar\n\n\n{ggthemes}\nTemas adicionales para ggplot2 (ej. theme_few())\n\n\n{RColorBrewer}\nPaletas de color de ColorBrewer (cualitativas, secuenciales)\n\n\n{viridis}\nPaletas perceptualmente uniformes y accesibles para daltónicos\n\n\n{janitor}\nLimpieza de nombres de columnas\n\n\n{here}\nRutas reproducibles\n\n\n{pacman}\nCarga e instalación compacta de paquetes\n\n\n\n\nif (!require(\"pacman\")) install.packages(\"pacman\")\n\npacman::p_load(\n  ggplot2,\n  dplyr,\n  ggthemes,\n  RColorBrewer,\n  viridis,\n  janitor,\n  here,\n  readr,\n  arrow\n)"
+  },
+  {
+    "objectID": "practicas/P13.html#datos-de-esta-sesión",
+    "href": "practicas/P13.html#datos-de-esta-sesión",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "4 Datos de esta sesión",
+    "text": "4 Datos de esta sesión\nTrabajaremos con la tabla a nivel hogar de la ENIGH 2024.\n\n4.1 Abrir base\n\n# Opción 1: Parquet (recomendado por rapidez)\nconcentrado &lt;- arrow::read_parquet(here::here(\"data\", \"raw\", \"concentradohogar.parquet\")) |&gt;\n  janitor::clean_names()\n\n\n# Opción 2: CSV\nconcentrado &lt;- readr::read_csv(here::here(\"data\", \"raw\", \"concentradohogar.csv\"),\n                               show_col_types = FALSE) |&gt;\n  janitor::clean_names()\n\nInspección rápida:\n\ndplyr::glimpse(concentrado)"
+  },
+  {
+    "objectID": "practicas/P13.html#recordatorio-cuándo-agregar-una-tercera-o-cuarta-variable",
+    "href": "practicas/P13.html#recordatorio-cuándo-agregar-una-tercera-o-cuarta-variable",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "5 1. Recordatorio: ¿cuándo agregar una tercera (o cuarta) variable?",
+    "text": "5 1. Recordatorio: ¿cuándo agregar una tercera (o cuarta) variable?\nAntes de agregar más canales estéticos, conviene preguntarse:\n\n¿La variable adicional tiene una hipótesis de comparación clara?\n¿El gráfico resultante sigue siendo legible? (Máximo 5–6 categorías en color)\n¿Hay una alternativa más clara (facetas vs color)?\n\nEn general, color es útil para comparar grupos dentro del mismo panel; facetas son útiles cuando queremos ver la forma completa de la distribución por grupo solapar las categorías."
+  },
+  {
+    "objectID": "practicas/P13.html#dispersión-con-una-variable-cualitativa-color-y-forma",
+    "href": "practicas/P13.html#dispersión-con-una-variable-cualitativa-color-y-forma",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "6 2. Dispersión con una variable cualitativa (color y forma)",
+    "text": "6 2. Dispersión con una variable cualitativa (color y forma)\n\n6.1 2.1 Dispersión de dos variables cuantitativas\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon))) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotaNota sobre alpha\n\n\n\nCon bases de datos grandes (miles de hogares) es importante usar alpha bajo (por ejemplo alpha = 0.2) para reducir el solapamiento de puntos (overplotting). Sin este ajuste, las zonas densas aparecen como manchas oscuras y se pierde información.\n\n\n\n\n6.2 2.2 Agregar una tercera variable: localidad\nPrimero, generamos la variable\n\nconcentrado &lt;- concentrado |&gt;\n  mutate(localidad=case_when(\n    tam_loc==1~\"100mil y más habitantes\",\n      tam_loc==2~\"15mil a 99,999 habitantes\",\n      tam_loc==3~\"2500 a 14,999 habitantes\",\n      tam_loc==4~\"Menos de 2500 habitantes\"\n  ),\n  localidad = factor(localidad, \n                     levels = c(\"Menos de 2500 habitantes\",\"2500 a 14,999 habitantes\",\"15mil a 99,999 habitantes\", \"100mil y más habitantes\")))\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n6.3 2.3 Color + forma\nGeneremos la variable de estrato socioeconómico.\n\nconcentrado &lt;- concentrado |&gt;\n  mutate(estrato=case_when(\n    est_socio %in% c(1,2)~\"Bajo\", \n    est_socio %in% c(3,4)~\"Alto\", \n  ), estrato = factor(estrato, \n                   levels = c(\"Bajo\",\"Alto\")))\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad, shape = estrato)) +\n  geom_point(alpha = 0.3) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\",\n    shape=\"Estrato\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nImportanteSobrecarga visual\n\n\n\nEl consejo es evitar combinar más de dos canales estéticos simultáneamente (por ejemplo color + forma + tamaño) salvo que tengan propósitos distintos y claramente diferenciados. Con muchas categorías, el gráfico pierde legibilidad rápidamente."
+  },
+  {
+    "objectID": "practicas/P13.html#por-ello-es-mejor-considerar-las-facetas.",
+    "href": "practicas/P13.html#por-ello-es-mejor-considerar-las-facetas.",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "7 Por ello, es mejor considerar las facetas.",
+    "text": "7 Por ello, es mejor considerar las facetas."
+  },
+  {
+    "objectID": "practicas/P13.html#facetas-facet_wrap-y-facet_grid",
+    "href": "practicas/P13.html#facetas-facet_wrap-y-facet_grid",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "8 3. Facetas: facet_wrap() y facet_grid()",
+    "text": "8 3. Facetas: facet_wrap() y facet_grid()\nLas facetas dividen un gráfico en paneles, uno por cada valor de una (o dos) variables. Son preferibles al color cuando hay muchas categorías o cuando queremos ver la distribución completa de cada grupo.\n\n8.1 3.1 facet_wrap(): una variable de agrupación\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_wrap(~ localidad) +\n  labs(\n    title = \"Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Frecuencia\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n8.2 3.2 facet_wrap() con escalas libres\nPor defecto, todos los paneles comparten el mismo eje. Si las magnitudes son muy distintas, se pueden liberar los ejes con scales = \"free\" (con precaución: dificulta la comparación entre paneles).\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_wrap(~ localidad, scales=\"free_y\") +\n  labs(\n    title = \"Distribución de ingreso corriente (en escala logarítmica) por tamaño de localidad\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Frecuencia\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\"\n  ) +\n  theme_minimal()\n\n\n\n8.3 3.3 facet_grid(): dos variables de agrupación\nfacet_grid() organiza los paneles en filas y columnas, una por cada combinación de dos variables.\n\nggplot(concentrado, aes(x = log(ing_cor))) +\n  geom_histogram() +\n  facet_grid(rows = vars(estrato), cols = vars(localidad)) +\n  labs(\n    title = \"Distribución de ingreso: tamaño de localidad (columnas) × estrato (filas)\",\n    x = \"Ingreso corriente (escala logarítimica)\",\n    y = \"Frecuencia\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotafacet_wrap() vs facet_grid()\n\n\n\n\nUsar facet_wrap() cuando tenemos una sola variable de agrupación (o muchas combinaciones que queremos distribuir en varias filas/columnas de forma automática).\n\nUsar facet_grid() cuando tenemos dos variables de agrupación y queremos ver explícitamente su interacción en una cuadrícula."
+  },
+  {
+    "objectID": "practicas/P13.html#escalas-de-color-adecuadas",
+    "href": "practicas/P13.html#escalas-de-color-adecuadas",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "9 4. Escalas de color adecuadas",
+    "text": "9 4. Escalas de color adecuadas\n\n9.1 4.1 Paletas cualitativas con RColorBrewer\nPara variables nominales (sin orden), podemos usar paletas cualitativas. ColorBrewer ofrece varias opciones probadas.\n\n# Ver las paletas disponibles\nRColorBrewer::display.brewer.all()\n\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Set2\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n9.2 4.2 Paletas secuenciales para variables ordinales\nSi la variable tiene orden (por ejemplo, niveles de estrato de menor a mayor), podemos usar una paleta secuencial.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n9.3 4.3 Paletas viridis\nviridis funciona bien en impresión en escala de grises y es accesible para personas con daltonismo.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n  scale_color_viridis_d(option = \"plasma\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"log(Ingreso corriente)\",\n    y = \"log(Gasto monetario)\",\n    caption = \"Elaboración propia con datos de ENIGH 2024\",\n    color = \"Localidad\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nNotaOpciones de viridis\n\n\n\nscale_color_viridis_d() es para variables discretas (d = discrete).\nscale_color_viridis_c() es para variables continuas (c = continuous).\nLas opciones disponibles son: \"viridis\" (default), \"magma\", \"plasma\", \"inferno\", \"cividis\", \"mako\", \"rocket\", \"turbo\"."
+  },
+  {
+    "objectID": "practicas/P13.html#temas-y-control-de-leyendas",
+    "href": "practicas/P13.html#temas-y-control-de-leyendas",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "10 5. Temas y control de leyendas",
+    "text": "10 5. Temas y control de leyendas\n\n10.1 5.1 Tema theme_few() de {ggthemes}\ntheme_few() es un tema limpio, sin cuadrícula de fondo, adecuado para figuras de reporte.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  ggthemes::theme_few()\n\n\n\n10.2 5.2 Control de leyendas con guides()\nguides() permite eliminar leyendas redundantes, cambiar el número de columnas o el tipo de guía.\n\nggplot(concentrado, aes(x = log(ing_cor), y = log(gasto_mon), color = localidad)) +\n  geom_point(alpha = 0.3) +\n   scale_color_brewer(palette = \"Blues\") +\n  guides(color = guide_legend(ncol = 2)) +\n  labs(\n    title = \"Ingreso corriente vs gasto monetario (escala logarítmica)\",\n    subtitle = \"A nivel hogar en México 2024\",\n    x = \"Ingreso corriente\",\n    y = \"Gasto monetario\",\n    caption=\"Elaboración propia con datos de ENIGH 2024\",\n    color=\"Localidad\"\n  ) +\n  ggthemes::theme_few()"
+  },
+  {
+    "objectID": "practicas/P13.html#figura-multivariada-completa-ejemplo-integrador",
+    "href": "practicas/P13.html#figura-multivariada-completa-ejemplo-integrador",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "11 6. Figura multivariada completa (ejemplo integrador)",
+    "text": "11 6. Figura multivariada completa (ejemplo integrador)\nAquí combinamos facetas + color + paleta adecuada + tema + leyenda controlada en una sola figura lista para reporte.\n\ng_final &lt;- concentrado |&gt; \n  ggplot(aes(x = log(ing_cor)))+\n  geom_histogram(binwidth = 0.3, fill = \"#4DAF4A\", color = \"white\", alpha = 0.85) +\n  facet_grid(rows = vars(estrato), cols = vars(localidad), labeller = label_both) +\n  labs(\n    title = \"Distribución de ingreso corriente (escala logarítmica)\",\n    subtitle = \"Por estrato (filas) y tipo de localidad (columnas)\",\n    x = \"log(Ingreso corriente)\",\n    y = \"Frecuencia\",\n    caption = \"Fuente: ENIGH 2024.\"\n  ) +\n  ggthemes::theme_few() +\n  theme(\n    strip.text = element_text(size = 8),\n    axis.text.x = element_text(angle = 45, hjust = 1)\n  )\n\ng_final\n\n\n\n\n\n\n\nNotaoverride.aes en guide_legend()\n\n\n\nCon puntos muy transparentes (alpha bajo), los símbolos de la leyenda son difíciles de ver. override.aes = list(alpha = 1, size = 2) hace que los puntos de la leyenda sean opacos y más grandes, sin cambiar los del gráfico."
+  },
+  {
+    "objectID": "practicas/P13.html#exportación-de-la-figura-final",
+    "href": "practicas/P13.html#exportación-de-la-figura-final",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "12 7. Exportación de la figura final",
+    "text": "12 7. Exportación de la figura final\n\nggsave(\n  filename = here::here(\"outputs\", \"figures\", \"fig_p13_multivariada.png\"),\n  plot = g_final,\n  width = 10,\n  height = 7,\n  dpi = 300\n)"
+  },
+  {
+    "objectID": "practicas/P13.html#ejercicio",
+    "href": "practicas/P13.html#ejercicio",
+    "title": "Práctica 13 : Gráficos con más de dos variables",
+    "section": "13 Ejercicio",
+    "text": "13 Ejercicio\n\nExplora dos variables cuantitativas de tu elección.\n\nConstruye un gráfico de dispersión básico y comenta brevemente qué observas (2–3 líneas).\n\nAgrega una tercera variable cualitativa mediante color.\n\nElige una paleta de {RColorBrewer} o {viridis} según el tipo de variable (nominal vs ordinal).\n\nConstruye dos versiones con facetas:\n\nUna con facet_wrap() usando una variable de agrupación.\n\nUna con facet_grid() usando dos variables.\n\nPara cada una, escribe 3–5 líneas: ¿qué facilita ver cada versión? ¿Cuándo preferirías una sobre la otra?\n\nExporta esa figura con ggsave()."
   },
   {
     "objectID": "practicas/P2.html",
