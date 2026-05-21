@@ -268,6 +268,158 @@ ggsave("fig_p11_categorica.png", plot = g1, width = 7, height = 4, dpi = 300)
 
 ------------------------------------------------------------------------
 
+------------------------------------------------------------------------
+
+## Extra: introducción al análisis cuali vs. cuali (bivariado)
+
+Esta sección es **opcional**. La idea es conectar lo univariado con el primer bivariado: cómo cambia la lectura cuando cruzamos dos variables categóricas.
+
+Usaremos como ejemplo:
+
+- `tam_loc` (tamaño de localidad)
+- `clase_hog` (tipo/clase de hogar)
+
+> Si tu tabla no tiene `clase_hog`, sustituye por otra variable categórica (por ejemplo `estrato` u otra disponible).
+
+### 1) `geom_bar()` (cuenta automáticamente)
+
+**Barras apiladas (conteos):** el alto de la barra depende del número de casos en `tam_loc`.
+
+```{r}
+#| eval: false
+concentrado |>
+  ggplot() +
+  aes(x = as.factor(tam_loc), fill = as.factor(clase_hog)) +
+  geom_bar(position = "stack") +
+  labs(title = "Cuali × Cuali (conteos): barras apiladas",
+       x = "tam_loc", y = "Conteo (muestra)", fill = "clase_hog") +
+  ggthemes::theme_few()
+```
+
+**Barras apiladas (proporciones):** cada barra suma 100% y muestra composición.
+
+```{r}
+#| eval: false
+concentrado |>
+  ggplot() +
+  aes(x = as.factor(tam_loc), fill = as.factor(clase_hog)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Cuali × Cuali (porcentajes): composición dentro de tam_loc",
+       x = "tam_loc", y = "Porcentaje", fill = "clase_hog") +
+  ggthemes::theme_few()
+```
+
+**Barras lado a lado (dodge):** útil con pocas categorías.
+
+```{r}
+#| eval: false
+concentrado |>
+  ggplot() +
+  aes(x = as.factor(clase_hog), fill = as.factor(tam_loc)) +
+  geom_bar(position = "dodge") +
+  coord_flip() +
+  labs(title = "Cuali × Cuali (conteos): barras lado a lado",
+       x = "clase_hog", y = "Conteo (muestra)", fill = "tam_loc") +
+  ggthemes::theme_clean()
+```
+
+> `position = "dodge2"` suele mejorar el espaciado cuando hay categorías desbalanceadas.
+
+```{r}
+#| eval: false
+concentrado |>
+  ggplot() +
+  aes(x = as.factor(clase_hog), fill = as.factor(tam_loc)) +
+  geom_bar(position = "dodge2") +
+  coord_flip() +
+  labs(title = "Cuali × Cuali (conteos): dodge2",
+       x = "clase_hog", y = "Conteo (muestra)", fill = "tam_loc") +
+  ggthemes::theme_clean()
+```
+
+### 2) `geom_col()` (tú calculas conteos o porcentajes)
+
+La ventaja de `geom_col()` es que **controlas** el conteo o el porcentaje.
+
+#### 2.1 Tabla de conteos
+
+```{r}
+#| eval: false
+tab_hog_tam <- concentrado |>
+  count(as.factor(clase_hog), as.factor(tam_loc), name = "n") |>
+  janitor::clean_names()
+
+tab_hog_tam |> head()
+```
+
+#### 2.2 Conteos apilados con `geom_col()`
+
+```{r}
+#| eval: false
+tab_hog_tam |>
+  ggplot() +
+  aes(x = as_factor_clase_hog, y = n, fill = as_factor_tam_loc) +
+  geom_col(position = "stack") +
+  coord_flip() +
+  labs(title = "Cuali × Cuali (conteos) con geom_col()",
+       x = "clase_hog", y = "Conteo", fill = "tam_loc") +
+  viridis::scale_fill_viridis_d(begin = 0.2, end = 0.8) +
+  ggthemes::theme_few()
+```
+
+#### 2.3 Porcentajes dentro de `clase_hog` (equivalente a `position = "fill"`)
+
+Aquí calculamos el porcentaje *dentro de cada* `clase_hog`.
+
+```{r}
+#| eval: false
+tab_hog_tam_pct <- tab_hog_tam |>
+  group_by(as_factor_clase_hog) |>
+  mutate(p = n / sum(n)) |>
+  ungroup()
+
+tab_hog_tam_pct |> head()
+```
+
+```{r}
+#| eval: false
+tab_hog_tam_pct |>
+  ggplot() +
+  aes(x = as_factor_clase_hog, y = p, fill = as_factor_tam_loc) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Cuali × Cuali (porcentajes): composición dentro de clase_hog",
+       x = "clase_hog", y = "Porcentaje", fill = "tam_loc") +
+  scale_fill_brewer(palette = "Set2") +
+  ggthemes::theme_clean()
+```
+
+#### 2.4 Etiquetar barras (porcentajes)
+
+```{r}
+#| eval: false
+tab_hog_tam_pct |>
+  ggplot() +
+  aes(x = as_factor_clase_hog, y = p, fill = as_factor_tam_loc) +
+  geom_col() +
+  geom_text(
+    aes(label = scales::percent(p, accuracy = 1)),
+    position = position_stack(vjust = 0.5),
+    size = 3
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(title = "Cuali × Cuali (porcentajes) con etiquetas",
+       x = "clase_hog", y = "Porcentaje", fill = "tam_loc") +
+  viridis::scale_fill_viridis_d(option = "plasma", begin = 0.2, end = 0.85) +
+  ggthemes::theme_few()
+```
+
+> Tip: si se enciman etiquetas, muestra solo las celdas grandes (por ejemplo `p >= 0.05`).
+
+
 ## Ejercicio
 
 1) Elige **una variable cualitativa** (si tiene muchas categorías, mejor).  

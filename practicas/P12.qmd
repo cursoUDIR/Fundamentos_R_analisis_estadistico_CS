@@ -1,0 +1,304 @@
+---
+title: "Práctica 12 (Sesión 12): Gráficos con dos variables (bivariado)"
+subtitle: "Cuali–cuali, cuali–cuanti y cuanti–cuanti + escalas de color y temas"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Construir visualizaciones **bivariadas** para (i) cuali–cuali, (ii) cuali–cuanti y (iii) cuanti–cuanti.
+-   Elegir entre **conteos** y **proporciones** en barras apiladas (`position = "fill"`).
+-   Usar codificación estética (color/fill/shape) de manera legible y consistente.
+-   Aplicar **escalas de color** apropiadas (`viridis`, `RColorBrewer`) y temas (`ggthemes`) para mejorar comunicación.
+-   Exportar figuras listas para reporte con `ggsave()`.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Cuali–cuali: barras apiladas (conteos y proporciones) y lectura crítica.
+-   Cuali–cuanti: boxplot por grupo y comparación descriptiva.
+-   Cuanti–cuanti: dispersión y tendencia (`geom_smooth()`).
+-   Escalas de color: `scale_fill_viridis_d()`, `scale_color_viridis_d()`, `scale_fill_brewer()`.
+-   Temas y estilo: `theme_minimal()` y temas de `{ggthemes}`.
+
+**Paquetes:** `{ggplot2}` `{dplyr}` `{forcats}` `{scales}` `{viridis}` `{RColorBrewer}` `{ggthemes}` `{janitor}`  
+**Funciones clave:** `geom_bar()` · `geom_col()` · `geom_boxplot()` · `geom_point()` · `geom_smooth()` · `scale_fill_viridis_d()` · `scale_fill_brewer()` · `theme_*()` · `facet_wrap()` · `ggsave()`
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+| Paquete        | Función principal |
+|----------------|-------------------|
+| `{ggplot2}`    | Visualización con gramática de gráficos |
+| `{dplyr}`      | Preparación de datos |
+| `{forcats}`    | Manejo/ordenamiento de factores |
+| `{scales}`     | Formato de ejes (porcentaje, separadores, etc.) |
+| `{viridis}`    | Paletas perceptualmente adecuadas |
+| `{RColorBrewer}` | Paletas clásicas para categorías |
+| `{ggthemes}`   | Temas estéticos para figuras |
+| `{janitor}`    | Limpieza de nombres (si se requiere) |
+| `{here}`       | Rutas reproducibles |
+| `{pacman}`     | Carga e instalación compacta |
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  ggplot2,
+  dplyr,
+  forcats,
+  scales,
+  viridis,
+  RColorBrewer,
+  ggthemes,
+  janitor,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Trabajaremos con una tabla a nivel hogar (ENIGH 2024 como ejemplo).  
+En los ejemplos asumimos que ya cuentan con un objeto llamado `concentrado`.
+
+### Lectura sugerida (elige una)
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1) Cuali–cuali: barras apiladas (conteos y proporciones)
+
+Usaremos como ejemplo `tam_loc` y `est_socio` (ajusta si tu tabla usa otros nombres).
+
+### 1.1 Conteos apilados
+
+```{r}
+#| eval: false
+g_cc_conteo <- ggplot(concentrado, aes(x = as.factor(tam_loc), fill = as.factor(est_socio))) +
+  geom_bar() +
+  labs(
+    title = "Cuali–cuali (conteos): tam_loc × est_socio",
+    x = "tam_loc",
+    y = "Conteo (muestra)",
+    fill = "est_socio"
+  ) +
+  ggthemes::theme_few()
+
+g_cc_conteo
+```
+
+### 1.2 Proporciones apiladas (porcentajes)
+
+```{r}
+#| eval: false
+g_cc_prop <- ggplot(concentrado, aes(x = as.factor(tam_loc), fill = as.factor(est_socio))) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    title = "Cuali–cuali (proporciones): tam_loc × est_socio",
+    x = "tam_loc",
+    y = "Porcentaje",
+    fill = "est_socio"
+  ) +
+  ggthemes::theme_few()
+
+g_cc_prop
+```
+
+### 1.3 Colores: viridis vs Brewer (fill discreto)
+
+```{r}
+#| eval: false
+g_cc_viridis <- g_cc_prop + scale_fill_viridis_d()
+
+g_cc_brewer <- g_cc_prop + scale_fill_brewer(palette = "Set2")
+
+g_cc_viridis
+g_cc_brewer
+```
+
+::: callout-note
+## ¿Conteos o proporciones?
+- Conteos: útiles para ver tamaño absoluto de grupos en la muestra.
+- Proporciones: útiles para comparar composición (estructura) entre categorías.
+:::
+
+------------------------------------------------------------------------
+
+## 2) Cuali–cuanti: boxplot por grupo
+
+Ejemplo: `ing_cor` por `tam_loc` (ajusta la variable cuantitativa si aplica).
+
+```{r}
+#| eval: false
+g_cq_box <- ggplot(concentrado, aes(x = as.factor(tam_loc), y = ing_cor, fill = as.factor(tam_loc))) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(
+    title = "Cuali–cuanti: boxplot de ing_cor por tam_loc",
+    x = "tam_loc",
+    y = "ing_cor"
+  ) +
+  scale_fill_viridis_d() +
+  ggthemes::theme_clean()
+
+g_cq_box
+```
+
+**Opcional**: escala log (si hay cola larga y valores > 0):
+
+```{r}
+#| eval: false
+g_cq_box_log <- ggplot(concentrado |> filter(ing_cor > 0), aes(x = as.factor(tam_loc), y = ing_cor, fill = as.factor(tam_loc))) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_y_log10(labels = scales::label_number()) +
+  scale_fill_viridis_d() +
+  labs(
+    title = "Cuali–cuanti: boxplot de ing_cor por tam_loc (log10)",
+    x = "tam_loc",
+    y = "ing_cor (log10)"
+  ) +
+  ggthemes::theme_clean()
+
+g_cq_box_log
+```
+
+------------------------------------------------------------------------
+
+## 3) Cuanti–cuanti: dispersión y tendencia
+
+Ejemplo: `ing_cor` vs `gasto_mon` (ajusta si tu tabla usa otros nombres).
+
+```{r}
+#| eval: false
+g_qq <- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = TRUE) +
+  scale_x_continuous(labels = scales::label_number(big.mark = ",")) +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  labs(
+    title = "Cuanti–cuanti: dispersión ing_cor vs gasto_mon",
+    x = "gasto_mon",
+    y = "ing_cor"
+  ) +
+  ggthemes::theme_few()
+
+g_qq
+```
+
+### 3.1 Codificación por grupo (color) + viridis
+
+```{r}
+#| eval: false
+g_qq_color <- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor, color = as.factor(tam_loc))) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_color_viridis_d() +
+  labs(
+    title = "Cuanti–cuanti con grupo: ing_cor vs gasto_mon (color = tam_loc)",
+    x = "gasto_mon",
+    y = "ing_cor",
+    color = "tam_loc"
+  ) +
+  ggthemes::theme_clean()
+
+g_qq_color
+```
+
+------------------------------------------------------------------------
+
+## 4) Facetas (opcional) para comparación
+
+```{r}
+#| eval: false
+g_qq_facetas <- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ tam_loc) +
+  scale_x_continuous(labels = scales::label_number(big.mark = ",")) +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  labs(
+    title = "Cuanti–cuanti por facetas: ing_cor vs gasto_mon (por tam_loc)",
+    x = "gasto_mon",
+    y = "ing_cor"
+  ) +
+  theme_minimal()
+
+g_qq_facetas
+```
+
+------------------------------------------------------------------------
+
+## 5) Exportación
+
+```{r}
+#| eval: false
+ggsave("fig_p12_cuali_cuali.png", plot = g_cc_viridis, width = 7, height = 4, dpi = 300)
+ggsave("fig_p12_cuali_cuanti.png", plot = g_cq_box, width = 7, height = 4, dpi = 300)
+ggsave("fig_p12_cuanti_cuanti.png", plot = g_qq, width = 7, height = 4, dpi = 300)
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1) **Cuali–cuali:** elige dos variables categóricas (una puede ser `tam_loc` o `est_socio`).  
+   - Haz una barra apilada de **conteos** y una de **proporciones** (`position="fill"`).  
+   - Aplica una versión con **viridis** y otra con **Brewer** (`Set2`).  
+   - Escribe 6–8 líneas: ¿qué cambia entre conteos y proporciones? ¿qué paleta se lee mejor?
+
+2) **Cuali–cuanti:** elige una variable cuantitativa (p. ej. `ing_cor`) y una categórica (p. ej. `tam_loc`).  
+   - Haz un boxplot (y versión log si aplica).  
+   - Escribe 4–6 líneas sobre dispersión, asimetría y outliers.
+
+3) **Cuanti–cuanti:** elige dos cuantitativas (p. ej. `ing_cor` y `gasto_mon`).  
+   - Haz dispersión con tendencia (`geom_smooth(method="lm")`).  
+   - Agrega color por un grupo (`tam_loc` u otro) con `scale_color_viridis_d()`.  
+   - Escribe 6–8 líneas: ¿ves relación? ¿cambia por grupos?
+
+4) Exporta al menos **una** figura final con `ggsave()`.
+
+
+
+------------------------------------------------------------------------
