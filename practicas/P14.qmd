@@ -1,0 +1,237 @@
+---
+title: "Práctica 14 (Sesión 14): Mapas temáticos para México con {mxmaps}"
+subtitle: "Mapas estatales y municipales (coropléticos), uniones por región y lectura crítica"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Instalar un paquete desde GitHub cuando no está en CRAN.
+-   Construir indicadores por entidad y municipio a partir de tablas (ENIGH 2024 como ejemplo).
+-   Preparar llaves tipo `region` (estado) y `region` (municipio) en el formato esperado por `{mxmaps}`.
+-   Elaborar mapas coropléticos con `mxstate_choropleth()` y `mxmunicipio_choropleth()`.
+-   Tomar decisiones básicas de clasificación (número de colores) y escribir una lectura crítica del mapa.
+-   Exportar mapas como imagen (captura o exportación del dispositivo gráfico).
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Instalación de paquetes fuera de CRAN con `{remotes}`.
+-   Indicadores por región (estado/municipio): `group_by()` + `summarise()`.
+-   Mapas con `{mxmaps}`:
+    -   `mxstate_choropleth()` (estatal)
+    -   `mxmunicipio_choropleth()` (municipal)
+-   Preparación de llaves con `mxmaps::str_mxstate()` y `mxmaps::str_mxmunicipio()`.
+-   Lectura crítica: clasificación, comparabilidad, tamaño muestral y límites de interpretación.
+
+**Paquetes:** `{mxmaps}` `{dplyr}` `{janitor}` `{stringr}` `{arrow}` `{readr}`  
+**Funciones clave:** `remotes::install_github()` · `mxstate_choropleth()` · `mxmunicipio_choropleth()` · `str_mxstate()` · `str_mxmunicipio()` · `group_by()` · `summarise()`
+
+------------------------------------------------------------------------
+
+## Guía de instalación (paquetes que no están en CRAN)
+
+A veces un paquete no está disponible en CRAN. En ese caso, se instala desde GitHub.
+
+### 1) Instalar {remotes} (una vez)
+
+```{r}
+#| eval: false
+install.packages("remotes")
+```
+
+### 2) Instalar {mxmaps} desde GitHub
+
+```{r}
+#| eval: false
+remotes::install_github("diegovalle/mxmaps")
+```
+
+### ¿Cuál es la diferencia entre {remotes} y {devtools}?
+
+-   `{remotes}` es un paquete **ligero** cuyo objetivo principal es **instalar** paquetes desde GitHub (u otras fuentes) sin traer dependencias extra.
+-   `{devtools}` es un paquete **más grande**, pensado para **desarrollo de paquetes** (documentación, pruebas, chequeos, etc.).
+    -   `{devtools}` incluye a `{remotes}` como dependencia y, por eso, también puede hacer `devtools::install_github()`.
+-   Para este curso: **preferimos `{remotes}`** porque es más simple y rápido de instalar.
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  janitor,
+  stringr,
+  mxmaps,
+  here,
+  readr,
+  arrow
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+Usaremos una tabla de hogares (ENIGH 2024 como ejemplo) para construir un indicador por entidad y/o municipio.
+
+### Lectura sugerida (elige una)
+
+```{r}
+#| eval: false
+# Opción 1: Parquet (recomendado)
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+```{r}
+#| eval: false
+# Opción 2: CSV
+concentrado <- readr::read_csv(here::here("data", "raw", "concentradohogar.csv"),
+                               show_col_types = FALSE) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1) Indicador a nivel estatal (entidad)
+
+En ENIGH, `ubica_geo` suele contener entidad y municipio en el mismo código (entidad=2 dígitos, municipio=3 dígitos).
+
+```{r}
+#| eval: false
+indic_est <- concentrado |>
+  mutate(region = stringr::str_sub(ubica_geo, 1, 2)) |>
+  group_by(region) |>
+  summarise(
+    value = mean(ing_cor, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  mutate(region = mxmaps::str_mxstate(region))
+```
+
+- `region`: clave estatal en formato esperado por `{mxmaps}`
+- `value`: indicador a mapear (aquí, media de `ing_cor`)
+
+------------------------------------------------------------------------
+
+## 2) Mapa estatal con {mxmaps}
+
+```{r}
+#| eval: false
+mxmaps::mxstate_choropleth(
+  indic_est,
+  num_colors = 7
+)
+```
+
+::: callout-note
+## Nota
+`num_colors` controla el número de clases de color (binned). Más colores no siempre es mejor: puede dificultar la lectura.
+:::
+
+------------------------------------------------------------------------
+
+## 3) Indicador municipal (opcional)
+
+Para municipio, construimos una clave de 5 dígitos: entidad (2) + municipio (3).
+
+```{r}
+#| eval: false
+indic_mun <- concentrado |>
+  mutate(
+    region = stringr::str_sub(ubica_geo, 1, 5)  # "EEMMM"
+  ) |>
+  group_by(region) |>
+  summarise(
+    value = mean(ing_cor, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  mutate(region = mxmaps::str_mxmunicipio(region))
+```
+
+------------------------------------------------------------------------
+
+## 4) Mapa municipal con {mxmaps} (opcional)
+
+```{r}
+#| eval: false
+mxmaps::mxmunicipio_choropleth(
+  indic_mun,
+  num_colors = 7
+)
+```
+
+::: callout-important
+## Recomendación práctica
+El mapa municipal puede verse muy saturado o con muchos vacíos. Si quieren, filtren a una entidad y mapeen solo sus municipios.
+:::
+
+------------------------------------------------------------------------
+
+## 5) Exportación (una opción simple)
+
+En `{mxmaps}`, los mapas (choropleths) se generan como objetos tipo `ggplot`. Esto permite guardarlos directamente con `ggsave()` sin abrir/cerrar un dispositivo gráfico manualmente.
+
+```{r}
+#| eval: false
+# Crear el mapa como objeto (ggplot)
+g_map_est <- mxmaps::mxstate_choropleth(
+  indic_est,
+  num_colors = 7
+)
+
+# Guardarlo como imagen
+ggplot2::ggsave(
+  filename = "fig_p14_mapa_estatal.png",
+  plot = g_map_est,
+  width = 7,
+  height = 5,
+  dpi = 300
+)
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+1) Elige un indicador para mapear a nivel estatal (por ejemplo media de `ing_cor` o `gasto_mon`).  
+2) Construye `indic_est` con dos columnas:  
+   - `region` (clave estatal)  
+   - `value` (indicador numérico)  
+3) Genera un mapa estatal con `mxstate_choropleth()` probando **dos** valores de `num_colors` (por ejemplo 5 y 9).  
+4) Escribe 10–12 líneas de lectura crítica:  
+   - ¿qué cambia al modificar el número de clases?,  
+   - ¿qué limitaciones ves (promedios, outliers, tamaño muestral)?,  
+   - ¿qué precauciones tomarías para interpretar?  
+5) Exporta el mapa estatal como PNG usando el bloque de exportación.
+
+**Opcional:** Construye `indic_mun` y genera un mapa municipal. Ojo, la ENIGH no tiene todos los municipios, tendrás NA
