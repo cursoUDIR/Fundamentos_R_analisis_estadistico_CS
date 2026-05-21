@@ -1,5 +1,5 @@
 ---
-title: "PSesión 11: Gráficos univariados para cualitativas"
+title: "Sesión 11: Gráficos univariados para cualitativas"
 subtitle: "Barras/columnas, proporciones vs conteos, ordenamiento de categorías y coord_flip()"
 author:
   - "Ana Escoto"
