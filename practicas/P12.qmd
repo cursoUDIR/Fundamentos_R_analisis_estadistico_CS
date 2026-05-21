@@ -151,7 +151,7 @@ g_cc_prop
 
 ```{r}
 #| eval: false
-g_cc_viridis <- g_cc_prop + viridis::scale_fill_viridis_d()
+g_cc_viridis <- g_cc_prop + scale_fill_viridis_d()
 
 g_cc_brewer <- g_cc_prop + scale_fill_brewer(palette = "Set2")
 
@@ -180,7 +180,7 @@ g_cq_box <- ggplot(concentrado, aes(x = as.factor(tam_loc), y = ing_cor, fill = 
     x = "tam_loc",
     y = "ing_cor"
   ) +
-  viridis::scale_fill_viridis_d() +
+  scale_fill_viridis_d() +
   ggthemes::theme_clean()
 
 g_cq_box
@@ -193,7 +193,7 @@ g_cq_box
 g_cq_box_log <- ggplot(concentrado |> filter(ing_cor > 0), aes(x = as.factor(tam_loc), y = ing_cor, fill = as.factor(tam_loc))) +
   geom_boxplot(show.legend = FALSE) +
   scale_y_log10(labels = scales::label_number()) +
-  viridis::scale_fill_viridis_d() +
+  scale_fill_viridis_d() +
   labs(
     title = "Cuali–cuanti: boxplot de ing_cor por tam_loc (log10)",
     x = "tam_loc",
@@ -234,7 +234,7 @@ g_qq
 g_qq_color <- ggplot(concentrado, aes(x = gasto_mon, y = ing_cor, color = as.factor(tam_loc))) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm", se = FALSE) +
-  viridis::scale_color_viridis_d() +
+  scale_color_viridis_d() +
   labs(
     title = "Cuanti–cuanti con grupo: ing_cor vs gasto_mon (color = tam_loc)",
     x = "gasto_mon",
