@@ -1,0 +1,202 @@
+---
+title: "Práctica 17 (Sesión 17): Pruebas de hipótesis para dos grupos"
+subtitle: "Comparación de medias y proporciones por sexo_jefe: `t.test/prop.test` vs {infer}"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Formular \(H_0\) y \(H_1\) para comparar dos grupos (media y proporción).
+- Interpretar p-valor, \(\alpha\), y errores tipo I/II.
+- Ejecutar pruebas con dos enfoques:
+  - base: `t.test()` y `prop.test()`,
+  - tidy: `infer::t_test()` y `infer::prop_test()`.
+- Reportar diferencia, IC, p-valor y n por grupo, con interpretación sustantiva.
+
+------------------------------------------------------------------------
+
+## Paquetes
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  ggplot2,
+  scales,
+  janitor,
+  here,
+  readr,
+  arrow,
+  infer
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos (ENIGH 2024 como caso)
+
+```{r}
+#| eval: false
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1) Marco conceptual breve (8–10 líneas)
+
+Responde:
+
+1) ¿Qué significa “rechazar \(H_0\)” y qué **no** significa?  
+2) ¿Qué es un p-valor y cómo se usa con \(\alpha\)?  
+3) Error tipo I vs tipo II.  
+4) Por qué reportar IC y una diferencia ayuda más que solo p-valor.
+
+::: callout-important
+## Importante: p-valor no es “tamaño del efecto”
+Reporta siempre la diferencia (medias o proporciones) y su IC, además del p-valor.
+:::
+
+------------------------------------------------------------------------
+
+## 2) Comparación de medias: `ing_cor` por `sexo_jefe`
+
+```{r}
+#| eval: false
+df_t <- concentrado |>
+  filter(!is.na(ing_cor), !is.na(sexo_jefe)) |>
+  mutate(sexo_jefe = factor(sexo_jefe))
+```
+
+```{r}
+#| eval: false
+df_t |> count(sexo_jefe)
+```
+
+Figura de apoyo:
+
+```{r}
+#| eval: false
+ggplot(df_t, aes(x = sexo_jefe, y = ing_cor, fill = sexo_jefe)) +
+  geom_boxplot(show.legend = FALSE) +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(title = "ing_cor por sexo_jefe (log10)", x = "", y = "ing_cor (log10)") +
+  theme_minimal()
+```
+
+### 2.1 Enfoque base: `t.test()` (Welch)
+
+```{r}
+#| eval: false
+niv <- levels(df_t$sexo_jefe)
+x1 <- df_t |> filter(sexo_jefe == niv[1]) |> pull(ing_cor)
+x2 <- df_t |> filter(sexo_jefe == niv[2]) |> pull(ing_cor)
+
+res_base_t2 <- t.test(x1, x2, conf.level = 0.95)
+res_base_t2$estimate
+res_base_t2$conf.int
+res_base_t2$p.value
+```
+
+### 2.2 Enfoque tidy: `{infer}` con `infer::t_test()` (dos grupos)
+
+```{r}
+#| eval: false
+res_infer_t2 <- df_t |>
+  infer::t_test(ing_cor ~ sexo_jefe, conf_level = 0.95)
+
+res_infer_t2
+```
+
+::: callout-note
+## Diferencias típicas
+- `t.test()` reporta el test Welch (varianzas desiguales) por defecto.
+- `infer::t_test()` entrega un resultado tidy (tabla) con estimación, IC y p-valor.
+Ambos responden la misma pregunta; la diferencia principal es el formato y el flujo.
+:::
+
+------------------------------------------------------------------------
+
+## 3) Diferencia de proporciones: `recibe_remesas` por `sexo_jefe`
+
+```{r}
+#| eval: false
+df_p <- concentrado |>
+  filter(!is.na(sexo_jefe)) |>
+  mutate(
+    sexo_jefe = factor(sexo_jefe),
+    recibe_remesas = if_else(!is.na(remesas) & remesas > 0, 1, 0),
+    recibe_remesas = factor(recibe_remesas, levels = c(0, 1))
+  ) |>
+  filter(!is.na(recibe_remesas))
+```
+
+### 3.1 Enfoque base: `prop.test()`
+
+```{r}
+#| eval: false
+tab_p <- df_p |>
+  group_by(sexo_jefe) |>
+  summarise(
+    x = sum(recibe_remesas == 1),
+    n = n(),
+    p_hat = x / n,
+    .groups = "drop"
+  )
+
+tab_p
+
+res_base_p2 <- prop.test(x = tab_p$x, n = tab_p$n, conf.level = 0.95)
+res_base_p2$estimate
+res_base_p2$conf.int
+res_base_p2$p.value
+```
+
+### 3.2 Enfoque tidy: `{infer}` con `infer::prop_test()`
+
+```{r}
+#| eval: false
+res_infer_p2 <- df_p |>
+  infer::prop_test(recibe_remesas ~ sexo_jefe, success = "1", conf_level = 0.95)
+
+res_infer_p2
+```
+
+------------------------------------------------------------------------
+
+## 4) Ejercicio
+
+1) Marco conceptual (8–10 líneas).
+
+2) Medias:
+- Compara `ing_cor` entre `sexo_jefe` con `t.test()` y `infer::t_test()`.
+- Reporta diferencia (o medias), IC 95%, p-valor y n por grupo.
+
+3) Proporciones:
+- Compara `recibe_remesas` entre `sexo_jefe` con `prop.test()` y `infer::prop_test()`.
+- Reporta proporciones por grupo, IC 95%, p-valor y n por grupo.
+
+4) Interpretación:
+- 12–16 líneas totales explicando resultados y diferencias entre enfoque base y tidy.

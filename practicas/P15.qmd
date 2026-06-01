@@ -1,0 +1,268 @@
+---
+title: "Práctica 15 (Sesión 15): Cierre del Módulo 3 — Reporte reproducible con Quarto"
+subtitle: "Documento, mini-sitio web y presentación (PPTX) a partir de los resultados del módulo"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+    df-print: kable
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Crear un documento Quarto (`.qmd`) con secciones, texto, tablas y figuras.
+-   Generar tres salidas a partir de Quarto: (i) **documento** (HTML), (ii) **sitio web** (website) y (iii) **presentación en PPTX**.
+-   Controlar opciones de ejecución (echo, warning, message) y buenas prácticas de reproducibilidad.
+-   Renderizar desde RStudio o desde consola.
+
+------------------------------------------------------------------------
+
+## Contenidos
+
+-   Estructura de un `.qmd`: YAML + texto + chunks.
+-   Opciones de ejecución: `knitr::opts_chunk$set()` y opciones por chunk.
+-   Salidas de Quarto:
+    -   Documento: `format: html`
+    -   Sitio web: `_quarto.yml` + `index.qmd`
+    -   Presentación: `format: pptx`
+-   Render: botón Render en RStudio o `quarto::quarto_render()`.
+
+**Paquetes:** `{knitr}` `{dplyr}` `{ggplot2}` `{gt}` `{here}`  
+**Funciones clave:** `knitr::opts_chunk$set()` · `gt::gt()` · `ggsave()` · `quarto::quarto_render()`
+
+------------------------------------------------------------------------
+
+## Paquetes de esta sesión
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  ggplot2,
+  scales,
+  gt,
+  here,
+  readr,
+  arrow,
+  janitor,
+  stringr,
+  knitr,
+  tinytex
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos de esta sesión
+
+```{r}
+#| eval: false
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1) ¿Cómo se arma un documento Quarto? (idea mínima)
+
+Un archivo `.qmd` tiene tres partes:
+
+1) Encabezado **YAML** (título, autoría, formato).  
+2) Texto en Markdown (títulos, listas, párrafos).  
+3) Chunks de código (resultados reproducibles).
+
+Ejemplo mínimo (plantilla):
+
+```{r}
+#| eval: false
+# ---
+# title: "Mi reporte"
+# author: ["Nombre 1", "Nombre 2"]
+# format: html
+# ---
+#
+# ## Sección
+#
+# Texto...
+#
+# ```{r}
+# # Código...
+# ```
+```
+
+Opciones generales (se suelen definir una vez):
+
+```{r}
+#| eval: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+------------------------------------------------------------------------
+
+## 2) Tabla + 2 figuras (mínimo del cierre)
+
+### 2.1 Tabla descriptiva (ejemplo)
+
+```{r}
+#| eval: false
+tabla <- concentrado |>
+  summarise(
+    n = n(),
+    media_ing = mean(ing_cor, na.rm = TRUE),
+    mediana_ing = median(ing_cor, na.rm = TRUE),
+    sd_ing = sd(ing_cor, na.rm = TRUE)
+  )
+
+gt::gt(tabla)
+```
+
+### 2.2 Dos figuras (ejemplo)
+
+```{r}
+#| eval: false
+g_hist <- ggplot(concentrado, aes(x = ing_cor)) +
+  geom_histogram(binwidth = 5000) +
+  labs(title = "Histograma de ing_cor", x = "ing_cor", y = "Frecuencia") +
+  theme_minimal()
+
+g_box <- ggplot(concentrado |> filter(ing_cor > 0), aes(y = ing_cor)) +
+  geom_boxplot() +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(title = "Boxplot (log10) de ing_cor", y = "ing_cor (log10)") +
+  theme_minimal()
+
+g_hist
+g_box
+```
+
+------------------------------------------------------------------------
+
+## 3) Render de un documento (HTML)
+
+Desde RStudio: botón **Render**.
+
+Desde consola:
+
+```{r}
+#| eval: false
+quarto::quarto_render("P15.qmd")
+```
+
+------------------------------------------------------------------------
+
+## 4) ¿Cómo hacer un mini-sitio web con Quarto? (muy breve)
+
+Un sitio web de Quarto es un proyecto con un archivo `_quarto.yml` y páginas `.qmd`.
+
+### 4.1 Estructura mínima
+
+- `_quarto.yml`
+- `index.qmd`
+- `about.qmd` (opcional)
+
+Ejemplo de `_quarto.yml` (mínimo):
+
+```{r}
+#| eval: false
+# project:
+#   type: website
+# website:
+#   title: "Sitio del Módulo 3"
+#   navbar:
+#     left:
+#       - href: index.qmd
+#         text: Inicio
+#       - href: about.qmd
+#         text: Acerca de
+# format:
+#   html:
+#     theme: cosmo
+#     toc: true
+```
+
+Render del sitio (genera carpeta `_site/`):
+
+```{r}
+#| eval: false
+# En la terminal o consola del proyecto:
+# quarto render
+```
+
+------------------------------------------------------------------------
+
+## 5) ¿Cómo hacer una presentación PPTX con Quarto? (muy breve)
+
+Una presentación PPTX se genera con `format: pptx` en el YAML.
+
+Plantilla mínima para `slides_p15.qmd`:
+
+```{r}
+#| eval: false
+# ---
+# title: "Resultados del Módulo 3"
+# author: ["Nombre 1", "Nombre 2"]
+# format: pptx
+# ---
+#
+# ## Figura 1
+#
+# ```{r}
+# # Gráfica...
+# ```
+#
+# ## Figura 2
+#
+# ```{r}
+# # Gráfica...
+# ```
+```
+
+Render (produce un archivo `.pptx`):
+
+```{r}
+#| eval: false
+quarto::quarto_render("slides_p15.qmd")
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio (entrega)
+
+Realiza **alguna de las opciones**:
+
+A) **Documento**: `P15.qmd` y su HTML renderizado.  
+Incluye:
+- una tabla (gt o kable),
+- dos figuras ggplot,
+- 12–18 líneas de interpretación total distribuidas por secciones.
+
+B) **Presentación**: `slides_p15.qmd` y el `.pptx` renderizado.  
+Incluye:
+- título y autoría,
+- al menos dos diapositivas con figuras (pueden ser las del documento),
+- 6–10 líneas de notas o texto breve (no todo en una sola diapositiva).
+
+**Opcional:** si quieres, agrega una carpeta de mini-sitio con `_quarto.yml` + `index.qmd` usando el mismo contenido del documento.

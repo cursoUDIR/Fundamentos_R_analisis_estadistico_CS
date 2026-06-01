@@ -1,0 +1,282 @@
+---
+title: "Práctica 18 (Sesión 18): Asociación cuali–cuali + puente hacia ANOVA (con broom)"
+subtitle: "Chi-cuadrado con {janitor} + ANOVA tidy con {broom}"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Formular \(H_0\) y \(H_1\) para una prueba de independencia (cuali–cuali).
+- Construir tablas de contingencia con `{janitor}` usando pipes y obtener porcentajes por renglón/columna.
+- Aplicar `chisq.test()` y `fisher.test()` **sobre tabyls** (vía `{janitor}`) e inspeccionar conteos esperados y residuales estandarizados.
+- Conectar la lógica de “variación entre vs dentro” con ANOVA (3+ grupos).
+- Reportar ANOVA en formato tidy con `{broom}` (`tidy()` y `glance()`).
+
+------------------------------------------------------------------------
+
+## Paquetes
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  tidyr,
+  ggplot2,
+  scales,
+  janitor,
+  forcats,
+  here,
+  readr,
+  arrow,
+  broom
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos (ENIGH 2024 como caso)
+
+```{r}
+#| eval: false
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+## 1) Marco conceptual (8–10 líneas)
+
+Escribe un texto breve respondiendo:
+
+1) ¿Qué significa “independencia” entre dos variables categóricas?  
+2) ¿Qué está probando chi-cuadrado y cuál es \(H_0\)?  
+3) ¿Por qué importan los conteos esperados?  
+4) ¿Por qué asociación no implica causalidad?  
+
+::: callout-important
+## Importante
+La prueba chi-cuadrado evalúa evidencia de **asociación** entre variables categóricas (bajo \(H_0\) de independencia). No es una prueba causal.
+:::
+
+------------------------------------------------------------------------
+
+## 2) Cuali–cuali con {janitor}: tabyl + porcentajes
+
+Ejemplo: `sexo_jefe × recibe_remesas` (remesas > 0).
+
+```{r}
+#| eval: false
+df_cc <- concentrado |>
+  filter(!is.na(sexo_jefe)) |>
+  mutate(
+    sexo_jefe = factor(sexo_jefe),
+    recibe_remesas = if_else(!is.na(remesas) & remesas > 0, "Sí", "No"),
+    recibe_remesas = factor(recibe_remesas, levels = c("No", "Sí"))
+  )
+```
+
+### 2.1 Tabla de conteos (tabyl)
+
+```{r}
+#| eval: false
+tab_cc <- df_cc |>
+  janitor::tabyl(sexo_jefe, recibe_remesas)
+
+tab_cc
+```
+
+### 2.2 Porcentajes por renglón (dentro de sexo_jefe)
+
+```{r}
+#| eval: false
+tab_cc |>
+  janitor::adorn_percentages("row") |>
+  janitor::adorn_pct_formatting(digits = 1)
+```
+
+### 2.3 Porcentajes por columna (dentro de recibe_remesas)
+
+```{r}
+#| eval: false
+tab_cc |>
+  janitor::adorn_percentages("col") |>
+  janitor::adorn_pct_formatting(digits = 1)
+```
+
+------------------------------------------------------------------------
+
+## 3) Chi-cuadrado usando {janitor} (pipes)
+
+`{janitor}` redefine `chisq.test()` para que acepte un **tabyl** y, si lo pides, te regrese también observados/esperados/residuales en formato tabyl.
+
+### 3.1 Chi-cuadrado sobre tabyl
+
+```{r}
+#| eval: false
+res_chi <- tab_cc |>
+  chisq.test(tabyl_results = TRUE)
+
+res_chi$statistic
+res_chi$parameter
+res_chi$p.value
+```
+
+### 3.2 Conteos esperados y residuales (para interpretación)
+
+```{r}
+#| eval: false
+res_chi$expected   # tabyl con conteos esperados
+res_chi$stdres     # residuales estandarizados (idea de dónde “está” la asociación)
+```
+
+::: callout-note
+## Regla práctica (esperados)
+Si hay muchos conteos esperados < 5, la aproximación chi-cuadrado puede ser dudosa. Para tablas 2×2, considera Fisher.
+:::
+
+### 3.3 Fisher (alternativa) sobre tabyl
+
+```{r}
+#| eval: false
+res_fisher <- tab_cc |>
+  fisher.test()
+
+res_fisher$p.value
+```
+
+------------------------------------------------------------------------
+
+## 4) Visualización rápida (apoyo interpretativo)
+
+```{r}
+#| eval: false
+df_cc |>
+  ggplot(aes(x = sexo_jefe, fill = recibe_remesas)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(
+    title = "Proporción de hogares que reciben remesas por sexo_jefe",
+    x = "",
+    y = "Porcentaje",
+    fill = "Recibe remesas"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 5) Puente hacia ANOVA (3+ grupos) + salida tidy con {broom}
+
+Ejemplo: comparar media de `ing_cor` entre categorías de `tam_loc` (4 grupos).
+
+```{r}
+#| eval: false
+df_anova <- concentrado |>
+  filter(!is.na(ing_cor), !is.na(tam_loc)) |>
+  mutate(tam_loc = factor(tam_loc))
+```
+
+### 5.1 ANOVA base
+
+```{r}
+#| eval: false
+m1 <- aov(ing_cor ~ tam_loc, data = df_anova)
+summary(m1)
+```
+
+### 5.2 ANOVA tidy con broom (estilo “publicable”)
+
+```{r}
+#| eval: false
+anova_tidy <- broom::tidy(m1)
+anova_glance <- broom::glance(m1)
+
+anova_tidy
+anova_glance
+```
+
+### 5.3 Post-hoc: Tukey HSD (comparaciones múltiples)
+
+Si el ANOVA sugiere diferencias globales entre grupos, un paso típico es un post-hoc para identificar **qué pares de grupos** difieren, controlando el error por comparaciones múltiples.
+
+```{r}
+#| eval: false
+tuk <- TukeyHSD(m1)
+tuk
+```
+
+Versión “tidy” (útil para reporte), si quieres:
+
+```{r}
+#| eval: false
+tuk_tidy <- broom::tidy(tuk)
+tuk_tidy
+```
+
+::: callout-note
+## Lectura rápida de Tukey HSD
+- Cada fila es una comparación par a par (por ejemplo, tam_loc 1 vs 2).
+- `diff` es la diferencia de medias.
+- `lwr` y `upr` son el intervalo de confianza ajustado.
+- `p adj` es el p-valor ajustado por comparaciones múltiples.
+:::
+
+
+::: callout-important
+## Intuición del estadístico F
+ANOVA compara variación **entre** medias de grupos vs variación **dentro** de grupos.  
+F grande sugiere diferencias entre grupos (pero hoy no hacemos post-hoc).
+:::
+
+### 5.4 (Opcional) Medias por grupo (para lectura sustantiva)
+
+```{r}
+#| eval: false
+df_anova |>
+  group_by(tam_loc) |>
+  summarise(
+    n = n(),
+    media = mean(ing_cor, na.rm = TRUE),
+    mediana = median(ing_cor, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+------------------------------------------------------------------------
+
+## Ejercicio
+
+
+(1) Chi-cuadrado con {janitor}:
+- Construye `tab_cc` con `tabyl(sexo_jefe, tiene_deudas)` (deudas>0).
+- Ejecuta `chisq.test(tab_cc, tabyl_results = TRUE)` usando pipes.
+- Reporta \(\chi^2\), gl y p-valor; comenta esperados (2–4 líneas).
+- Si lo consideras necesario, corre Fisher y comenta por qué.
+
+2) Puente ANOVA:
+- Ejecuta `aov(gasto_mon ~ tam_loc)`.
+- Reporta `broom::tidy()` y `broom::glance()`.
+- Corre `TukeyHSD()` y comenta 1–2 comparaciones relevantes.
+- 6–10 líneas: ¿qué significa F y qué te diría un p-valor pequeño aquí? ¿Qué agrega Tukey?
