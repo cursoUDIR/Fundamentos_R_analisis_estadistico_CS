@@ -1,0 +1,378 @@
+---
+title: "Práctica 19 (Sesión 19): Pruebas no paramétricas y alternativas robustas"
+subtitle: "Wilcoxon/Mann–Whitney, Kruskal–Wallis y Spearman con `stats`, `{rstatix}` y (opcional) `{infer}`"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+-   Reconocer **cuándo conviene** una prueba no paramétrica (asimetría fuerte, outliers, datos ordinales, heterocedasticidad, n pequeño).
+-   Elegir la prueba según el **tipo de comparación** con una guía de decisión (checklist).
+-   Ejecutar y reportar, con dos enfoques (base `stats` y tidy `{rstatix}`):
+    -   **Wilcoxon rank-sum / Mann–Whitney** (dos grupos independientes),
+    -   **Wilcoxon signed-rank** (muestras pareadas),
+    -   **Kruskal–Wallis** (más de dos grupos) con **post hoc**,
+    -   **Spearman** (asociación monotónica).
+-   Acompañar los resultados con **tamaños de efecto** y una **visualización** adecuada (boxplot/violín con puntos).
+
+------------------------------------------------------------------------
+
+## 1) Guía de decisión (checklist)
+
+| Tipo de comparación | Prueba paramétrica | Alternativa de rangos | Función base | Función `{rstatix}` |
+|---------------|---------------|---------------|---------------|---------------|
+| Dos grupos independientes | t de dos muestras | Wilcoxon rank-sum / Mann–Whitney | `wilcox.test(y ~ g)` | `wilcox_test(y ~ g)` |
+| Muestras pareadas | t pareada | Wilcoxon signed-rank | `wilcox.test(x, y, paired = TRUE)` | `wilcox_test(v ~ medida, paired = TRUE)` |
+| Más de dos grupos | ANOVA de un factor | Kruskal–Wallis | `kruskal.test(y ~ g)` | `kruskal_test(y ~ g)` |
+| Post hoc (tras Kruskal–Wallis) | Tukey HSD | Wilcoxon pareadas por pares | — | `pairwise_wilcox_test(y ~ g)` |
+| Asociación entre dos variables | Pearson | Spearman | `cor(x, y, method = "spearman")` | `cor_test(x, y, method = "spearman")` |
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Criterios para optar por no paramétricas
+
+Considera una prueba de rangos cuando se presente alguno de estos casos:
+
+-   **Asimetría fuerte**: la distribución está claramente sesgada (p. ej. `ing_cor`, `gasto_mon`).
+-   **Observaciones atípicas**: outliers reales que no puedes eliminar y que arrastran a la media y a `s`.
+-   **Datos ordinales de origen**: escalas con orden pero sin distancias comparables (p. ej. `educa_jefe`).
+-   **Heterocedasticidad**: varianzas muy distintas entre grupos (la mayor más del doble que la menor).
+-   **n pequeño**: muestras tan reducidas que no puedes valorar la normalidad con confianza.
+:::
+
+## Paquetes
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  tidyr,
+  ggplot2,
+  scales,
+  janitor,
+  here,
+  readr,
+  arrow,
+  rstatix,
+  coin
+)
+```
+
+::: callout-note
+## `stats` es R base
+
+Las funciones `wilcox.test()`, `kruskal.test()` y `cor()` viven en el paquete `{stats}`, que se carga automáticamente con R. No hace falta instalarlo ni invocarlo con `library()`.
+:::
+
+------------------------------------------------------------------------
+
+## Datos (ENIGH 2024 como caso)
+
+```{r}
+#| eval: false
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+::: callout-note
+## No conviertas tus variables continuas a ordinales
+
+Las pruebas de rangos **rankean internamente** la variable continua: le pasas `ing_cor` en pesos y la propia función la ordena. Categorizarla a mano (deciles, cuartiles) *tira información*, porque el rango ya captura el orden con todo el detalle. Lo único que debe ser **factor** es la variable de **agrupación** (`sexo_jefe`, `tam_loc`), que define los grupos a comparar.
+:::
+
+------------------------------------------------------------------------
+
+## 2) Dos grupos independientes: Wilcoxon rank-sum / Mann–Whitney
+
+Comparamos `ing_cor` entre niveles de `sexo_jefe` (1 = Hombre, 2 = Mujer).
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  filter(!is.na(ing_cor), !is.na(sexo_jefe)) |>
+  mutate(sexo_jefe = factor(sexo_jefe, levels = c("1", "2"),
+                            labels = c("Hombre", "Mujer")))
+
+concentrado |> count(sexo_jefe)
+```
+
+### 2.1 Enfoque Rbase: `stats::wilcox.test()`
+
+```{r}
+#| eval: false
+wilcox.test(ing_cor ~ sexo_jefe, data = concentrado, conf.int = TRUE)
+  
+```
+
+### 2.2 Enfoque tidy: `{rstatix}` con `wilcox_test()`
+
+```{r}
+#| eval: false
+concentrado |>
+  rstatix::wilcox_test(ing_cor ~ sexo_jefe)
+
+
+```
+
+Hay una diferencia estadísticamente significativa en el ingreso corriente según el sexo del jefe del hogar (W = 987,862,252; p < 0.001). Los hogares encabezados por hombres tienen un ingreso corriente típico mayor en aproximadamente $4,939 pesos trimestrales que los encabezados por mujeres.
+
+### 2.3 Tamaño de efecto: `rstatix::wilcox_effsize()`
+
+```{r}
+#| eval: false
+concentrado |>
+  rstatix::wilcox_effsize(ing_cor ~ sexo_jefe)
+ # effsize = r, con su magnitude (small/moderate/large)
+```
+
+::: callout-note
+## Función de tamaño de efecto
+
+En `{rstatix}`, el tamaño de efecto de Wilcoxon se obtiene con `wilcox_effsize()` (devuelve `r`); el de Kruskal–Wallis, con `kruskal_effsize()` (devuelve `eta2[H]`). No existe una `effsize()` genérica: se usa la que corresponde a cada prueba.
+:::
+
+### 2.4 Visualización: violín + boxplot + puntos
+
+```{r}
+#| eval: false
+
+ggplot(concentrado, aes(x = sexo_jefe, y = ing_cor, fill = sexo_jefe)) +
+  geom_violin(alpha = 0.35, color = NA, show.legend = FALSE) +
+  geom_boxplot(width = 0.15, outlier.shape = NA, alpha = 0.9, show.legend = FALSE) +
+  geom_jitter(data = df_pts, width = 0.08, alpha = 0.15, size = 0.5, show.legend = FALSE) +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(title = "ing_cor por sexo_jefe", x = "", y = "ing_cor (escala log10)") +
+  theme_minimal()
+```
+
+::: callout-note
+## La escala log es solo para *ver*
+
+Graficamos en `log10` porque `ing_cor` es muy asimétrica. La prueba se corre sobre `ing_cor` **sin transformar**: como las pruebas de rangos solo usan el orden, una transformación monotónica como el log **no cambia** el resultado de Wilcoxon.
+:::
+
+------------------------------------------------------------------------
+
+## 3) Muestras pareadas: Wilcoxon signed-rank
+
+Dos mediciones **del mismo hogar**: `ing_cor` vs `gasto_mon`. ¿El ingreso difiere  del gasto dentro de cada hogar?
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  mutate(id = paste0(folioviv, foliohog)) |>
+  filter(!is.na(ing_cor), !is.na(gasto_mon)) |>
+  arrange(id)   # importante: el orden debe ser consistente para emparejar
+```
+
+### 3.1 Enfoque Rbase: `wilcox.test(paired = TRUE)`
+
+```{r}
+#| eval: false
+wilcox.test(concentrado$ing_cor, concentrado$gasto_mon, paired = TRUE, conf.int = TRUE)
+
+```
+
+H₀: La mediana de las diferencias entre ing_cor y gasto_mon es 0.
+H₁: La mediana de las diferencias es distinta de 0.
+El valor p es extremadamente pequeño, por lo que se rechaza la hipótesis nula. Existe evidencia estadística de que los ingresos corregidos y los gastos monetarios difieren sistemáticamente.
+La pseudomediana de las diferencias (ing_cor - gasto_mon) es aproximadamente 22,592 pesos.
+
+::: callout-important
+## Cuidado con el emparejamiento
+
+En el diseño pareado, cada renglón de un grupo debe corresponder al **mismo `id`** del otro grupo, y en el mismo orden. Si hay hogares con un dato faltante, descártalos del par completo antes de la prueba; de lo contrario el emparejamiento se rompe.
+:::
+
+------------------------------------------------------------------------
+
+## 4) Más de dos grupos: Kruskal–Wallis
+
+Comparamos `ing_cor` entre los 4 niveles de `tam_loc` (tamaño de localidad).
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  filter(!is.na(ing_cor), !is.na(tam_loc)) |>
+  mutate(tam_loc = factor(tam_loc, levels = c("1", "2", "3", "4")))
+
+concentrado |> count(tam_loc)
+```
+
+### 4.1 Enfoque Rbase: `stats::kruskal.test()`
+
+```{r}
+#| eval: false
+kruskal.test(ing_cor ~ tam_loc, data = concentrado)
+```
+
+La prueba de Kruskal–Wallis mostró diferencias estadísticamente significativas en el ingreso corriente entre los distintos tamaños de localidad (χ2(3)=12011, p<0.001), lo que indica que al menos uno de los grupos presenta una distribución de ingresos distinta a la de los demás.
+
+### 4.2 Enfoque tidy: `{rstatix}` con `kruskal_test()`
+
+```{r}
+#| eval: false
+concentrado |>
+  rstatix::kruskal_test(ing_cor ~ tam_loc)
+```
+
+### 4.3 Tamaño de efecto: `rstatix::kruskal_effsize()`
+
+```{r}
+#| eval: false
+concentrado |>
+  rstatix::kruskal_effsize(ing_cor ~ tam_loc)
+
+
+```
+
+### 4.4 Post hoc: comparaciones por pares
+
+Si Kruskal–Wallis sugiere diferencias globales, el paso típico es comparar **qué pares** difieren, ajustando por comparaciones múltiples.
+
+```{r}
+#| eval: false
+concentrado |>
+  rstatix::pairwise_wilcox_test(ing_cor ~ tam_loc, p.adjust.method = "BH")
+
+   # group1, group2, p, p.adj, p.adj.signif
+```
+
+
+Tras la prueba de Kruskal-Wallis, las comparaciones post hoc de Wilcoxon con corrección de Benjamini-Hochberg indicaron que cada categoría de tamaño de localidad difiere significativamente de las demás en términos de ingreso corriente (p<0.001 en los pares de comparación).
+
+
+::: callout-note
+## Lectura del post hoc
+
+Cada fila es una comparación par a par (p. ej. `tam_loc` 1 vs 2). Mira `p.adj` (p-valor ajustado) y `p.adj.signif`. El ajuste —aquí Benjamini-Hochberg (`"BH"`)— evita inflar el error tipo I por hacer muchas comparaciones.
+:::
+
+### 4.5 Visualización
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = tam_loc, y = ing_cor, fill = tam_loc)) +
+  geom_violin(alpha = 0.35, color = NA, show.legend = FALSE) +
+  geom_boxplot(width = 0.15, outlier.shape = NA, alpha = 0.9, show.legend = FALSE) +
+  geom_jitter(data = concentrado, width = 0.08, alpha = 0.12, size = 0.4, show.legend = FALSE) +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(title = "ing_cor por tamaño de localidad", x = "tam_loc", y = "ing_cor (log10)") +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 5) Asociación monotónica: Spearman
+
+### 5.1 Continua–continua: `ing_cor` vs `gasto_mon`
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  filter(!is.na(ing_cor), !is.na(gasto_mon))
+
+# Coeficiente puntual (R base)
+cor(concentrado$ing_cor, concentrado$gasto_mon, method = "spearman")
+
+# Con prueba de significancia
+cor.test(concentrado$ing_cor, concentrado$gasto_mon, method = "spearman")
+
+# Enfoque tidy
+concentrado |>
+  rstatix::cor_test(ing_cor, gasto_mon, method = "spearman")
+```
+
+::: callout-note
+## Spearman = Pearson sobre los rangos
+
+`method = "spearman"` rankea ambas variables y calcula la correlación sobre esos rangos. Por eso capta relaciones **monotónicas** aunque no sean líneas rectas, y es robusta a outliers. Con n grande y empates, `cor.test()` avisa que no puede calcular el p-valor exacto: usa la aproximación, es lo esperado.
+:::
+
+### 5.2 Ordinal–continua: `educa_jefe` vs `ing_cor`
+
+`educa_jefe` (01 a 11) es **ordinal de origen**: tiene orden, pero las distancias entre niveles no son comparables. Es el caso de manual para Spearman. La pasamos a entero **conservando su orden** (no la categorizamos ni la promediamos como si fuera numérica de intervalo).
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  filter(!is.na(educa_jefe), !is.na(ing_cor)) |>
+  mutate(educa_num = as.integer(educa_jefe))   # "01"->1, ..., "11"->11 (orden intacto)
+
+concentrado |>
+  rstatix::cor_test(educa_num, ing_cor, method = "spearman")
+```
+
+```{r}
+#| eval: false
+# Visualización: mediana de ing_cor por nivel educativo (lectura monotónica)
+concentrado |>
+  group_by(educa_jefe) |>
+  summarise(mediana_ing = median(ing_cor, na.rm = TRUE), n = n(), .groups = "drop") |>
+  ggplot(aes(x = educa_jefe, y = mediana_ing, group = 1)) +
+  geom_line(color = "grey60") +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::label_number(big.mark = ",")) +
+  labs(title = "Mediana de ing_cor por escolaridad del jefe (educa_jefe)",
+       x = "educa_jefe (ordinal)", y = "Mediana de ing_cor") +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## 6) Visualización y comunicación de supuestos/limitaciones
+
+::: callout-important
+## Cómo reportar (supuestos y límites)
+
+-   **Visualizar siempre**: boxplot/violín con puntos comunica forma, dispersión y atípicos mejor que un solo p-valor.
+-   **Decir qué contrastamos**: estas pruebas comparan distribuciones (y, si las formas son parecidas, medianas), **no medias**. 
+-   **Acompañar con tamaño de efecto y n**: un p-valor pequeño con n enorme (como ENIGH) puede reflejar una diferencia trivial. El `r` o el `eta2[H]` dan la magnitud.
+-   **Reconocer el supuesto restante**: la lectura "en medianas" supone formas de distribución similares entre grupos.
+-   **Recuerda el muestreo complejo**: ENIGH tiene diseño con `factor` de expansión y estratos. Estas pruebas no incorporan el diseño; trátalas como ejercicio analítico, no como inferencia poblacional definitiva.
+:::
+
+------------------------------------------------------------------------
+
+
+## Ejercicio
+
+**Entregable: guía de decisión (checklist) + una comparación no paramétrica completa con gráfica e interpretación.**
+
+1)  **Checklist (4–6 líneas).** A partir de la sección 2, redacta tu propia guía de decisión: ¿qué miras en los datos para elegir entre t/ANOVA y su alternativa de rangos?
+
+2)  **Una comparación a tu elección** (Wilcoxon/Mann–Whitney **o** Kruskal–Wallis), con datos de ENIGH:
+
+    -   Ejecuta la prueba con **ambos** enfoques (base `stats` y `{rstatix}`).
+    -   Reporta **estadístico, p-valor, n por grupo y tamaño de efecto**.
+    -   Si elegiste Kruskal–Wallis, corre el **post hoc** (`pairwise_wilcox_test`) y comenta 1–2 pares relevantes.
+    -   Incluye una **gráfica** (violín/boxplot con puntos).
+
+3)  **Spearman.** Calcula y reporta una asociación monotónica (continua–continua **o** usando `educa_jefe` como ordinal). Reporta `rho`, p-valor y n.
+
+4)  **Interpretación (12–16 líneas totales).** Explica: por qué elegiste una prueba no paramétrica, qué contrasta exactamente, qué dicen el tamaño de efecto y la gráfica, y qué limitaciones tiene tu análisis (incluida la del diseño muestral de ENIGH).
