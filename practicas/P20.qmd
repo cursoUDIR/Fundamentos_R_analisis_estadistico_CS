@@ -1,0 +1,280 @@
+---
+title: "Práctica 20 (Sesión 20): Regresión lineal simple y comunicación de resultados en Quarto"
+subtitle: "Dos modelos `lm()`: ing_cor ~ sexo_jefe e ing_cor ~ tot_integ, con diagnóstico vía {performance}"
+author:
+  - "Ana Escoto"
+  - "Mónica Lara"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Contenido"
+    number-sections: true
+    theme: cosmo
+    highlight-style: github
+    code-fold: false
+    code-tools: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Objetivos de la sesión
+
+Al finalizar esta sesión podrán:
+
+- Ajustar un modelo de **regresión lineal simple** con `stats::lm()`.
+- Interpretar **coeficientes** (intercepto y pendiente) según el tipo de predictor: categórico (`sexo_jefe`) vs continuo (`tot_integ`).
+- Leer e interpretar **R²** y entender qué porcentaje de variación explica el modelo.
+- Revisar el **diagnóstico mínimo** de un modelo lineal con `performance::check_model()`: linealidad, normalidad de los residuos, homocedasticidad, multicolinealidad y datos atípicos/influyentes.
+- Distinguir qué **sí** y qué **no** se puede concluir de un modelo simple (asociación vs causalidad, alcance del diseño muestral).
+- Reportar resultados en formato tidy con `{broom}` y en tabla de publicación con `{modelsummary}`.
+- Comunicar el modelo en Quarto: tabla + visualización (coeficientes o ajuste/predicción) + interpretación.
+
+------------------------------------------------------------------------
+
+## Paquetes
+
+```{r}
+#| eval: false
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  dplyr,
+  ggplot2,
+  scales,
+  janitor,
+  here,
+  readr,
+  arrow,
+  broom,
+  performance,
+  modelsummary
+)
+```
+
+------------------------------------------------------------------------
+
+## Datos (ENIGH 2024 como caso)
+
+```{r}
+#| eval: false
+concentrado <- arrow::read_parquet(here::here("data", "raw", "concentradohogar.parquet")) |>
+  janitor::clean_names()
+```
+
+------------------------------------------------------------------------
+
+::: callout-important
+## Importante: asociación, no causalidad
+Un modelo de regresión simple con datos transversales (como ENIGH) describe una **asociación estadística** entre el predictor y la variable dependiente, controlando por nada más. No permite afirmar que el predictor **causa** cambios en `ing_cor`.
+:::
+
+------------------------------------------------------------------------
+
+## Modelo 1: `ing_cor ~ sexo_jefe` 
+
+```{r}
+#| eval: false
+concentrado <- concentrado |>
+  mutate(sexo_jefe = factor(sexo_jefe, levels = c("1", "2"),
+                             labels = c("Hombre", "Mujer")))
+
+concentrado |> count(sexo_jefe)
+```
+
+### Ajuste del modelo: `stats::lm()`
+
+```{r}
+#| eval: false
+m1 <- lm(ing_cor ~ sexo_jefe, data = concentrado)
+summary(m1)
+```
+
+::: callout-note
+## Leer el coeficiente de un predictor categórico
+Con `sexo_jefe` como factor, R fija "Hombre" como categoría de referencia (el primer nivel). El coeficiente de `sexo_jefeMujer` es la **diferencia de medias** de `ing_cor` entre hogares con jefatura femenina y hogares con jefatura masculina, manteniendo todo lo demás igual (aquí, nada más está en el modelo).
+:::
+
+### Salida tidy: `broom::tidy()` y `broom::glance()`
+
+```{r}
+#| eval: false
+broom::tidy(m1, conf.int = TRUE)
+broom::glance(m1)
+```
+
+### Diagnóstico mínimo: `performance::check_model()`
+
+```{r}
+#| eval: false
+performance::check_model(m1)
+check_outliers(m1)
+```
+
+::: callout-important
+## Qué revisar en `check_model()`
+- **Linealidad** (forma funcional): con un predictor binario no hay mucho que evaluar aquí —solo dos medias—; el panel de linealidad se vuelve más relevante en el Modelo 2.
+- **Homocedasticidad**: ¿la varianza es constante?
+- **Normalidad de los residuos**: el panel Q-Q; con `ing_cor` típicamente asimétrico, esperamos desviaciones en las colas.
+- **Multicolinealidad (VIF)**: con un solo predictor no aplica de forma sustantiva (VIF = 1); este panel cobra sentido cuando hay 2+ predictores.
+- **Datos atípicos/influyentes**: distancia de Cook y leverage; observaciones con ingresos extremos pueden tener influencia desproporcionada.
+:::
+
+### Visualización: ajuste por grupo
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = sexo_jefe, y = ing_cor, color = sexo_jefe)) +
+  geom_jitter(width = 0.1, alpha = 0.15, size = 0.5, show.legend = FALSE) +
+  stat_summary(fun = mean, geom = "point", size = 3, color = "black") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.15, color = "black") +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(
+    title = "Ingreso corriente medio por sexo del jefe del hogar",
+    subtitle = "Puntos negros: medias estimadas por el modelo; barras: ± error estándar",
+    x = "", y = "ing_cor (escala log10)"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## Modelo 2: `ing_cor ~ tot_integ` (predictor continuo)
+
+### Ajuste del modelo: `stats::lm()`
+
+```{r}
+#| eval: false
+m2 <- lm(ing_cor ~ tot_integ, data = concentrado)
+summary(m2)
+```
+
+::: callout-note
+## Leer el coeficiente de un predictor continuo
+El coeficiente de `tot_integ` es el cambio esperado en `ing_cor` por **cada integrante adicional** en el hogar, manteniendo todo lo demás igual. El signo indica la dirección de la asociación (¿más integrantes se asocia con más o con menos ingreso corriente del hogar?).
+:::
+
+### Salida tidy: `broom::tidy()` y `broom::glance()`
+
+```{r}
+#| eval: false
+broom::tidy(m2, conf.int = TRUE)
+broom::glance(m2)
+```
+
+### Diagnóstico mínimo: `performance::check_model()`
+
+```{r}
+#| eval: false
+performance::check_model(m2)
+```
+
+::: callout-important
+## Qué sí y qué no concluir del diagnóstico
+- **Sí**: el diagnóstico nos dice si los *supuestos* del modelo lineal (forma funcional, varianza constante, normalidad de errores, ausencia de observaciones extremas dominantes) son razonables para confiar en los errores estándar y los p-valores.
+- **No**: el diagnóstico no nos dice si el modelo está "bien especificado" en el sentido causal, ni si `tot_integ` es la única variable relevante. Tampoco corrige por sí mismo el diseño muestral complejo de ENIGH (estratos, factor de expansión).
+:::
+
+### 3.4 Visualización: ajuste/predicción
+
+```{r}
+#| eval: false
+ggplot(concentrado, aes(x = tot_integ, y = ing_cor)) +
+  geom_jitter(width = 0.1, alpha = 0.08, size = 0.5) +
+  geom_smooth(method = "lm", se = TRUE, color = "firebrick") +
+  scale_y_log10(labels = scales::label_number(big.mark = ",")) +
+  labs(
+    title = "Ingreso corriente según número de integrantes del hogar",
+    subtitle = "Línea roja: ajuste lineal con banda de confianza al 95%",
+    x = "Número de integrantes (tot_integ)", y = "ing_cor (escala log10)"
+  ) +
+  theme_minimal()
+```
+
+::: callout-note
+## La escala log es solo para *ver*
+Igual que en la sesión de pruebas no paramétricas, graficamos `ing_cor` en `log10` porque es muy asimétrico. El modelo `lm()` se ajustó sobre `ing_cor` **sin transformar**; si la relación real fuera mejor descrita en escala log, el panel de linealidad de `check_model()` lo dejaría ver como un patrón curvo en los residuos.
+:::
+
+------------------------------------------------------------------------
+
+## Tabla comparativa de modelos: `{modelsummary}`
+
+```{r}
+#| eval: false
+modelsummary::modelsummary(
+  list("Modelo 1: sexo_jefe" = m1, "Modelo 2: tot_integ" = m2),
+  statistic = "({std.error})",
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared", "adj.r.squared")
+)
+```
+
+::: callout-note
+## Alternativa: `{sjPlot}`
+Si prefieren una tabla con formato HTML más cercano a salidas de software estadístico clásico, `sjPlot::tab_model(m1, m2)` ofrece un resultado equivalente.
+:::
+
+## Gráfico comparativo: `{sjPlot}`
+
+------------------------------------------------------------------------
+
+Hacemos un mini dataframe. 
+```{r}
+#| eval: false
+coefs <- bind_rows(
+  broom::tidy(m1, conf.int = TRUE) |> mutate(modelo = "Modelo sexo_jefe"),
+  broom::tidy(m2, conf.int = TRUE) |> mutate(modelo = "Modelo tot_integ")
+) |>
+  filter(term != "(Intercept)")  # normalmente se omite el intercepto en estos gráficos
+```
+
+Ahora el gráfico:
+
+```{r}
+#| eval: false
+ggplot(coefs, aes(x = term, y = estimate, color = modelo)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_errorbar(
+    aes(ymin = conf.low, ymax = conf.high),
+    position = position_dodge(width = 0.5),
+    width = 0.15
+  ) +
+  geom_point(
+    position = position_dodge(width = 0.5),
+    size = 2
+  ) +
+  labs(
+    title = "Comparativo de coeficientes con IC 95%",
+    x = "Variable explicativa",
+    y = "Estimación del coeficiente",
+    color = "Modelo"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+## 5) Ejercicio
+
+**Entregable: documento Quarto (.qmd) con (i) un modelo `lm`, (ii) tabla de resultados y (iii) una visualización (coeficientes o ajuste/predicción), con interpretación.**
+
+
+1) Modelo a tu elección:
+   - Ajusta el modelo con `lm()`.
+   - Reporta la tabla con `broom::tidy()` (incluye IC) y `broom::glance()`.
+   - Reporta la tabla de publicación con `modelsummary::modelsummary()`.
+
+2) Diagnóstico:
+   - Corre `performance::check_model()`.
+   - Comenta brevemente (4–6 líneas) qué observas en cada panel: linealidad, homocedasticidad, normalidad de residuos, multicolinealidad (si aplica) y datos atípicos/influyentes.
+
+3) Visualización:
+   - Incluye **una** gráfica: coeficientes (`modelsummary::modelplot()` o similar) **o** ajuste/predicción (`geom_point()` + `geom_smooth()`).
+
+4) Interpretación (10–14 líneas totales):
+   - Interpreta el o los coeficientes y el R².
+   - Explica qué sí y qué no puedes concluir.
+ 
