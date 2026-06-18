@@ -51,6 +51,9 @@ pacman::p_load(
   readr,
   arrow,
   broom,
+  lmtest,
+  car, 
+  nortest,
   performance,
   modelsummary
 )
@@ -179,7 +182,39 @@ performance::check_model(m2)
 - **No**: el diagnóstico no nos dice si el modelo está "bien especificado" en el sentido causal, ni si `tot_integ` es la única variable relevante. Tampoco corrige por sí mismo el diseño muestral complejo de ENIGH (estratos, factor de expansión).
 :::
 
-### 3.4 Visualización: ajuste/predicción
+### Pruebas formales
+
+#### Linealidad
+
+```{r}
+#| eval: false
+# Test de Rainbow: H0 = relación lineal
+raintest(m2)
+```
+
+#### Normalidad de los errores
+```{r}
+#| eval: false
+# Anderson-Darling y Lilliefors
+ad.test(residuals(m2))
+lillie.test(residuals(m2))
+```
+
+#### Varianza constante
+```{r}
+#| eval: false
+# Breusch-Pagan: H0 = varianza constante (homocedasticidad)
+bptest(m2)
+```
+
+
+#### Datos atípicos
+```{r}
+#| eval: false
+check_outliers(m2)
+```
+
+### Visualización: ajuste/predicción
 
 ```{r}
 #| eval: false
@@ -257,7 +292,7 @@ ggplot(coefs, aes(x = term, y = estimate, color = modelo)) +
   theme_minimal() +
   theme(legend.position = "top")
 ```
-## 5) Ejercicio
+## Ejercicio
 
 **Entregable: documento Quarto (.qmd) con (i) un modelo `lm`, (ii) tabla de resultados y (iii) una visualización (coeficientes o ajuste/predicción), con interpretación.**
 
